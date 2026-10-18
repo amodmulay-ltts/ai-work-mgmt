@@ -64,6 +64,15 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **Node version:** Node 24.22.0 (installed with nvm by the user) is the default for development. `npm test` passes on it (8/8). Node 20+ is the minimum in the spec.
 - **Build tools on the planning/build machine:** Node.js 22 is installed in `~/.local/node` (official tarball, checksum verified). No system-wide install was possible. Nothing in the repo depends on this location.
 
+### Made while building Phase 1 (2026-10-18)
+- **View helpers are a JS module, not `macros.ejs`.** `app/lib/ui.js` builds the badges, health dot, due cells and form fields as HTML strings. Each value is escaped there. The EJS partial is `app/views/partials/deal-table.ejs`.
+- **Routes stay in one file** (`app/routes.js`), as the spec layout says.
+- **Enum lists are checked only on save.** Files loaded from disk get structural checks only, so a later config edit cannot hide a record.
+- **Pull before creating records.** Deals, customers and people pull from the remote before a new id is allocated, as §4.6 asks.
+- **Probability follows the stage only when the user did not edit it** in the same save. Otherwise the typed value wins.
+- **Lock file and history:** `_lock.json` never appears in the timeline.
+- **Known gap:** the Phase 1 dashboard is still the placeholder. The KPIs and lists come in Phase 2.
+
 ---
 
 ## 3. Open questions
@@ -134,3 +143,10 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - Not run: `start.bat` and the Windows lock behaviour; a real push to GitHub.
 - Next step: Windows checks for Phase 0. Then Phase 1.
 - Blockers / questions: none.
+
+### 2026-10-18 — Phase 1 — core tracking — Linux
+- Done: deal, customer and people pages (list, detail, form, delete), stage stepper with outcome reasons, notes, next actions, hold, health and aging rules, per-currency totals, auto-create of customers and people, one commit per save.
+- Changed files: `app/models.js`, `app/metrics.js`, `app/history.js`, `app/forms.js`, `app/store.js`, `app/routes.js`, `app/lib/format.js`, `app/lib/ui.js`, `app/lib/render.js`, `app/server.js`, views under `app/views/`, `app/public/app.js`, `app/public/app.css`, tests `metrics`, `history`, `store`, `routes`.
+- Checks: `npm test` 65 of 65 pass on Node 24.
+- Not run: a browser visual check. Pages are checked by the route tests, which fetch the HTML.
+- Next step: Phase 2 (dashboard, settings, Excel export, conflicts page, data-problems banner, shortcuts).

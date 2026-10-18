@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { GitSync } from './git-sync.js';
-import { syncLabel } from './lib/format.js';
+import { fmtDate, fmtDatetime, moneyCompact, moneyTotalsText, pct, relDays, syncLabel } from './lib/format.js';
+import { datalist, dueCell, esc, field, healthDot, optionsOf, priorityBadge, selectControl, stageBadge } from './lib/ui.js';
 import { renderPage } from './lib/render.js';
 import { Mutex } from './mutex.js';
 import { createRouter } from './routes.js';
@@ -45,6 +46,13 @@ export async function createApp({ root, syncEnabled = true, startupPull = false 
   app.locals.git = git;
   app.locals.store = store;
   app.locals.syncLabel = syncLabel;
+  app.locals.fmtDate = fmtDate;
+  app.locals.fmtDatetime = fmtDatetime;
+  app.locals.relDays = relDays;
+  app.locals.moneyCompact = moneyCompact;
+  app.locals.moneyTotalsText = moneyTotalsText;
+  app.locals.pct = pct;
+  app.locals.ui = { esc, stageBadge, priorityBadge, healthDot, dueCell, field, optionsOf, datalist, selectControl };
   app.set('view engine', 'ejs');
   app.set('views', path.join(HERE, 'views'));
 

@@ -2,7 +2,7 @@
   <h1>Dashboard</h1>
 </div>
 
-<% if (!me) { %>
+<% if (!me || errors.name || errors.email) { %>
   <section class="card first-run">
     <h2>Welcome — tell us who you are</h2>
     <p class="muted">Your name is used as the presales owner for new deals. You can change it later on the People page.</p>

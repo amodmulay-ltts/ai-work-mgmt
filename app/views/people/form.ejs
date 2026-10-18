@@ -1,0 +1,26 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+%>
+<div class="page-header">
+  <h1><%= title %></h1>
+</div>
+
+<form method="post" action="<%= action %>" class="deal-form" data-guard novalidate>
+  <section class="card form-section">
+    <h3>Person</h3>
+    <div class="form-grid">
+      <%- f('name', 'Name', { required: true, span: true }) %>
+      <%- ui.field({ name: 'role', label: 'Role', type: 'select', value: values.role, options: ui.optionsOf(roles), required: true, error: errors.role || '' }) %>
+      <%- f('title', 'Job title') %>
+      <%- f('email', 'Email', { type: 'email' }) %>
+      <%- f('phone', 'Phone') %>
+      <%- ui.field({ name: 'customer_id', label: 'Customer', type: 'select', value: values.customer_id, options: customers.map((c) => [c.id, c.name]), placeholder: 'Choose for Customer contacts', error: errors.customer_id || '', help: 'Only for people with the Customer role.' }) %>
+      <%- f('notes', 'Notes', { type: 'textarea', span: true, rows: 3 }) %>
+      <%- ui.field({ name: 'active', label: 'Active', type: 'checkbox', value: values.active || '' }) %>
+    </div>
+  </section>
+  <div class="form-footer">
+    <a class="btn btn-ghost" href="/people">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>

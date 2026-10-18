@@ -1,0 +1,30 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+%>
+<div class="page-header">
+  <h1><%= title %></h1>
+</div>
+
+<form method="post" action="<%= action %>" class="deal-form" data-guard novalidate>
+  <section class="card form-section">
+    <h3>Customer</h3>
+    <div class="form-grid">
+      <%- f('name', 'Name', { required: true, span: true }) %>
+      <%- f('short_name', 'Short name') %>
+      <%- f('industry', 'Industry') %>
+      <%- ui.field({ name: 'region', label: 'Region', type: 'select', value: values.region, options: ui.optionsOf(cfg.regions), placeholder: 'Choose…', error: errors.region || '' }) %>
+      <%- f('country', 'Country') %>
+      <%- ui.field({ name: 'bu', label: 'BU', type: 'select', value: values.bu, options: ui.optionsOf(cfg.business_units), placeholder: 'Choose…', error: errors.bu || '' }) %>
+      <%- f('account_manager', 'Account manager', { list: 'people-list', help: 'A Sales person. A new name creates the person on save.' }) %>
+      <%- f('c4c_account_id', 'C4C account ID', { help: 'Plain text.' }) %>
+      <%- f('website', 'Website', { type: 'text', placeholder: 'https://…' }) %>
+      <%- f('tags', 'Tags', { span: true, help: 'Separate tags with commas.' }) %>
+      <%- f('notes', 'Notes', { type: 'textarea', span: true, rows: 4 }) %>
+    </div>
+  </section>
+  <div class="form-footer">
+    <a class="btn btn-ghost" href="<%= existing ? '/customers/' + existing.id : '/customers' %>">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>
+<%- ui.datalist('people-list', personNames) %>

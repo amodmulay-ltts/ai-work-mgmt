@@ -12,8 +12,12 @@
       <a class="brand" href="/">Work Tracker</a>
       <nav class="navlinks" aria-label="Main">
         <a href="/" class="<%= active === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+        <a href="/deals" class="<%= active === 'deals' ? 'active' : '' %>">Deals</a>
+        <a href="/customers" class="<%= active === 'customers' ? 'active' : '' %>">Customers</a>
+        <a href="/people" class="<%= active === 'people' ? 'active' : '' %>">People</a>
       </nav>
       <div class="topnav-right">
+        <a class="btn btn-primary btn-sm" href="/deals/new">+ New deal</a>
         <form id="sync-form" method="post" action="/sync"></form>
         <button id="sync-badge" class="sync-badge" type="submit" form="sync-form"
                 data-state="<%= sync.state %>" title="<%= sync.lastError || '' %>">

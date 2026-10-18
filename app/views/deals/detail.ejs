@@ -1,0 +1,191 @@
+<%
+  const d = deal;
+  const dateRow = (label, value) => `<div class="def"><span class="def-label">${label}</span><span class="def-value">${value ? fmtDate(value) : '<span class="subtle">—</span>'}</span></div>`;
+  const textRow = (label, value) => `<div class="def"><span class="def-label">${label}</span><span class="def-value">${value ? ui.esc(value) : '<span class="subtle">—</span>'}</span></div>`;
+  const nums = [['Age', `${row.age} days`], ['In stage', `${row.inStage} days`], ['Probability', `${d.probability}%`]];
+  const toSubmit = row.toSubmit;
+  const outcomeOptions = cfg.outcome_reasons.map((r) => [r, r]);
+%>
+<div class="page-header deal-head">
+  <div>
+    <div class="id-line">
+      <span class="mono"><%= d.id %></span>
+      <%- ui.stageBadge(d.stage, cfg) %>
+      <%- ui.priorityBadge(d.priority) %>
+      <%- ui.healthDot(row.health) %>
+      <% if (d.on_hold) { %><span class="badge hold">⏸ On hold</span><% } %>
+    </div>
+    <h1><%= d.title %></h1>
+    <p class="muted meta-line">
+      <% if (customer) { %><a href="/customers/<%= customer.id %>"><%= customer.name %></a><% } %>
+      <% if (d.c4c_id) { %> · C4C <span class="mono"><%= d.c4c_id %></span> <button type="button" class="btn btn-ghost btn-sm" data-copy="<%= d.c4c_id %>">Copy</button><% } %>
+      <% if (owners.sales) { %> · Sales: <a href="/deals?owner=<%= d.sales_owner_id %>&status=all"><%= owners.sales %></a><% } %>
+      <% if (owners.presales) { %> · Presales: <a href="/deals?owner=<%= d.presales_owner_id %>&status=all"><%= owners.presales %></a><% } %>
+    </p>
+  </div>
+  <div class="page-actions">
+    <form method="post" action="/deals/<%= d.id %>/hold" class="inline">
+      <button class="btn btn-secondary" type="submit"><%= d.on_hold ? 'Resume' : 'Put on hold' %></button>
+    </form>
+    <a class="btn btn-secondary" href="/deals/<%= d.id %>/edit">Edit</a>
+    <form method="post" action="/deals/<%= d.id %>/delete" class="inline" data-confirm="Delete <%= d.id %>? This removes the deal file and commits the removal.">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </div>
+</div>
+
+<nav class="stepper" aria-label="Stage">
+  <% for (const s of stepper) { %>
+    <form method="post" action="/deals/<%= d.id %>/stage" class="step step-<%= s.state %>">
+      <input type="hidden" name="stage" value="<%= s.name %>">
+      <button type="submit" class="step-btn"<%- s.state === 'current' ? ' aria-current="step"' : '' %>><%= s.state === 'past' ? '✓ ' : '' %><%= s.name %></button>
+    </form>
+  <% } %>
+  <div class="step step-<%= outcomeState %> step-outcome">
+    <% if (outcomeName) { %><%- ui.stageBadge(outcomeName, cfg) %><% } else { %><span class="subtle">Outcome</span><% } %>
+  </div>
+</nav>
+
+<div class="outcome-bar">
+  <form method="post" action="/deals/<%= d.id %>/stage" class="inline">
+    <input type="hidden" name="stage" value="Won">
+    <button class="btn btn-secondary btn-sm" type="submit">Mark Won</button>
+  </form>
+  <button type="button" class="btn btn-secondary btn-sm" data-outcome-toggle="Lost" aria-expanded="false" aria-controls="outcome-Lost">Mark Lost…</button>
+  <button type="button" class="btn btn-secondary btn-sm" data-outcome-toggle="Dropped" aria-expanded="false" aria-controls="outcome-Dropped">Mark Dropped…</button>
+  <% for (const outcome of ['Lost', 'Dropped']) { %>
+    <form method="post" action="/deals/<%= d.id %>/stage" class="outcome-form" id="outcome-<%= outcome %>" data-outcome="<%= outcome %>" hidden>
+      <input type="hidden" name="stage" value="<%= outcome %>">
+      <%- ui.selectControl({ name: 'outcome_reason', value: '', placeholder: 'Reason (required)', ariaLabel: 'Outcome reason', options: outcomeOptions }) %>
+      <button class="btn btn-danger btn-sm" type="submit">Confirm <%= outcome %></button>
+    </form>
+  <% } %>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-main">
+    <section class="card">
+      <h2>Overview</h2>
+      <div class="def-grid">
+        <%- textRow('Type', d.type) %>
+        <%- textRow('Source', d.source) %>
+        <%- textRow('BU', d.bu) %>
+        <%- textRow('Practice', d.practice) %>
+        <%- textRow('Region', d.region) %>
+        <%- textRow('Go / No-Go', d.go_no_go + (d.go_no_go_on ? ' · ' + fmtDate(d.go_no_go_on) : '')) %>
+        <%- textRow('Delivery owner', owners.delivery) %>
+        <%- textRow('Contacts', contacts.map((c) => c.name).join(', ')) %>
+      </div>
+      <% if (d.description) { %><p class="description"><%= d.description %></p><% } %>
+    </section>
+
+    <section class="card">
+      <h2>Dates</h2>
+      <div class="def-grid">
+        <%- dateRow('Received', d.received_on) %>
+        <%- dateRow('Q&amp;A due', d.qa_due) %>
+        <%- dateRow('Submission due', d.submission_due) %>
+        <%- dateRow('Submitted', d.submitted_on) %>
+        <%- dateRow('Expected decision', d.expected_decision_on) %>
+        <%- dateRow('Expected start', d.expected_start_on) %>
+        <%- dateRow('Closed', d.closed_on) %>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Commercials</h2>
+      <div class="def-grid">
+        <%- textRow('Estimated value', d.est_value == null ? '' : moneyCompact(d.est_value, d.currency)) %>
+        <%- textRow('Weighted value', row.weighted == null ? '' : moneyCompact(row.weighted, d.currency)) %>
+        <%- textRow('Effort (person-months)', d.effort_person_months) %>
+        <%- textRow('Duration (months)', d.duration_months) %>
+        <%- textRow('Pricing model', d.pricing_model) %>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Competition</h2>
+      <div class="def-grid">
+        <%- textRow('Incumbent', d.incumbent) %>
+        <%- textRow('Competitors', d.competitors.join(', ')) %>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Links and tags</h2>
+      <% if (d.links.length) { %>
+        <ul class="links">
+          <% for (const l of d.links) { %><li><a href="<%= l.url %>" target="_blank" rel="noopener noreferrer"><%= l.label %></a></li><% } %>
+        </ul>
+      <% } else { %><p class="subtle">No links.</p><% } %>
+      <% if (d.tags.length) { %><p class="tags"><% for (const t of d.tags) { %><span class="tag"><%= t %></span><% } %></p><% } %>
+    </section>
+  </div>
+
+  <aside class="detail-side">
+    <section class="card">
+      <h2>Key numbers</h2>
+      <div class="kpi-list">
+        <% for (const [label, value] of nums) { %>
+          <div class="kpi-row"><span><%= label %></span><strong><%= value %></strong></div>
+        <% } %>
+        <div class="kpi-row">
+          <span>Submission</span>
+          <strong class="<%= toSubmit !== null && toSubmit < 0 ? 'text-red' : '' %>">
+            <% if (d.submitted_on) { %>submitted<% } else if (toSubmit === null) { %>—<% } else if (toSubmit < 0) { %><%= -toSubmit %>d overdue<% } else if (toSubmit === 0) { %>today<% } else { %>in <%= toSubmit %>d<% } %>
+          </strong>
+        </div>
+        <div class="kpi-row"><span>Value</span><strong><%= d.est_value == null ? '—' : moneyCompact(d.est_value, d.currency) %></strong></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Next action</h2>
+      <% if (d.next_action) { %>
+        <p class="next-text"><%= d.next_action %></p>
+        <p class="muted"><%= d.next_action_due ? 'Due ' + fmtDate(d.next_action_due) : 'No due date' %></p>
+      <% } else { %>
+        <p class="subtle">No next action yet.</p>
+      <% } %>
+      <form method="post" action="/deals/<%= d.id %>/next-action" class="stack">
+        <div class="field">
+          <label for="next_action">What happens next</label>
+          <input type="text" id="next_action" name="next_action" value="<%= d.next_action || '' %>">
+        </div>
+        <div class="field">
+          <label for="next_action_due">Due</label>
+          <input type="date" id="next_action_due" name="next_action_due" value="<%= d.next_action_due || '' %>">
+        </div>
+        <button class="btn btn-secondary btn-sm" type="submit">Save next action</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Add note</h2>
+      <form method="post" action="/deals/<%= d.id %>/notes" class="stack">
+        <div class="field">
+          <label for="note" class="sr-only">Note</label>
+          <textarea id="note" name="note" rows="3" placeholder="Write a note…" required></textarea>
+        </div>
+        <button class="btn btn-secondary btn-sm" type="submit">Add note</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Timeline</h2>
+      <% if (timeline.length === 0) { %><p class="subtle">Nothing yet.</p><% } %>
+      <ol class="timeline">
+        <% for (const h of timeline) { %>
+          <li class="tl tl-<%= h.kind %>">
+            <time class="tl-time"><%= fmtDatetime(h.at) %></time>
+            <% if (h.kind === 'note') { %>
+              <div class="note"><%= h.text %></div>
+            <% } else { %>
+              <p class="tl-text"><%= h.text %></p>
+            <% } %>
+          </li>
+        <% } %>
+      </ol>
+    </section>
+  </aside>
+</div>

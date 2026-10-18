@@ -1,0 +1,92 @@
+<%
+  const q = new URLSearchParams(Object.entries(filter).filter(([k, v]) => v && !(k === 'status' && v === 'open')));
+  const filtering = [...q.keys()].some((k) => k !== 'q') || filter.q;
+  const sortLink = (key, label) => {
+    const nextDir = sort === key && dir === 'asc' ? 'desc' : 'asc';
+    const params = new URLSearchParams(q);
+    params.set('sort', key);
+    params.set('dir', nextDir);
+    const mark = sort === key ? (dir === 'asc' ? ' ▲' : ' ▼') : '';
+    return `<a href="/deals?${params.toString()}" class="sort">${label}${mark}</a>`;
+  };
+  const statusOptions = [['open', 'Open'], ['hold', 'On hold'], ['won', 'Won'], ['lost', 'Lost'], ['dropped', 'Dropped'], ['closed', 'Closed (all outcomes)'], ['all', 'All']];
+%>
+<div class="page-header">
+  <h1>Deals <span class="count"><%= rows.length %></span></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/deals/new">+ New deal</a>
+  </div>
+</div>
+
+<form method="get" action="/deals" class="filters" role="search">
+  <input type="search" name="q" value="<%= filter.q %>" placeholder="Search deals…" aria-label="Search deals" class="search">
+  <%- ui.selectControl({ name: 'status', value: filter.status, options: statusOptions, ariaLabel: 'Status' }) %>
+  <%- ui.selectControl({ name: 'stage', value: filter.stage, placeholder: 'All stages', ariaLabel: 'Stage', options: cfg.stages.map((s) => [s.name, s.name]) }) %>
+  <%- ui.selectControl({ name: 'customer', value: filter.customer, placeholder: 'All customers', ariaLabel: 'Customer', options: customers.map((c) => [c.id, c.name]) }) %>
+  <%- ui.selectControl({ name: 'owner', value: filter.owner, placeholder: 'Any owner', ariaLabel: 'Owner', options: people.filter((p) => p.active).map((p) => [p.id, p.name]) }) %>
+  <%- ui.selectControl({ name: 'bu', value: filter.bu, placeholder: 'All BUs', ariaLabel: 'BU', options: cfg.business_units.map((b) => [b, b]) }) %>
+  <%- ui.selectControl({ name: 'priority', value: filter.priority, placeholder: 'Any priority', ariaLabel: 'Priority', options: [['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low']] }) %>
+  <%- ui.selectControl({ name: 'health', value: filter.health, placeholder: 'Any health', ariaLabel: 'Health', options: [['red', 'Red'], ['amber', 'Amber'], ['green', 'Green'], ['hold', 'On hold'], ['closed', 'Closed']] }) %>
+  <input type="hidden" name="sort" value="<%= sort %>">
+  <input type="hidden" name="dir" value="<%= dir %>">
+  <noscript><button class="btn btn-secondary" type="submit">Apply</button></noscript>
+  <% if (filtering) { %><a href="/deals" class="btn btn-ghost">Clear</a><% } %>
+</form>
+
+<section class="card table-card">
+  <% if (rows.length === 0) { %>
+    <div class="empty-state">
+      <% if (filtering) { %>
+        <h2>No deals match these filters</h2>
+        <p class="muted">Try a different filter, or clear them to see everything open.</p>
+        <a class="btn btn-secondary" href="/deals">Clear filters</a>
+      <% } else { %>
+        <h2>No deals yet</h2>
+        <p class="muted">Track your first RFQ or opportunity.</p>
+        <a class="btn btn-primary" href="/deals/new">+ New deal</a>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" class="c-health"><span class="sr-only">Health</span></th>
+            <th scope="col"><%- sortLink('id', 'ID') %></th>
+            <th scope="col"><%- sortLink('title', 'Title') %></th>
+            <th scope="col"><%- sortLink('customer', 'Customer') %></th>
+            <th scope="col"><%- sortLink('stage', 'Stage') %></th>
+            <th scope="col">Sales owner</th>
+            <th scope="col"><%- sortLink('submission_due', 'Submission due') %></th>
+            <th scope="col" class="num"><%- sortLink('age', 'Age') %></th>
+            <th scope="col" class="num"><%- sortLink('value', 'Value') %></th>
+            <th scope="col"><%- sortLink('next_action_due', 'Next action') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of rows) { const d = r.deal; %>
+            <tr class="clickable" data-href="/deals/<%= d.id %>">
+              <td class="c-health"><%- ui.healthDot(r.health) %></td>
+              <td class="mono"><a href="/deals/<%= d.id %>"><%= d.id %></a></td>
+              <td class="ellipsis" title="<%= d.title %>"><a href="/deals/<%= d.id %>"><%= d.title %></a></td>
+              <td class="ellipsis" title="<%= r.customerName %>"><%= r.customerName %></td>
+              <td><%- ui.stageBadge(d.stage, cfg) %><% if (d.on_hold) { %> <span class="badge hold">⏸</span><% } %></td>
+              <td class="ellipsis" title="<%= r.salesName %>"><%= r.salesName %></td>
+              <td><%- ui.dueCell(d.submission_due, today, { done: d.submitted_on }) %></td>
+              <td class="num"><%= r.age %>d</td>
+              <td class="num"><%= moneyCompact(d.est_value, d.currency) %></td>
+              <td class="ellipsis next-cell">
+                <% if (d.next_action) { %>
+                  <div title="<%= d.next_action %>"><%= d.next_action.length > 40 ? d.next_action.slice(0, 40) + '…' : d.next_action %></div>
+                  <%- ui.dueCell(d.next_action_due, today).replace('<div class="due">', '<div class="rel-sub">') %>
+                <% } else { %>
+                  <span class="subtle">—</span>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

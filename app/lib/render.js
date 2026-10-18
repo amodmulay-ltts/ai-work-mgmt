@@ -1,6 +1,7 @@
 /**
  * Page rendering and flash messages shared by all routes.
  */
+import { todayIso } from '../models.js';
 
 /**
  * Renders a view inside layout.ejs. Always includes the current sync status.
@@ -12,8 +13,15 @@
  */
 export async function renderPage(req, res, view, data = {}, status = 200) {
   const { git, store } = req.app.locals;
-  const defaults = { title: '', active: '', me: null, values: {}, errors: {}, message: '' };
-  const locals = { ...defaults, sync: await git.status(), lockWarning: store.lockWarning, ...data };
+  const defaults = { title: '', active: '', me: null, values: {}, errors: {}, formErrors: [], message: '' };
+  const locals = {
+    ...defaults,
+    sync: await git.status(),
+    lockWarning: store.lockWarning,
+    cfg: store.config(),
+    today: todayIso(),
+    ...data,
+  };
   const body = await new Promise((resolve, reject) => {
     req.app.render(view, locals, (err, html) => (err ? reject(err) : resolve(html)));
   });

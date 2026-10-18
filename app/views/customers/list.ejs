@@ -1,0 +1,45 @@
+<div class="page-header">
+  <h1>Customers <span class="count"><%= rows.length %></span></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/customers/new">+ New customer</a>
+  </div>
+</div>
+
+<section class="card table-card">
+  <% if (rows.length === 0) { %>
+    <div class="empty-state">
+      <h2>No customers yet</h2>
+      <p class="muted">Customers are created automatically when you name one on a deal, or you can add one now.</p>
+      <a class="btn btn-primary" href="/customers/new">+ New customer</a>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Region</th>
+            <th scope="col">Industry</th>
+            <th scope="col">Account manager</th>
+            <th scope="col" class="num">Open deals</th>
+            <th scope="col" class="num">Open pipeline</th>
+            <th scope="col">Last activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of rows) { %>
+            <tr class="clickable" data-href="/customers/<%= r.customer.id %>">
+              <td><a href="/customers/<%= r.customer.id %>"><%= r.customer.name %></a></td>
+              <td><%= r.customer.region || '—' %></td>
+              <td><%= r.customer.industry || '—' %></td>
+              <td><%= r.accountManager %></td>
+              <td class="num"><%= r.openCount %></td>
+              <td class="num"><%= moneyTotalsText(r.openTotals) %></td>
+              <td><%= r.lastActivity ? fmtDate(r.lastActivity.slice(0, 10)) : '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

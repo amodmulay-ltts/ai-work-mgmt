@@ -1,0 +1,49 @@
+<div class="page-header deal-head">
+  <div>
+    <h1><%= customer.name %></h1>
+    <p class="muted meta-line">
+      <% if (customer.region) { %><%= customer.region %><% } %>
+      <% if (customer.industry) { %> · <%= customer.industry %><% } %>
+      <% if (accountManager) { %> · Account manager: <%= accountManager %><% } %>
+      <% if (customer.c4c_account_id) { %> · C4C account <span class="mono"><%= customer.c4c_account_id %></span> <button type="button" class="btn btn-ghost btn-sm" data-copy="<%= customer.c4c_account_id %>">Copy</button><% } %>
+    </p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/deals/new?customer=<%= customer.id %>">+ New deal for this customer</a>
+    <a class="btn btn-secondary" href="/customers/<%= customer.id %>/edit">Edit</a>
+    <form method="post" action="/customers/<%= customer.id %>/delete" class="inline" data-confirm="Delete <%= customer.name %>? A customer with deals cannot be deleted.">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-main">
+    <section class="card">
+      <h2>Open deals</h2>
+      <%- include('../partials/deal-table', { rows: openRows, cfg, today, empty: 'No open deals for this customer.' }) %>
+    </section>
+    <section class="card">
+      <h2>Closed deals</h2>
+      <%- include('../partials/deal-table', { rows: closedRows, cfg, today, empty: 'No closed deals yet.' }) %>
+    </section>
+  </div>
+  <aside class="detail-side">
+    <section class="card">
+      <h2>Contacts</h2>
+      <% if (contacts.length === 0) { %><p class="subtle">No contacts yet. Add them on a deal, or on the People page.</p><% } %>
+      <ul class="plain-list">
+        <% for (const p of contacts) { %>
+          <li>
+            <strong><%= p.name %></strong><% if (p.title) { %> · <%= p.title %><% } %>
+            <% if (p.email) { %><div class="muted"><a href="mailto:<%= p.email %>"><%= p.email %></a></div><% } %>
+          </li>
+        <% } %>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Notes</h2>
+      <% if (customer.notes) { %><div class="note"><%= customer.notes %></div><% } else { %><p class="subtle">No notes.</p><% } %>
+    </section>
+  </aside>
+</div>

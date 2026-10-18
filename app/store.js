@@ -3,8 +3,8 @@ import path from 'node:path';
 import { DEFAULT_CONFIG } from './config-defaults.js';
 import { PREFIX, ValidationError, kindOf, nowIso, validateRecord } from './models.js';
 
-/** Record kinds loaded from disk. Phase 1 adds 'customer' and 'deal'. */
-const KINDS = ['person'];
+/** Record kinds loaded from disk, in load order. */
+const KINDS = ['customer', 'person', 'deal'];
 const FOLDER = { deal: 'deals', customer: 'customers', person: 'people' };
 
 /**
@@ -30,6 +30,115 @@ export class Store {
 
   recordPath(kind, id) {
     return path.join(this.dataDir, FOLDER[kind], `${id}.json`);
+  }
+
+  /** Creates the data folders and default config (committed) on first run, then loads everything. */
+  async init() {
+    await this.mutex.run(async () => {
+      for (const folder of ['', ...Object.values(FOLDER)]) {
+        await fs.mkdir(path.join(this.dataDir, folder), { recursive: true });
+      }
+      if (!(await exists(this.configPath))) {
+        await writeJsonAtomic(this.configPath, DEFAULT_CONFIG);
+        await this.git.commitUnlocked([this.configPath], 'config: initial defaults');
+      }
+    });
+    await this.loadAll();
+  }
+
+  /** Reads every record file into memory. Files that fail to parse or validate go to `problems`. */
+  async loadAll() {
+    const problems = [];
+    const records = { deal: new Map(), customer: new Map(), person: new Map() };
+    let cfg = structuredClone(DEFAULT_CONFIG);
+    try {
+      cfg = { ...cfg, ...JSON.parse(await fs.readFile(this.configPath, 'utf8')) };
+    } catch (err) {
+      if (err.code !== 'ENOENT') problems.push(`config.json: ${err.message}`);
+    }
+
+    for (const kind of KINDS) {
+      const dir = path.join(this.dataDir, FOLDER[kind]);
+      const names = await fs.readdir(dir).catch(() => []);
+      for (const name of names) {
+        if (!name.endsWith('.json')) continue;
+        const label = `${FOLDER[kind]}/${name}`;
+        try {
+          const obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
+          // Structural checks only: enum lists are checked when a record is saved.
+          const errors = validateRecord(kind, obj, null);
+          if (errors.length) problems.push(`${label}: ${errors.join(', ')}`);
+          else records[kind].set(obj.id, obj);
+        } catch (err) {
+          problems.push(`${label}: ${err.message}`);
+        }
+      }
+    }
+    this.cfg = cfg;
+    this.records = records;
+    this.problems = problems;
+  }
+
+  config() {
+    return this.cfg;
+  }
+
+  saveConfig(cfg, message = 'config: updated settings') {
+    return this.save([], message, { config: cfg });
+  }
+
+  /**
+   * Next free id for a kind. Deals are DL-<year>-NNNN with a counter per year.
+   * @param {'deal' | 'customer' | 'person'} kind
+   */
+  async nextId(kind) {
+    const names = await fs.readdir(path.join(this.dataDir, FOLDER[kind])).catch(() => []);
+    const prefix = kind === 'deal' ? `DL-${new Date().getFullYear()}-` : `${PREFIX[kind]}-`;
+    let max = 0;
+    for (const name of names) {
+      if (!name.startsWith(prefix) || !name.endsWith('.json')) continue;
+      const n = Number(name.slice(prefix.length, -'.json'.length));
+      if (Number.isInteger(n) && n > max) max = n;
+    }
+    return `${prefix}${String(max + 1).padStart(4, '0')}`;
+  }
+
+  listDeals() {
+    return [...this.records.deal.values()];
+  }
+
+  getDeal(id) {
+    return this.records.deal.get(id) ?? null;
+  }
+
+  listCustomers() {
+    return [...this.records.customer.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getCustomer(id) {
+    return this.records.customer.get(id) ?? null;
+  }
+
+  findCustomerByName(name) {
+    const key = name.trim().toLowerCase();
+    return this.listCustomers().find((c) => c.name.trim().toLowerCase() === key) ?? null;
+  }
+
+  listPeople() {
+    return [...this.records.person.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getPerson(id) {
+    return this.records.person.get(id) ?? null;
+  }
+
+  findPersonByName(name, role = null) {
+    const key = name.trim().toLowerCase();
+    return (
+      this.listPeople().find(
+        (p) => p.name.trim().toLowerCase() === key && (role === null || p.role === role),
+      ) ?? null
+    );
   }
 
   /**
@@ -68,89 +177,6 @@ export class Store {
     }
   }
 
-  /** Creates the data folders and default config (committed) on first run, then loads everything. */
-  async init() {
-    await this.mutex.run(async () => {
-      for (const folder of ['', ...Object.values(FOLDER)]) {
-        await fs.mkdir(path.join(this.dataDir, folder), { recursive: true });
-      }
-      if (!(await exists(this.configPath))) {
-        await writeJsonAtomic(this.configPath, DEFAULT_CONFIG);
-        await this.git.commitUnlocked([this.configPath], 'config: initial defaults');
-      }
-    });
-    await this.loadAll();
-  }
-
-  /** Reads every record file into memory. Files that fail to parse or validate go to `problems`. */
-  async loadAll() {
-    const problems = [];
-    const records = { deal: new Map(), customer: new Map(), person: new Map() };
-    let cfg = structuredClone(DEFAULT_CONFIG);
-    try {
-      cfg = { ...cfg, ...JSON.parse(await fs.readFile(this.configPath, 'utf8')) };
-    } catch (err) {
-      if (err.code !== 'ENOENT') problems.push(`config.json: ${err.message}`);
-    }
-
-    for (const kind of KINDS) {
-      const dir = path.join(this.dataDir, FOLDER[kind]);
-      const names = await fs.readdir(dir).catch(() => []);
-      for (const name of names) {
-        if (!name.endsWith('.json')) continue;
-        const label = `${FOLDER[kind]}/${name}`;
-        try {
-          const obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
-          const errors = validateRecord(kind, obj, cfg);
-          if (errors.length) problems.push(`${label}: ${errors.join(', ')}`);
-          else records[kind].set(obj.id, obj);
-        } catch (err) {
-          problems.push(`${label}: ${err.message}`);
-        }
-      }
-    }
-    this.cfg = cfg;
-    this.records = records;
-    this.problems = problems;
-  }
-
-  config() {
-    return this.cfg;
-  }
-
-  saveConfig(cfg, message = 'config: updated settings') {
-    return this.save([], message, { config: cfg });
-  }
-
-  /**
-   * Next free id for a kind. Deals are DL-<year>-NNNN with a counter per year.
-   * @param {'deal' | 'customer' | 'person'} kind
-   */
-  async nextId(kind) {
-    const names = await fs.readdir(path.join(this.dataDir, FOLDER[kind])).catch(() => []);
-    const prefix = kind === 'deal' ? `DL-${new Date().getFullYear()}-` : `${PREFIX[kind]}-`;
-    let max = 0;
-    for (const name of names) {
-      if (!name.startsWith(prefix) || !name.endsWith('.json')) continue;
-      const n = Number(name.slice(prefix.length, -'.json'.length));
-      if (Number.isInteger(n) && n > max) max = n;
-    }
-    return `${prefix}${String(max + 1).padStart(4, '0')}`;
-  }
-
-  listPeople() {
-    return [...this.records.person.values()].sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  getPerson(id) {
-    return this.records.person.get(id) ?? null;
-  }
-
-  findPersonByName(name) {
-    const key = name.trim().toLowerCase();
-    return this.listPeople().find((p) => p.name.trim().toLowerCase() === key) ?? null;
-  }
-
   /**
    * Validates and writes all records and (optionally) the config, then makes ONE commit.
    * Nothing is written if validation fails.
@@ -183,6 +209,45 @@ export class Store {
       }
       return this.git.commitUnlocked(paths, message);
     });
+  }
+
+  /**
+   * Deletes one record and commits the removal. Customers that still have deals, and people
+   * referenced by a deal or a customer, cannot be deleted (PLAN.md §7).
+   * @param {{ id: string }} record
+   * @param {string} message
+   */
+  delete(record, message) {
+    return this.mutex.run(async () => {
+      const kind = kindOf(record.id);
+      if (kind === 'customer') {
+        const count = this.listDeals().filter((d) => d.customer_id === record.id).length;
+        if (count > 0) throw new Error(`Customer has ${count} deal${count === 1 ? '' : 's'}`);
+      }
+      if (kind === 'person' && this.personReferenced(record.id)) {
+        throw new Error('This person is used on a deal or customer. Mark them inactive instead.');
+      }
+      const file = this.recordPath(kind, record.id);
+      await fs.rm(file, { force: true });
+      this.records[kind].delete(record.id);
+      return this.git.commitUnlocked([file], message);
+    });
+  }
+
+  personUsedByDeal(deal, personId) {
+    return (
+      deal.sales_owner_id === personId ||
+      deal.presales_owner_id === personId ||
+      deal.delivery_owner_id === personId ||
+      deal.contact_ids.includes(personId)
+    );
+  }
+
+  personReferenced(personId) {
+    return (
+      this.listDeals().some((d) => this.personUsedByDeal(d, personId)) ||
+      this.listCustomers().some((c) => c.account_manager_id === personId)
+    );
   }
 }
 

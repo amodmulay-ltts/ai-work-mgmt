@@ -1,0 +1,109 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+  const sel = (name, label, options, opts = {}) => ui.field({ name, label, type: 'select', value: values[name] ?? '', options, error: errors[name] || '', ...opts });
+  const typeOptions = ui.optionsOf(cfg.deal_types);
+  const sourceOptions = ui.optionsOf(cfg.sources);
+  const stageOptions = cfg.stages.map((s) => [s.name, s.name]);
+  const priorityOptions = [['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low']];
+  const goOptions = [['Pending', 'Pending'], ['Go', 'Go'], ['No-Go', 'No-Go']];
+%>
+<div class="page-header">
+  <h1><%= title %></h1>
+</div>
+
+<form method="post" action="<%= action %>" class="deal-form" data-guard novalidate>
+  <% if (formErrors.length) { %>
+    <div class="banner banner-error form-errors" role="alert">
+      <p><strong>Please fix these before saving:</strong></p>
+      <ul><% for (const e of formErrors) { %><li><%= e %></li><% } %></ul>
+    </div>
+  <% } %>
+
+  <section class="card form-section">
+    <h3>Basics</h3>
+    <div class="form-grid">
+      <%- f('title', 'Title', { required: true, span: true, placeholder: 'e.g. ADAS validation services – Phase 2' }) %>
+      <%- sel('type', 'Type', typeOptions, { required: true, placeholder: 'Choose…' }) %>
+      <%- sel('source', 'Source', sourceOptions, { placeholder: 'Choose…' }) %>
+      <%- f('c4c_id', 'C4C ID', { help: 'Plain text, copied from C4C.' }) %>
+      <%- f('description', 'Scope summary', { type: 'textarea', span: true, rows: 3 }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Customer and owners</h3>
+    <div class="form-grid">
+      <%- f('customer', 'Customer', { required: true, list: 'customers-list', help: 'Type a new name to create the customer on save.' }) %>
+      <%- f('contacts', 'Customer contacts', { type: 'textarea', span: true, rows: 2, help: 'One name per line. New names are created as contacts of this customer.' }) %>
+      <%- f('sales_owner', 'Sales owner', { list: 'people-list', help: 'Type a new name to create the person on save.' }) %>
+      <%- f('presales_owner', 'Presales owner', { list: 'people-list' }) %>
+      <%- f('delivery_owner', 'Delivery owner', { list: 'people-list' }) %>
+      <%- sel('bu', 'BU', ui.optionsOf(cfg.business_units), { placeholder: 'Choose…' }) %>
+      <%- f('practice', 'Practice', { help: 'Free text. Reuse earlier values where you can.' }) %>
+      <%- sel('region', 'Region', ui.optionsOf(cfg.regions), { placeholder: 'Choose…' }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Dates</h3>
+    <div class="form-grid">
+      <%- f('received_on', 'Received on', { type: 'date', required: true }) %>
+      <%- f('qa_due', 'Q&A due', { type: 'date' }) %>
+      <%- f('submission_due', 'Submission due', { type: 'date' }) %>
+      <%- f('submitted_on', 'Submitted on', { type: 'date', help: 'Filled in automatically when the stage becomes Proposal Submitted.' }) %>
+      <%- f('expected_decision_on', 'Expected decision', { type: 'date' }) %>
+      <%- f('expected_start_on', 'Expected start', { type: 'date' }) %>
+      <%- f('go_no_go_on', 'Go / No-Go date', { type: 'date' }) %>
+      <%- f('closed_on', 'Closed on', { type: 'date', help: 'Filled in automatically when the deal is Won, Lost or Dropped.' }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Commercials</h3>
+    <div class="form-grid">
+      <%- sel('currency', 'Currency', ui.optionsOf(cfg.currencies)) %>
+      <%- f('est_value', 'Estimated value', { type: 'number', help: 'Total contract value, in the currency above.' }) %>
+      <%- f('probability', 'Probability (%)', { type: 'number', required: true, help: 'Set from the stage when the stage changes.' }) %>
+      <%- f('effort_person_months', 'Effort (person-months)', { type: 'number' }) %>
+      <%- f('duration_months', 'Duration (months)', { type: 'number' }) %>
+      <%- sel('pricing_model', 'Pricing model', ui.optionsOf(cfg.pricing_models), { placeholder: 'Choose…' }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Competition</h3>
+    <div class="form-grid">
+      <%- f('incumbent', 'Incumbent') %>
+      <%- f('competitors', 'Competitors', { span: true, help: 'Separate names with commas.' }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Tracking</h3>
+    <div class="form-grid">
+      <%- sel('stage', 'Stage', stageOptions, { required: true }) %>
+      <%- ui.field({ name: 'on_hold', label: 'On hold', type: 'checkbox', value: values.on_hold || '' }) %>
+      <%- sel('priority', 'Priority', priorityOptions) %>
+      <%- sel('go_no_go', 'Go / No-Go', goOptions) %>
+      <%- sel('outcome_reason', 'Outcome reason', ui.optionsOf(cfg.outcome_reasons), { placeholder: 'Needed for Lost and Dropped', help: 'Required when the stage is Lost or Dropped.' }) %>
+      <%- f('next_action', 'Next action', { span: true }) %>
+      <%- f('next_action_due', 'Next action due', { type: 'date' }) %>
+      <%- f('tags', 'Tags', { span: true, help: 'Separate tags with commas, e.g. HIL, ADAS' }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Links and notes</h3>
+    <div class="form-grid">
+      <%- f('links', 'Links', { type: 'textarea', span: true, rows: 3, help: 'One per line as "Label | https://…". Links only: no files.' }) %>
+    </div>
+  </section>
+
+  <div class="form-footer">
+    <a class="btn btn-ghost" href="<%= existing ? '/deals/' + existing.id : '/deals' %>">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>
+
+<%- ui.datalist('customers-list', customerNames) %>
+<%- ui.datalist('people-list', personNames) %>

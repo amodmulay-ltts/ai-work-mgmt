@@ -1,0 +1,60 @@
+<div class="page-header">
+  <h1>People <span class="count"><%= rows.length %></span></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/people/new">+ New person</a>
+  </div>
+</div>
+
+<form method="get" action="/people" class="filters" role="search">
+  <%- ui.selectControl({ name: 'role', value: role, placeholder: 'All roles', ariaLabel: 'Role', options: roles.map((r) => [r, r]) }) %>
+  <noscript><button class="btn btn-secondary" type="submit">Apply</button></noscript>
+</form>
+
+<section class="card table-card">
+  <% if (rows.length === 0) { %>
+    <div class="empty-state">
+      <h2>No people yet</h2>
+      <p class="muted">People are created when you name an owner or a contact on a deal.</p>
+      <a class="btn btn-primary" href="/people/new">+ New person</a>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Role</th>
+            <th scope="col">Title</th>
+            <th scope="col">Email</th>
+            <th scope="col">Customer</th>
+            <th scope="col" class="num">Open deals</th>
+            <th scope="col">Active</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of rows) { const p = r.person; %>
+            <tr class="<%= p.active ? '' : 'inactive' %>">
+              <td><a href="/people/<%= p.id %>/edit"><%= p.name %></a></td>
+              <td><span class="badge role"><%= p.role %></span></td>
+              <td><%= p.title || '—' %></td>
+              <td><%= p.email || '—' %></td>
+              <td><%= r.customerName || '—' %></td>
+              <td class="num"><%= r.openDeals %></td>
+              <td><%= p.active ? 'Yes' : 'No' %></td>
+              <td class="row-actions">
+                <a class="btn btn-ghost btn-sm" href="/people/<%= p.id %>/edit">Edit</a>
+                <% if (p.active) { %>
+                  <form method="post" action="/people/<%= p.id %>/deactivate" class="inline"><button class="btn btn-ghost btn-sm" type="submit">Mark inactive</button></form>
+                <% } %>
+                <form method="post" action="/people/<%= p.id %>/delete" class="inline" data-confirm="Delete <%= p.name %>? People used on a deal cannot be deleted.">
+                  <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
