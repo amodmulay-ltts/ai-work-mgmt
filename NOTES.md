@@ -80,6 +80,10 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **Export uses the list's filters**, including the default "open" filter.
 - **Next-action updates return to the page the user came from**, so the dashboard's inline update stays on the dashboard.
 
+### Working method (set by the user, 2026-10-18)
+- **Every feature or phase gets its own branch**, so a change cannot break the software unnoticed.
+- **Once its tests pass, merge the branch into `main` and delete the branch.** Nothing is pushed unless the user asks.
+
 ---
 
 ## 3. Open questions
