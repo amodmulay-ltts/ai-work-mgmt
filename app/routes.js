@@ -3,7 +3,7 @@ import {
   agingCounts, ageDays, daysInStage, daysToSubmission, health, isOpen, moneyTotals, pipelineByStage, stageInfo,
   status, weightedValue, winStats,
 } from './metrics.js';
-import { ValidationError, nowIso, todayIso, ROLES } from './models.js';
+import { ValidationError, isIsoDate, nowIso, todayIso, ROLES } from './models.js';
 import { noteEntry } from './history.js';
 import {
   customerToValues, dealToTyped, parseCustomerValues, parseDealValues, parsePersonValues,
@@ -12,6 +12,8 @@ import {
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
 import { dealsWorkbook } from './export.js';
+import { weeklyReport } from './report.js';
+import { addDays, mondayOf } from './lib/dates.js';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+$/;
 const ID_RE = { deal: /^DL-\d{4}-\d{4}$/, customer: /^CU-\d{4}$/, person: /^PE-\d{4}$/ };
@@ -702,6 +704,21 @@ export function createRouter() {
     res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.set('Content-Disposition', `attachment; filename="deals-${today.replaceAll('-', '')}.xlsx"`);
     res.send(Buffer.from(buffer));
+  });
+
+  // ------------------------------------------------ weekly report
+  router.get('/report/weekly', async (req, res) => {
+    const { store } = req.app.locals;
+    const week = isIsoDate(req.query.week) ? req.query.week : todayIso();
+    const start = mondayOf(week);
+    await renderPage(req, res, 'report-weekly', {
+      title: 'Weekly report',
+      active: '',
+      markdown: weeklyReport(store, start),
+      start,
+      prev: addDays(start, -7),
+      next: addDays(start, 7),
+    });
   });
 
   // ------------------------------------------------ settings

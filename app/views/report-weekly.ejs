@@ -1,0 +1,16 @@
+<div class="page-header">
+  <h1>Weekly report</h1>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="/report/weekly?week=<%= prev %>">← Previous week</a>
+    <a class="btn btn-secondary" href="/report/weekly?week=<%= next %>">Next week →</a>
+  </div>
+</div>
+
+<section class="card">
+  <div class="report-head">
+    <p class="muted">Plain Markdown. Copy it into Outlook or Teams.</p>
+    <button type="button" class="btn btn-primary" data-copy-from="report-text">Copy</button>
+  </div>
+  <label for="report-text" class="sr-only">Weekly report text</label>
+  <textarea id="report-text" class="report-text" readonly rows="30"><%= markdown %></textarea>
+</section>

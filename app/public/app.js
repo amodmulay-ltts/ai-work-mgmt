@@ -86,10 +86,13 @@
 
   // 8. Copy: a [data-copy] button copies its value and shows "Copied" briefly.
   document.addEventListener('click', async (event) => {
-    const button = event.target.closest('[data-copy]');
+    const button = event.target.closest('[data-copy], [data-copy-from]');
     if (!button) return;
+    const text = button.dataset.copyFrom
+      ? document.getElementById(button.dataset.copyFrom).value
+      : button.dataset.copy;
     try {
-      await navigator.clipboard.writeText(button.dataset.copy);
+      await navigator.clipboard.writeText(text);
       const original = button.textContent;
       button.textContent = 'Copied';
       setTimeout(() => { button.textContent = original; }, 1500);

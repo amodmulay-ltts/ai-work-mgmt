@@ -163,3 +163,9 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - Changed files: `app/export.js` (new), `app/routes.js`, `app/store.js`, `app/git-sync.js`, `app/lib/render.js`, views (`dashboard`, `settings`, `conflicts`, `layout`, `deals/list`, `deals/detail`), `app/public/app.js`, `app/public/app.css`, `tests/insight.test.js` (new).
 - Checks: `npm test` 74 of 74 pass on Node 24.
 - Next step: Phase 3 (weekly report, README, polish).
+
+### 2026-10-18 — Phase 3 — quality of life — Linux
+- Done: weekly report (Monday–Sunday, Markdown, Copy button, previous and next week), README rewritten for setup, daily use, sync and conflicts, settings file, and troubleshooting. Polish: empty states on every list, 404 and 500 pages, page titles.
+- Changed files: `app/report.js` (new), `app/lib/dates.js` (new), `app/routes.js`, `app/public/app.js`, `app/public/app.css`, `app/views/report-weekly.ejs` (new), `app/views/dashboard.ejs`, `README.md`, `tests/report.test.js` (new).
+- Checks: `npm test` 78 of 78 pass on Node 24. An end-to-end run of `run.js` on a temp copy: every page answers (200, or 404 for an unknown page); `Ctrl+C` pushed the lock release (3 commits on the remote).
+- Next step: the Windows checks for Phase 0 and the push of `main`, both waiting on the user.

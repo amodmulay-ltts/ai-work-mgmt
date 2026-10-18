@@ -12,7 +12,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Phase 0 — Foundation (incl. session lock) | Done on Linux; Windows checks pending | `phase-0-foundation`, merged to `main` locally |
 | Phase 1 — Core tracking | Done (65 tests pass) | `phase-1-core` |
 | Phase 2 — Insight and settings | Done (74 tests pass) | `phase-2-insight` |
-| Phase 3 — Quality of life | In progress | `phase-3-polish` |
+| Phase 3 — Quality of life | Done (78 tests pass) | `phase-3-polish` |
 
 **Push status:** `main` is ahead of `origin/main` and has not been pushed. This environment has no GitHub credentials. The user pushes from their own terminal with `git push origin main`.
 
@@ -37,5 +37,5 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-18 — session
 - Done: merged `phase-0-foundation` into `main`. Created this file, as `CLAUDE.md` now requires.
 - Blocked: `git push` failed with "could not read Username" (no credentials in this environment).
-- Phase 1 built and committed on `phase-1-core`.
-- Next: Phase 2 on branch `phase-2-insight`.
+- Phases 1–3 built and committed on their branches, merged into `main` locally.
+- Next: Windows checks for Phase 0; push of `main` (user).
