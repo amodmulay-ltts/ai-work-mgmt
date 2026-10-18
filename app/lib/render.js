@@ -18,6 +18,8 @@ export async function renderPage(req, res, view, data = {}, status = 200) {
     ...defaults,
     sync: await git.status(),
     lockWarning: store.lockWarning,
+    conflictCount: store.conflicts.length,
+    problemCount: store.problems.length,
     cfg: store.config(),
     today: todayIso(),
     ...data,

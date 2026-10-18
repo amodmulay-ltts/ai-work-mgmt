@@ -1,5 +1,8 @@
 import { Router } from 'express';
-import { ageDays, daysInStage, daysToSubmission, health, isOpen, moneyTotals, stageInfo, status, weightedValue } from './metrics.js';
+import {
+  agingCounts, ageDays, daysInStage, daysToSubmission, health, isOpen, moneyTotals, pipelineByStage, stageInfo,
+  status, weightedValue, winStats,
+} from './metrics.js';
 import { ValidationError, nowIso, todayIso, ROLES } from './models.js';
 import { noteEntry } from './history.js';
 import {
@@ -8,6 +11,7 @@ import {
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
+import { dealsWorkbook } from './export.js';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+$/;
 const ID_RE = { deal: /^DL-\d{4}-\d{4}$/, customer: /^CU-\d{4}$/, person: /^PE-\d{4}$/ };
@@ -44,6 +48,97 @@ async function notFound(req, res, what) {
 function dashboardData(store, extra = {}) {
   const meId = store.config().me_person_id;
   return { title: 'Dashboard', active: 'dashboard', me: meId ? store.getPerson(meId) : null, ...extra };
+}
+
+/** 'Good morning' / 'afternoon' / 'evening', by local time. */
+function greeting(now = new Date()) {
+  const h = now.getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/** Numbers, lists and bars for the dashboard (PLAN.md §11.5). */
+function dashboardView(store, cfg, today, me) {
+  const deals = store.listDeals();
+  const rows = deals.map((d) => dealRow(d, store, cfg, today));
+  const open = rows.filter((r) => r.open);
+  const dueSoon = open.filter((r) => r.toSubmit !== null && r.toSubmit >= 0 && r.toSubmit <= 7);
+  const overdue = open.filter((r) => r.toSubmit !== null && r.toSubmit < 0);
+  const rank = { red: 0, amber: 1 };
+  const attention = open
+    .filter((r) => r.health.level === 'red' || r.health.level === 'amber')
+    .sort((a, b) => rank[a.health.level] - rank[b.health.level] || dueOrder(a.toSubmit, b.toSubmit))
+    .slice(0, 10);
+  const actions = me
+    ? open
+        .filter((r) => r.deal.presales_owner_id === me.id)
+        .sort((a, b) => dueText(a.deal.next_action_due).localeCompare(dueText(b.deal.next_action_due)))
+    : [];
+  return {
+    kpi: {
+      open: open.length,
+      onHold: open.filter((r) => r.deal.on_hold).length,
+      weighted: moneyTotals(open.map((r) => [r.deal.currency, r.weighted]), cfg),
+      dueSoon: dueSoon.length,
+      overdue: overdue.length,
+      win: winStats(deals, cfg, today, 90),
+    },
+    attention,
+    actions,
+    recent: [...rows].sort((a, b) => b.deal.updated_at.localeCompare(a.deal.updated_at)).slice(0, 8),
+    pipeline: pipelineByStage(deals, cfg),
+    aging: agingCounts(deals, cfg, today),
+    today,
+  };
+}
+
+/** Nulls last when sorting by a number of days. */
+function dueOrder(a, b) {
+  if (a === null && b === null) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  return a - b;
+}
+
+/** Empty dates sort last: '\uffff' sorts after every date. */
+const dueText = (iso) => iso ?? '\uffff';
+
+// ---------------------------------------------------------------- settings
+
+const LIST_KEYS = ['business_units', 'regions', 'currencies', 'pricing_models', 'sources', 'outcome_reasons'];
+
+/** Non-empty lines, trimmed. */
+const lines = (value) => String(value ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
+const unique = (items) => [...new Set(items)];
+
+/** Form values as strings, for the settings page. */
+function settingsValues(body) {
+  const out = { name: clean(body.name), email: clean(body.email), stale_after_days: clean(body.stale_after_days) };
+  for (const key of LIST_KEYS) out[key] = String(body[key] ?? '');
+  return out;
+}
+
+async function renderSettings(req, res, { values, errors = {}, formErrors = [], status: code = 200 }) {
+  const { store } = req.app.locals;
+  const cfg = store.config();
+  const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
+  const defaults = {
+    name: me?.name ?? '',
+    email: me?.email ?? '',
+    stale_after_days: String(cfg.stale_after_days),
+    ...Object.fromEntries(LIST_KEYS.map((key) => [key, cfg[key].join('\n')])),
+  };
+  await renderPage(req, res, 'settings', {
+    title: 'Settings',
+    active: 'settings',
+    me,
+    values: values ?? defaults,
+    errors,
+    formErrors,
+    stages: cfg.stages,
+    problems: store.problems,
+  }, code);
 }
 
 // ---------------------------------------------------------------- deals
@@ -238,7 +333,7 @@ async function changeDeal(req, res, id, change, successText) {
     if (!(err instanceof ValidationError)) throw err;
     flash(res, 'error', err.errors.map(plain).join('; '));
   }
-  return res.redirect(303, `/deals/${id}`);
+  return res.redirect(303, safeBackPath(req, `/deals/${id}`));
 }
 
 // ---------------------------------------------------------------- customers and people
@@ -310,7 +405,11 @@ export function createRouter() {
   // ------------------------------------------------ dashboard, first run, sync
   router.get('/', async (req, res) => {
     const { store } = req.app.locals;
-    await renderPage(req, res, 'dashboard', dashboardData(store));
+    const cfg = store.config();
+    const today = todayIso();
+    const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
+    const view = me ? dashboardView(store, cfg, today, me) : null;
+    await renderPage(req, res, 'dashboard', dashboardData(store, { view, greeting: greeting(), firstName: me ? me.name.split(' ')[0] : '' }));
   });
 
   // First-run form: who is using this tracker. Creates a Presales person and sets me_person_id.
@@ -592,6 +691,86 @@ export function createRouter() {
       flash(res, 'error', err.message);
       return res.redirect(303, `/customers/${customer.id}`);
     }
+  });
+
+  // ------------------------------------------------ export
+  router.get('/export/deals.xlsx', async (req, res) => {
+    const { store } = req.app.locals;
+    const today = todayIso();
+    const { rows } = listDeals(store, store.config(), today, req.query);
+    const buffer = await dealsWorkbook(rows, store);
+    res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.set('Content-Disposition', `attachment; filename="deals-${today.replaceAll('-', '')}.xlsx"`);
+    res.send(Buffer.from(buffer));
+  });
+
+  // ------------------------------------------------ settings
+  router.get('/settings', async (req, res) => renderSettings(req, res, {}));
+
+  router.post('/settings', async (req, res) => {
+    const { store } = req.app.locals;
+    const cfg = store.config();
+    const body = req.body;
+    const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
+    const values = settingsValues(body);
+    const errors = {};
+    const list = (key) => unique(lines(values[key]));
+
+    if (me) {
+      if (!values.name) errors.name = 'Enter your name.';
+      if (values.email && !EMAIL_RE.test(values.email)) errors.email = 'Enter a valid email address.';
+    }
+    const stale = Number(values.stale_after_days);
+    if (!Number.isInteger(stale) || stale < 1) errors.stale_after_days = 'Enter a whole number of days, 1 or more.';
+    for (const key of LIST_KEYS) {
+      if (list(key).length === 0) errors[key] = 'Keep at least one item.';
+    }
+    const currencies = list('currencies');
+    if (currencies.some((c) => !/^[A-Za-z]{3}$/.test(c))) errors.currencies = 'Use three-letter codes, such as EUR or USD.';
+
+    if (Object.keys(errors).length) return renderSettings(req, res, { values, errors, status: 422 });
+
+    const newCfg = {
+      ...cfg,
+      stale_after_days: stale,
+      business_units: list('business_units'),
+      regions: list('regions'),
+      currencies: currencies.map((c) => c.toUpperCase()),
+      pricing_models: list('pricing_models'),
+      sources: list('sources'),
+      outcome_reasons: list('outcome_reasons'),
+    };
+    try {
+      if (me) {
+        const updated = { ...me, name: values.name, email: values.email || null };
+        await store.save([updated], `${me.id}: updated`, { config: newCfg });
+      } else {
+        await store.saveConfig(newCfg);
+      }
+      flash(res, 'success', 'Settings saved.');
+      return res.redirect(303, '/settings');
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderSettings(req, res, { values, formErrors: err.errors.map(plain), status: 422 });
+    }
+  });
+
+  // ------------------------------------------------ conflicts
+  router.get('/conflicts', async (req, res) => {
+    const { store } = req.app.locals;
+    const entries = await store.conflictEntries();
+    await renderPage(req, res, 'conflicts', { title: 'Sync conflicts', active: '', entries });
+  });
+
+  router.post('/conflicts/:file/resolve', async (req, res) => {
+    const { store } = req.app.locals;
+    try {
+      await store.resolveConflict(req.params.file, clean(req.body.action));
+      flash(res, 'success', req.body.action === 'use_theirs' ? 'Used the other version.' : 'Kept this version.');
+    } catch (err) {
+      flash(res, 'error', plain(err.message));
+    }
+    return res.redirect(303, '/conflicts');
   });
 
   // ------------------------------------------------ people

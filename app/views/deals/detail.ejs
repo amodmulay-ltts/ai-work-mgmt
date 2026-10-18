@@ -51,8 +51,8 @@
     <input type="hidden" name="stage" value="Won">
     <button class="btn btn-secondary btn-sm" type="submit">Mark Won</button>
   </form>
-  <button type="button" class="btn btn-secondary btn-sm" data-outcome-toggle="Lost" aria-expanded="false" aria-controls="outcome-Lost">Mark Lost…</button>
-  <button type="button" class="btn btn-secondary btn-sm" data-outcome-toggle="Dropped" aria-expanded="false" aria-controls="outcome-Dropped">Mark Dropped…</button>
+  <button type="button" class="btn btn-secondary btn-sm" data-reveal="outcome-Lost" aria-expanded="false" aria-controls="outcome-Lost">Mark Lost…</button>
+  <button type="button" class="btn btn-secondary btn-sm" data-reveal="outcome-Dropped" aria-expanded="false" aria-controls="outcome-Dropped">Mark Dropped…</button>
   <% for (const outcome of ['Lost', 'Dropped']) { %>
     <form method="post" action="/deals/<%= d.id %>/stage" class="outcome-form" id="outcome-<%= outcome %>" data-outcome="<%= outcome %>" hidden>
       <input type="hidden" name="stage" value="<%= outcome %>">

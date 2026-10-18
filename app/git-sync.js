@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { nowIso } from './models.js';
@@ -91,13 +92,20 @@ export class GitSync {
     if (rel.some((p) => !p.startsWith('data/') || p.includes('..'))) {
       throw new Error('refusing to commit outside data/');
     }
-    const add = await this.git(['add', '--', ...rel]);
-    if (!add.ok) throw new Error(`git add failed: ${firstLine(add.stderr)}`);
+    // Files that exist are staged. Files that are gone are removed from the index, and that is
+    // a no-op for a file git never tracked. Only paths with staged changes are committed.
+    const present = rel.filter((p) => existsSync(path.join(this.root, p)));
+    const gone = rel.filter((p) => !present.includes(p));
+    if (present.length) {
+      const add = await this.git(['add', '--', ...present]);
+      if (!add.ok) throw new Error(`git add failed: ${firstLine(add.stderr)}`);
+    }
+    if (gone.length) await this.git(['rm', '--cached', '--ignore-unmatch', '-q', '--', ...gone]);
 
-    const staged = await this.git(['diff', '--cached', '--quiet', '--', ...rel]);
-    if (staged.ok) return false;
+    const staged = (await this.git(['diff', '--cached', '--name-only', '--', ...rel])).stdout.split('\n').filter(Boolean);
+    if (staged.length === 0) return false;
 
-    const commit = await this.git(['commit', '-m', message, '--', ...rel]);
+    const commit = await this.git(['commit', '-m', message, '--', ...staged]);
     if (!commit.ok) throw new Error(`git commit failed: ${firstLine(commit.stderr)}`);
     this.schedulePush();
     return true;

@@ -1,0 +1,52 @@
+<div class="page-header">
+  <h1>Sync conflicts <span class="count"><%= entries.length %></span></h1>
+</div>
+<p class="muted">Two computers changed the same record. The version on this computer stays in the data file until you choose. The other version is kept here until you decide.</p>
+
+<% if (entries.length === 0) { %>
+  <section class="card empty-state">
+    <h2>No conflicts</h2>
+    <p class="muted">Nothing needs a decision.</p>
+    <a class="btn btn-secondary" href="/">Back to dashboard</a>
+  </section>
+<% } %>
+
+<% for (const e of entries) {
+  const when = fmtDatetime(e.stamp.slice(0, 4) + '-' + e.stamp.slice(4, 6) + '-' + e.stamp.slice(6, 8) + 'T' + e.stamp.slice(9, 11) + ':' + e.stamp.slice(11, 13));
+  const rows = (r) => r ? [
+    ['Title', r.title ?? r.name],
+    ['Stage', r.stage ?? r.role ?? '—'],
+    ['Submission due', r.submission_due ? fmtDate(r.submission_due) : '—'],
+    ['Last updated', r.updated_at ? fmtDatetime(r.updated_at) : '—'],
+  ] : null;
+  const mine = rows(e.local);
+  const theirs = rows(e.remote);
+%>
+  <section class="card conflict">
+    <h2><span class="mono"><%= e.id %></span> <span class="muted">· other copy saved <%= when %></span></h2>
+    <div class="conflict-grid">
+      <div>
+        <h3>On this computer</h3>
+        <% if (!mine) { %><p class="subtle">Deleted on this computer.</p><% } else { %>
+          <dl class="conflict-facts"><% for (const [label, value] of mine) { %><dt><%= label %></dt><dd><%= value %></dd><% } %></dl>
+        <% } %>
+        <form method="post" action="/conflicts/<%= encodeURIComponent(e.file) %>/resolve" class="inline">
+          <input type="hidden" name="action" value="keep_mine">
+          <button class="btn btn-secondary" type="submit">Keep this computer's version</button>
+        </form>
+      </div>
+      <div>
+        <h3>On the other computer</h3>
+        <% if (!theirs) { %><p class="subtle">This copy could not be read.</p><% } else { %>
+          <dl class="conflict-facts"><% for (const [label, value] of theirs) { %><dt><%= label %></dt><dd><%= value %></dd><% } %></dl>
+        <% } %>
+        <% if (theirs) { %>
+        <form method="post" action="/conflicts/<%= encodeURIComponent(e.file) %>/resolve" class="inline">
+          <input type="hidden" name="action" value="use_theirs">
+          <button class="btn btn-primary" type="submit">Use the other computer's version</button>
+        </form>
+        <% } %>
+      </div>
+    </div>
+  </section>
+<% } %>

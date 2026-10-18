@@ -1,0 +1,74 @@
+<div class="page-header">
+  <h1>Settings</h1>
+</div>
+
+<form method="post" action="/settings" class="deal-form" data-guard novalidate>
+  <% if (formErrors.length) { %>
+    <div class="banner banner-error form-errors" role="alert">
+      <p><strong>Please fix these before saving:</strong></p>
+      <ul><% for (const e of formErrors) { %><li><%= e %></li><% } %></ul>
+    </div>
+  <% } %>
+
+  <section class="card form-section">
+    <h3>You</h3>
+    <% if (me) { %>
+      <div class="form-grid">
+        <%- ui.field({ name: 'name', label: 'Your name', value: values.name, required: true, error: errors.name || '' }) %>
+        <%- ui.field({ name: 'email', label: 'Email', type: 'email', value: values.email, error: errors.email || '' }) %>
+      </div>
+    <% } else { %>
+      <p class="muted">Set up your name on the <a href="/">dashboard</a> first.</p>
+    <% } %>
+  </section>
+
+  <section class="card form-section">
+    <h3>Tracking</h3>
+    <div class="form-grid">
+      <%- ui.field({ name: 'stale_after_days', label: 'Stale after (days)', type: 'number', value: values.stale_after_days, error: errors.stale_after_days || '', help: 'An open deal with no update for longer than this is flagged red.' }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Lists</h3>
+    <p class="muted">One item per line. Removing an item does not change deals that already use it, but those deals will not pass validation until they are edited.</p>
+    <div class="form-grid">
+      <%- ui.field({ name: 'business_units', label: 'Business units', type: 'textarea', rows: 5, value: values.business_units, error: errors.business_units || '', span: false }) %>
+      <%- ui.field({ name: 'regions', label: 'Regions', type: 'textarea', rows: 5, value: values.regions, error: errors.regions || '' }) %>
+      <%- ui.field({ name: 'currencies', label: 'Currencies', type: 'textarea', rows: 5, value: values.currencies, error: errors.currencies || '', help: 'Three-letter codes, e.g. EUR' }) %>
+      <%- ui.field({ name: 'pricing_models', label: 'Pricing models', type: 'textarea', rows: 5, value: values.pricing_models, error: errors.pricing_models || '' }) %>
+      <%- ui.field({ name: 'sources', label: 'Sources', type: 'textarea', rows: 5, value: values.sources, error: errors.sources || '' }) %>
+      <%- ui.field({ name: 'outcome_reasons', label: 'Outcome reasons', type: 'textarea', rows: 5, value: values.outcome_reasons, error: errors.outcome_reasons || '' }) %>
+    </div>
+  </section>
+
+  <section class="card form-section">
+    <h3>Stages</h3>
+    <p class="muted">Fixed by the spec. They cannot be edited here.</p>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th scope="col">#</th><th scope="col">Stage</th><th scope="col" class="num">Probability</th><th scope="col">Outcome</th></tr></thead>
+        <tbody>
+          <% stages.forEach((s, i) => { %>
+            <tr><td><%= i + 1 %></td><td><%- ui.stageBadge(s.name, cfg) %></td><td class="num"><%= s.probability %>%</td><td><%= s.outcome || '—' %></td></tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card form-section" id="problems">
+    <h3>Data files that could not be read</h3>
+    <% if (problems.length === 0) { %>
+      <p class="muted">All data files loaded.</p>
+    <% } else { %>
+      <p class="muted">These files are skipped until they are fixed by hand, or restored from git history.</p>
+      <ul class="problem-list"><% for (const p of problems) { %><li><code><%= p %></code></li><% } %></ul>
+    <% } %>
+  </section>
+
+  <div class="form-footer">
+    <a class="btn btn-ghost" href="/">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>

@@ -15,6 +15,7 @@
         <a href="/deals" class="<%= active === 'deals' ? 'active' : '' %>">Deals</a>
         <a href="/customers" class="<%= active === 'customers' ? 'active' : '' %>">Customers</a>
         <a href="/people" class="<%= active === 'people' ? 'active' : '' %>">People</a>
+        <a href="/settings" class="<%= active === 'settings' ? 'active' : '' %>">Settings</a>
       </nav>
       <div class="topnav-right">
         <a class="btn btn-primary btn-sm" href="/deals/new">+ New deal</a>
@@ -34,6 +35,16 @@
     </div>
   <% } %>
 
+  <% if (conflictCount) { %>
+    <div class="banner banner-warning" role="status">
+      <%= conflictCount %> sync conflict<%= conflictCount === 1 ? '' : 's' %> need<%= conflictCount === 1 ? 's' : '' %> a decision. <a href="/conflicts">Review conflicts</a>
+    </div>
+  <% } %>
+  <% if (problemCount) { %>
+    <div class="banner banner-error" role="alert">
+      <%= problemCount %> data file<%= problemCount === 1 ? '' : 's' %> could not be read. <a href="/settings#problems">See Settings</a>
+    </div>
+  <% } %>
   <% if (lockWarning) { %>
     <div class="banner banner-warning" role="status"><%= lockWarning %></div>
   <% } %>

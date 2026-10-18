@@ -6,6 +6,8 @@ import { PREFIX, ValidationError, kindOf, nowIso, validateRecord } from './model
 /** Record kinds loaded from disk, in load order. */
 const KINDS = ['customer', 'person', 'deal'];
 const FOLDER = { deal: 'deals', customer: 'customers', person: 'people' };
+/** Conflict copies written by GitSync: <record id>.<YYYYMMDD-HHMMSS>.theirs.json */
+const CONFLICT_RE = /^((?:DL-\d{4}-\d{4})|(?:CU|PE)-\d{4})\.(\d{8}-\d{6})\.theirs\.json$/;
 
 /**
  * The only module that reads or writes data files (PLAN.md §7).
@@ -26,6 +28,7 @@ export class Store {
     this.lockPath = path.join(this.dataDir, '_lock.json');
     this.holder = null;
     this.lockWarning = null;
+    this.conflicts = [];
   }
 
   recordPath(kind, id) {
@@ -77,6 +80,59 @@ export class Store {
     this.cfg = cfg;
     this.records = records;
     this.problems = problems;
+    const conflictDir = path.join(this.dataDir, '_conflicts');
+    this.conflicts = (await fs.readdir(conflictDir).catch(() => [])).filter((n) => CONFLICT_RE.test(n)).sort();
+  }
+
+  /**
+   * Conflict copies waiting for a decision, each with the local and the other version.
+   * @returns {Promise<Array<{ file: string, id: string, stamp: string, local: object | null, remote: object | null }>>}
+   */
+  async conflictEntries() {
+    const dir = path.join(this.dataDir, '_conflicts');
+    const entries = [];
+    for (const file of this.conflicts) {
+      const [, id, stamp] = file.match(CONFLICT_RE);
+      const local = this.records[kindOf(id)].get(id) ?? null;
+      let remote = null;
+      try {
+        remote = JSON.parse(await fs.readFile(path.join(dir, file), 'utf8'));
+      } catch {
+        // unreadable copy: shown as "could not be read"
+      }
+      entries.push({ file, id, stamp, local, remote });
+    }
+    return entries;
+  }
+
+  /**
+   * Resolves one conflict copy. 'keep_mine' removes the copy. 'use_theirs' writes the copy
+   * over the record first. Both are one commit.
+   * @param {string} file the conflict file name
+   * @param {'keep_mine' | 'use_theirs'} action
+   */
+  resolveConflict(file, action) {
+    return this.mutex.run(async () => {
+      const match = file.match(CONFLICT_RE);
+      if (!match) throw new Error('Not a conflict file');
+      if (action !== 'keep_mine' && action !== 'use_theirs') throw new Error('Unknown action');
+      const [, id] = match;
+      const kind = kindOf(id);
+      const conflictPath = path.join(this.dataDir, '_conflicts', file);
+      const paths = [conflictPath];
+      if (action === 'use_theirs') {
+        const remote = JSON.parse(await fs.readFile(conflictPath, 'utf8'));
+        const errors = validateRecord(kind, remote, this.cfg);
+        if (errors.length) throw new ValidationError(errors);
+        await writeJsonAtomic(this.recordPath(kind, id), remote);
+        this.records[kind].set(id, remote);
+        paths.push(this.recordPath(kind, id));
+      }
+      await fs.rm(conflictPath, { force: true });
+      this.conflicts = this.conflicts.filter((f) => f !== file);
+      const outcome = action === 'use_theirs' ? 'used the other version' : 'kept this version';
+      return this.git.commitUnlocked(paths, `${id}: conflict resolved – ${outcome}`);
+    });
   }
 
   config() {

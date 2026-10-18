@@ -98,15 +98,44 @@
     }
   });
 
-  // 9. Outcome reason: "Mark Lost…" and "Mark Dropped…" open the reason form inline.
-  document.querySelectorAll('[data-outcome-toggle]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const form = document.querySelector(`.outcome-form[data-outcome="${button.dataset.outcomeToggle}"]`);
-      if (!form) return;
-      const open = form.hidden;
-      form.hidden = !open;
-      button.setAttribute('aria-expanded', String(open));
-      if (open) form.querySelector('select').focus();
-    });
+  // 3. Reveal: a button with data-reveal="id" shows or hides the element with that id. Used for
+  //    the outcome reason forms (§11.4 stage stepper) and the inline next-action updates on the dashboard.
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-reveal]');
+    if (!button) return;
+    const target = document.getElementById(button.dataset.reveal);
+    if (!target) return;
+    const open = target.hidden;
+    target.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+    if (open) target.querySelector('input, select, textarea')?.focus();
   });
+
+  // 3b. Keyboard shortcuts, ignored while typing: "/" search, "n" new deal, "g d" dashboard, "g l" deals list.
+  let gPending = false;
+  let gTimer = null;
+  document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const typing = event.target.closest('input, select, textarea, [contenteditable="true"]');
+    if (typing) return;
+    const key = event.key.toLowerCase();
+    if (gPending) {
+      gPending = false;
+      clearTimeout(gTimer);
+      if (key === 'd') window.location.href = '/';
+      if (key === 'l') window.location.href = '/deals';
+      return;
+    }
+    if (key === '/') {
+      const search = document.querySelector('input[type="search"][name="q"]');
+      if (search) { event.preventDefault(); search.focus(); }
+    } else if (key === 'n') {
+      window.location.href = '/deals/new';
+    } else if (key === 'g') {
+      gPending = true;
+      gTimer = setTimeout(() => { gPending = false; }, 1000);
+    }
+  });
+
+  // 9. Outcome reason: "Mark Lost…" and "Mark Dropped…" use the reveal above (data-reveal="outcome-Lost").
 })();

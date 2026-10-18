@@ -78,7 +78,7 @@ describe('app routes', () => {
   test('first run: setup saves the user and the dashboard greets them', async () => {
     const page = await get(app.base, '/');
     assert.equal(page.status, 200);
-    assert.match(page.html, /Hello, Amod/);
+    assert.match(page.html, /Good (morning|afternoon|evening), Amod/);
     assert.equal(app.store.config().me_person_id, 'PE-0001');
   });
 

@@ -73,6 +73,13 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **Lock file and history:** `_lock.json` never appears in the timeline.
 - **Known gap:** the Phase 1 dashboard is still the placeholder. The KPIs and lists come in Phase 2.
 
+### Made while building Phase 2 (2026-10-18)
+- **Dashboard replaces the placeholder** once a user is set. Until then the welcome card shows, as before.
+- **Commit helper handles missing files.** `GitSync.commitUnlocked` stages the files that exist, removes the others from the index (a no-op for untracked files), and commits only what is staged.
+- **Conflict copies are resolved one at a time** on `/conflicts`. Each choice is one commit.
+- **Export uses the list's filters**, including the default "open" filter.
+- **Next-action updates return to the page the user came from**, so the dashboard's inline update stays on the dashboard.
+
 ---
 
 ## 3. Open questions
@@ -150,3 +157,9 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - Checks: `npm test` 65 of 65 pass on Node 24.
 - Not run: a browser visual check. Pages are checked by the route tests, which fetch the HTML.
 - Next step: Phase 2 (dashboard, settings, Excel export, conflicts page, data-problems banner, shortcuts).
+
+### 2026-10-18 — Phase 2 — insight and settings — Linux
+- Done: full dashboard (KPIs, needs attention, my next actions with inline update, pipeline and aging bars, recently updated), settings (me, stale threshold, lists, read-only stages, data problems), Excel export (36 columns, same filters as the list), conflicts page (keep mine / use theirs), banners for conflicts and unreadable data files, keyboard shortcuts and reveal forms.
+- Changed files: `app/export.js` (new), `app/routes.js`, `app/store.js`, `app/git-sync.js`, `app/lib/render.js`, views (`dashboard`, `settings`, `conflicts`, `layout`, `deals/list`, `deals/detail`), `app/public/app.js`, `app/public/app.css`, `tests/insight.test.js` (new).
+- Checks: `npm test` 74 of 74 pass on Node 24.
+- Next step: Phase 3 (weekly report, README, polish).
