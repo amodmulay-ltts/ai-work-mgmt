@@ -23,6 +23,7 @@
 7. **ES modules everywhere.** `package.json` has `"type": "module"`, so use `import`/`export` and `node:`-prefixed built-ins (`node:fs/promises`, `node:path`, `node:child_process`). Use `async`/`await`; do not use callbacks.
 8. **JSDoc types** on every exported function. Keep functions short. Add a comment only where the behaviour is not obvious.
 9. After each phase: run `npm test`, start the app with `./start.sh`, and click through the pages in that phase's checks.
+10. **Keep `NOTES.md` up to date.** Before you finish any working session, add a progress entry (template in `NOTES.md` §4) and update the status table. Record any decision the spec does not cover in `NOTES.md` §2. The next session may run on a different device and will only see the repo, so anything not written in `NOTES.md` or `PLAN.md` is lost.
 
 ---
 
@@ -52,7 +53,8 @@ ai-work-mgmt/
 ├── .gitignore
 ├── .gitattributes
 ├── PLAN.md                   # this file
-├── NOTES.md                  # implementer's decisions log
+├── NOTES.md                  # shared decisions log, open questions, progress log (§10 rule)
+├── CLAUDE.md                 # auto-loaded by Claude Code: tells every session to read NOTES.md and PLAN.md first
 ├── README.md                 # short: what it is, how to start, how sync works
 ├── app/
 │   ├── server.js             # createApp(): Express setup, startup and shutdown hooks
@@ -194,8 +196,8 @@ exit /b %rc%
    - If `ROOT/.git` does not exist: run `git init -b main` and print a warning that no remote is configured.
    - If no `origin` remote is configured: print `No git remote configured. To enable sync run: git remote add origin https://github.com/amodmulay-ltts/ai-work-mgmt.git` and keep running.
    - If `git config --get user.name` or `user.email` is empty: ask for them with `readline/promises`, then store them with `git config user.name ...` (repo-local, not global).
-6. **Start the app:** `const { createApp } = await import('./app/server.js')`. Then `const { app, store, git } = await createApp({ root: ROOT, syncEnabled: !offline })`. `createApp` does the store initialisation and starts the push worker (§10).
-7. **Startup pull** (unless `--offline` or there is no remote): `await git.pull({ interactive: true })`. Interactive means git is allowed to prompt for credentials in the terminal the first time, so the normal stdin is used.
+6. **Start the app:** `const { createApp } = await import('./app/server.js')`. Then `const { app, store, git, startup } = await createApp({ root: ROOT, syncEnabled: !offline, startupPull: true })`. `createApp` pulls first (step 7), then initialises the store, then starts the push worker (§10).
+7. **Startup pull** (unless `--offline` or there is no remote): `await git.pull({ interactive: true })`. This must run **before** the store creates `config.json`. Otherwise a second laptop would create its own default config and conflict with the one already on the remote. Interactive means git is allowed to prompt for credentials in the terminal the first time, so the normal stdin is used.
    - Print `Synced with remote` on success, or `Sync failed: <message> — continuing offline` on failure.
    - Never exit because of a sync failure.
    - If the pull changed files, call `store.loadAll()`.
@@ -207,6 +209,24 @@ exit /b %rc%
     - other: `xdg-open <url>`
     Use `spawn` with `stdio: 'ignore'`, `detached: true`, and call `.unref()`. Ignore errors.
 11. **Ctrl+C / SIGINT / SIGTERM:** the first signal runs `await git.flush(20000)`, then `server.close()`, then `process.exit(0)`. A second signal exits immediately with `process.exit(1)`.
+
+### 3.4 Session lock (advisory, so two computers are not used at once)
+
+**Purpose:** warn the user when another computer may be editing. It never blocks. Git still merges everything, so the lock only reduces conflicts.
+
+- **File:** `data/_lock.json`, placed directly in `data/` (not in a kind folder), so `Store.loadAll` never reads it as a record. Content: `{ "holder": "<os user>@<hostname>", "started_at": "<nowIso()>" }`.
+- **Holder identity:** `os.userInfo().username` + `@` + `os.hostname()`. The environment variable `WORK_TRACKER_HOLDER`, when set, replaces it. Tests use it to run two copies on one machine.
+- **On start** (in `createApp`, after the startup pull and `store.init()`, before the server listens):
+  1. Read `data/_lock.json`. If it exists and `holder` is not this session's holder, set `store.lockWarning` to `"<holder> has this open since <started_at>. Make sure it is closed before you edit, or changes may conflict."`. Otherwise `store.lockWarning` is `null`.
+  2. Write the lock with this holder and `nowIso()`. Commit with `session: opened on <holder>` through `git.commitUnlocked`, then call `git.pushNow()` at once (do not wait for the 30 s delay), so other computers see the lock soon.
+  3. `run.js` prints `store.lockWarning` in the terminal when it is set.
+- **On clean shutdown** (`run.js`, before `git.flush()`): delete `data/_lock.json`, commit `session: closed on <holder>`, then flush. The commit and the flush happen in this order so the release is pushed.
+- **Layout:** when `store.lockWarning` is set, `layout.ejs` shows it in a `.banner-warning` strip under the nav. It stays until the next start.
+- **Stale locks:** a crash or a missing network leaves the lock in place. The next start on any computer shows the same warning. The app never refuses to start because of the lock.
+- **Limits:** the lock is only as fresh as the last push from the other computer. Two computers with the same user name and hostname cannot be told apart.
+- **Offline mode (`--offline`):** the lock is still written and committed locally, but nothing is pushed.
+
+---
 
 ## 4. Domain rules
 
@@ -641,7 +661,7 @@ export class Store {
   3. write it atomically (§5.2)
   4. update the in-memory map
 
-  Then call `git.commit([all written paths], message)`.
+  Then call `git.commitUnlocked([all written paths], message)`. The lock is already held here, so calling the locking `commit()` would deadlock.
 - **`delete()`:**
   - Removes the file and commits the removal.
   - Refuses to delete a **customer** that has deals: throw `Error("Customer has N deals")`.
@@ -1007,8 +1027,9 @@ Bosch · C4C 4589123 ⧉ · Sales: Priya S · Presales: Amod M
 4. `app/views/layout.ejs` (nav, sync badge, flash and banner areas), `app/public/app.css` (tokens, base styles and components from §11.2–11.4), and `app/public/app.js` (features 5–7 of §11.7).
 5. Placeholder dashboard page: "Work Tracker is running", plus the first-run "who are you" card. This needs the `Person` model and saving people, so implement those now.
 6. `GET /api/sync/status` and `POST /sync`.
-7. `tests/helpers.js`: creates a temporary bare remote (`git init --bare -b main`) and two clones, each with a local `user.name` and `user.email`. Use `fs.mkdtemp(path.join(os.tmpdir(), 'wt-'))` for all temp folders.
-8. `tests/git-sync.test.js` (using `node:test`) covers:
+7. Session lock (§3.4): `data/_lock.json` read on start, the warning banner, commit and push on start, and release on Ctrl+C. Add `Store.readLock`, `writeLock` and `releaseLock`, plus the banner in `layout.ejs`.
+8. `tests/helpers.js`: creates a temporary bare remote (`git init --bare -b main`) and two clones, each with a local `user.name` and `user.email`. Use `fs.mkdtemp(path.join(os.tmpdir(), 'wt-'))` for all temp folders.
+9. `tests/git-sync.test.js` (using `node:test`) covers:
    - commit plus push
    - pull in the second clone
    - a conflict on the same deal file (local version kept, remote version saved in `_conflicts`)
@@ -1021,6 +1042,7 @@ Bosch · C4C 4589123 ⧉ · Sales: Priya S · Presales: Amod M
 - A second run starts in under 5 seconds (no reinstall).
 - Entering your name on the first-run card creates `data/people/PE-0001.json`, a commit `PE-0001: created – <name>`, and a push within about 30 s. The badge goes from "1 unpushed" to "Synced".
 - Ctrl+C pushes any pending commits before exiting.
+- Session lock: start on computer A, then start on computer B (after A has pushed). B shows the warning in the banner and in the terminal. Stop A, then start B again: no warning. A crash on A leaves the warning in place.
 - With the network unplugged: the app starts, the badge shows "Sync error", and edits are still committed locally.
 - `npm test` passes.
 

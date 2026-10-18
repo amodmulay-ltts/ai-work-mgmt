@@ -1,0 +1,32 @@
+<div class="page-header">
+  <h1>Dashboard</h1>
+</div>
+
+<% if (!me) { %>
+  <section class="card first-run">
+    <h2>Welcome — tell us who you are</h2>
+    <p class="muted">Your name is used as the presales owner for new deals. You can change it later on the People page.</p>
+    <form method="post" action="/setup" novalidate>
+      <div class="field">
+        <label for="name">Your name <span class="req" aria-hidden="true">*</span></label>
+        <input id="name" name="name" type="text" required value="<%= values.name || '' %>"
+               <%- errors.name ? 'aria-invalid="true" aria-describedby="name-error"' : '' %>>
+        <% if (errors.name) { %><p class="error" id="name-error"><%= errors.name %></p><% } %>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" value="<%= values.email || '' %>"
+               <%- errors.email ? 'aria-invalid="true" aria-describedby="email-error"' : '' %>>
+        <% if (errors.email) { %><p class="error" id="email-error"><%= errors.email %></p><% } %>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Save</button>
+      </div>
+    </form>
+  </section>
+<% } else { %>
+  <section class="card">
+    <h2>Hello, <%= me.name.split(' ')[0] %></h2>
+    <p class="muted">Work Tracker is running. Deal tracking is coming next.</p>
+  </section>
+<% } %>

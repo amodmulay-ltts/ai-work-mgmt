@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title ? title + ' · ' : '' %>Work Tracker</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="/">Work Tracker</a>
+      <nav class="navlinks" aria-label="Main">
+        <a href="/" class="<%= active === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+      </nav>
+      <div class="topnav-right">
+        <form id="sync-form" method="post" action="/sync"></form>
+        <button id="sync-badge" class="sync-badge" type="submit" form="sync-form"
+                data-state="<%= sync.state %>" title="<%= sync.lastError || '' %>">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="label"><%= syncLabel(sync) %></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <% if (sync.state === 'error') { %>
+    <div class="banner banner-error" role="alert">
+      Last sync failed: <%= sync.lastError %>. Your changes are saved on this computer and will be pushed when the connection works.
+    </div>
+  <% } %>
+
+  <% if (lockWarning) { %>
+    <div class="banner banner-warning" role="status"><%= lockWarning %></div>
+  <% } %>
+
+  <% if (flash) { %>
+    <div class="toast toast-<%= flash.kind %>" role="status">
+      <span><%= flash.text %></span>
+      <button type="button" class="toast-close" aria-label="Close message">×</button>
+    </div>
+  <% } %>
+
+  <main class="container">
+    <%- body %>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
