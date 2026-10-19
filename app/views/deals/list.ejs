@@ -25,6 +25,7 @@
   <%- ui.selectControl({ name: 'stage', value: filter.stage, placeholder: 'All stages', ariaLabel: 'Stage', options: cfg.stages.map((s) => [s.name, s.name]) }) %>
   <%- ui.selectControl({ name: 'customer', value: filter.customer, placeholder: 'All customers', ariaLabel: 'Customer', options: customers.map((c) => [c.id, c.name]) }) %>
   <%- ui.selectControl({ name: 'owner', value: filter.owner, placeholder: 'Any owner', ariaLabel: 'Owner', options: people.filter((p) => p.active).map((p) => [p.id, p.name]) }) %>
+  <%- ui.selectControl({ name: 'support', value: filter.support, placeholder: 'Any support', ariaLabel: 'Support', options: [['me', 'Supported by me']] }) %>
   <%- ui.selectControl({ name: 'bu', value: filter.bu, placeholder: 'All BUs', ariaLabel: 'BU', options: cfg.business_units.map((b) => [b, b]) }) %>
   <%- ui.selectControl({ name: 'priority', value: filter.priority, placeholder: 'Any priority', ariaLabel: 'Priority', options: [['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low']] }) %>
   <%- ui.selectControl({ name: 'health', value: filter.health, placeholder: 'Any health', ariaLabel: 'Health', options: [['red', 'Red'], ['amber', 'Amber'], ['green', 'Green'], ['hold', 'On hold'], ['closed', 'Closed']] }) %>
@@ -58,6 +59,7 @@
             <th scope="col"><%- sortLink('customer', 'Customer') %></th>
             <th scope="col"><%- sortLink('stage', 'Stage') %></th>
             <th scope="col">Sales owner</th>
+            <th scope="col">Supporters</th>
             <th scope="col"><%- sortLink('submission_due', 'Submission due') %></th>
             <th scope="col" class="num"><%- sortLink('age', 'Age') %></th>
             <th scope="col" class="num"><%- sortLink('value', 'Value') %></th>
@@ -73,6 +75,7 @@
               <td class="ellipsis" title="<%= r.customerName %>"><%= r.customerName %></td>
               <td><%- ui.stageBadge(d.stage, cfg) %><% if (d.on_hold) { %> <span class="badge hold">⏸</span><% } %></td>
               <td class="ellipsis" title="<%= r.salesName %>"><%= r.salesName %></td>
+              <td class="ellipsis" title="<%= r.supporters.join(', ') %>"><%= r.supporters.slice(0, 2).join(', ') || '—' %><% if (r.supporters.length > 2) { %> +<%= r.supporters.length - 2 %><% } %></td>
               <td><%- ui.dueCell(d.submission_due, today, { done: d.submitted_on }) %></td>
               <td class="num"><%= r.age %>d</td>
               <td class="num"><%= moneyCompact(d.est_value, d.currency) %></td>

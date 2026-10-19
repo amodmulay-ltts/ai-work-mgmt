@@ -24,12 +24,13 @@ The first start installs the dependencies, asks for your name and email for git 
 2. Work in the browser.
 3. Stop it with **Ctrl+C** in the terminal. It releases the session lock and pushes everything before it exits.
 
-Keyboard shortcuts, when you are not typing in a field: `/` search, `n` new deal, `g d` dashboard, `g l` deals list.
+Keyboard shortcuts, when you are not typing in a field: `/` search, `n` new deal, `g d` dashboard, `g l` deals list, `g s` RFQs I support.
 
 ### Pages
 
 - **Dashboard:** what needs attention, your next actions, pipeline and aging, recent changes.
 - **Deals:** filter, sort and search. Export the current view to Excel with **Export to Excel**.
+- **Support** and **My asks:** RFQs where you are a supporter (or have an open ask), and the asks other people have given you. Add supporters and asks on a deal's page, under **Support**.
 - **Customers** and **People:** a customer or a person is created automatically when you type a new name on a deal. You can also add them here.
 - **Weekly report:** plain Markdown for the week, with a Copy button for Outlook or Teams.
 - **Settings:** your name and email, the stale threshold, and the lists used in dropdowns.

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
-  agingCounts, ageDays, askOverdue, daysInStage, daysToSubmission, health, isOpen, isOpenAsk, moneyTotals,
-  pipelineByStage, stageInfo, status, weightedValue, winStats,
+  agingCounts, ageDays, askOverdue, asksFor, daysInStage, daysToSubmission, health, isOpen, isOpenAsk, isSupportedBy,
+  moneyTotals, openAsks, pipelineByStage, stageInfo, status, weightedValue, winStats,
 } from './metrics.js';
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
@@ -78,6 +78,7 @@ function dashboardView(store, cfg, today, me) {
         .filter((r) => r.deal.presales_owner_id === me.id)
         .sort((a, b) => dueText(a.deal.next_action_due).localeCompare(dueText(b.deal.next_action_due)))
     : [];
+  const myAsks = me ? asksFor(deals, me.id) : [];
   return {
     kpi: {
       open: open.length,
@@ -86,6 +87,12 @@ function dashboardView(store, cfg, today, me) {
       dueSoon: dueSoon.length,
       overdue: overdue.length,
       win: winStats(deals, cfg, today, 90),
+    },
+    // Asks for me: the 5 earliest open asks, and how many are due within a week (overdue included).
+    myAsks: {
+      rows: myAsks.slice(0, 5).map((r) => ({ ...r, overdue: askOverdue(r.ask, today) })),
+      total: myAsks.length,
+      dueWeek: myAsks.filter((r) => r.ask.due_on && r.ask.due_on <= addDays(today, 7)).length,
     },
     attention,
     actions,
@@ -152,6 +159,7 @@ function dealRow(deal, store, cfg, today) {
     deal,
     customerName: store.getCustomer(deal.customer_id)?.name ?? '—',
     salesName: store.getPerson(deal.sales_owner_id)?.name ?? '—',
+    supporters: deal.support_ids.map((id) => store.getPerson(id)?.name).filter(Boolean),
     status: status(deal, cfg),
     health: health(deal, cfg, today),
     age: ageDays(deal, today),
@@ -214,6 +222,7 @@ function listDeals(store, cfg, today, query) {
     stage: query.stage || '',
     customer: query.customer || '',
     owner: query.owner || '',
+    support: query.support || '',
     bu: query.bu || '',
     priority: query.priority || '',
     health: query.health || '',
@@ -228,6 +237,9 @@ function listDeals(store, cfg, today, query) {
   if (filter.owner) {
     rows = rows.filter((r) => [r.deal.sales_owner_id, r.deal.presales_owner_id, r.deal.delivery_owner_id].includes(filter.owner));
   }
+  // support=me means the current user; any other value is a person id (used by /support?who=).
+  const supporterId = filter.support === 'me' ? cfg.me_person_id : filter.support;
+  if (supporterId) rows = rows.filter((r) => isSupportedBy(r.deal, supporterId));
   if (filter.bu) rows = rows.filter((r) => r.deal.bu === filter.bu);
   if (filter.priority) rows = rows.filter((r) => r.deal.priority === filter.priority);
   if (filter.health) rows = rows.filter((r) => r.health.level === filter.health);
@@ -670,6 +682,49 @@ export function createRouter() {
     await store.delete(deal, `${deal.id}: deleted`);
     flash(res, 'success', `Deleted ${deal.id}.`);
     return res.redirect(303, '/deals');
+  });
+
+  // ------------------------------------------------ RFQs I support and my asks (PLAN.md §15.3)
+  // The support page shows the current user's RFQs by default. ?who=<person id> shows a colleague's.
+  router.get('/support', async (req, res) => {
+    const { store } = req.app.locals;
+    const cfg = store.config();
+    const today = todayIso();
+    const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
+    const whoParam = clean(req.query.who);
+    const who = whoParam && whoParam !== 'me' ? store.getPerson(whoParam) : me;
+    // Without a person, no deal matches: the id 'nobody' is never a real person.
+    const listing = listDeals(store, cfg, today, { ...req.query, support: who?.id ?? 'nobody' });
+    const rows = listing.rows.map((r) => {
+      const mine = openAsks(r.deal).filter((a) => a.assignee_id === who?.id);
+      const dates = mine.map((a) => a.due_on).filter(Boolean).sort();
+      return { ...r, myOpenAsks: mine.length, myNextDue: dates[0] ?? null };
+    });
+    await renderPage(req, res, 'support/list', {
+      title: 'RFQs I support',
+      active: 'support',
+      rows,
+      filter: listing.filter,
+      who,
+      noUser: !who,
+      people: store.listPeople().filter((p) => p.active),
+      selfId: me?.id ?? null,
+    });
+  });
+
+  router.get('/support/asks', async (req, res) => {
+    const { store } = req.app.locals;
+    const today = todayIso();
+    const me = store.config().me_person_id ? store.getPerson(store.config().me_person_id) : null;
+    const rows = me
+      ? asksFor(store.listDeals(), me.id).map(({ deal, ask }) => ({
+        deal,
+        ask,
+        customerName: store.getCustomer(deal.customer_id)?.name ?? '—',
+        overdue: askOverdue(ask, today),
+      }))
+      : [];
+    await renderPage(req, res, 'support/asks', { title: 'My asks', active: 'asks', rows, noUser: !me });
   });
 
   // ------------------------------------------------ supporters and asks (PLAN.md §15)
