@@ -1,0 +1,54 @@
+<%
+  const statusOptions = [['open', 'Open'], ['hold', 'On hold'], ['won', 'Won'], ['lost', 'Lost'], ['dropped', 'Dropped'], ['closed', 'Closed (all outcomes)'], ['all', 'All']];
+  const filtering = filter.q || filter.status !== 'open';
+  const isMe = who && selfId === who.id;
+  const extra = [
+    {
+      header: 'My open asks',
+      cell: (r) => (r.myOpenAsks ? `<a href="/deals/${r.deal.id}#support">${r.myOpenAsks}</a>` : '<span class="subtle">0</span>'),
+    },
+    {
+      header: 'Next ask due',
+      cell: (r) => (r.myNextDue ? ui.dueCell(r.myNextDue, today) : '<span class="subtle">—</span>'),
+    },
+  ];
+%>
+<div class="page-header">
+  <h1><%= isMe || noUser ? 'RFQs I support' : 'RFQs ' + (who ? who.name : '') + ' supports' %> <span class="count"><%= rows.length %></span></h1>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="/support/asks">My asks</a>
+  </div>
+</div>
+
+<% if (noUser) { %>
+  <section class="card"><p class="subtle">Tell us who you are on the <a href="/">dashboard</a> first, or choose a person below.</p></section>
+<% } %>
+
+<form method="get" action="/support" class="filters" role="search">
+  <input type="search" name="q" value="<%= filter.q %>" placeholder="Search RFQs…" aria-label="Search RFQs" class="search">
+  <%- ui.selectControl({ name: 'who', value: who ? who.id : '', placeholder: 'Choose a person', ariaLabel: 'Supporter', options: people.map((p) => [p.id, p.name]) }) %>
+  <%- ui.selectControl({ name: 'status', value: filter.status, options: statusOptions, ariaLabel: 'Status' }) %>
+  <noscript><button class="btn btn-secondary" type="submit">Apply</button></noscript>
+  <% if (filtering) { %><a href="/support<%= who && !isMe ? '?who=' + who.id : '' %>" class="btn btn-ghost">Clear</a><% } %>
+</form>
+
+<section class="card table-card">
+  <% if (noUser) { %>
+    <div class="empty-state"></div>
+  <% } else if (rows.length === 0) { %>
+    <div class="empty-state">
+      <% if (filtering) { %>
+        <h2>No RFQs match these filters</h2>
+        <p class="muted">Try a different filter, or clear them to see everything open.</p>
+      <% } else if (isMe) { %>
+        <h2>You are not supporting any open RFQs</h2>
+        <p class="muted">Add yourself as a supporter on a deal to see it here.</p>
+      <% } else { %>
+        <h2><%= who.name %> is not supporting any open RFQs</h2>
+        <p class="muted">Supporters are added on each deal's page.</p>
+      <% } %>
+    </div>
+  <% } else { %>
+    <%- include('../partials/deal-table', { rows, cfg, today, empty: '', extra }) %>
+  <% } %>
+</section>

@@ -114,7 +114,7 @@
     if (open) target.querySelector('input, select, textarea')?.focus();
   });
 
-  // 3b. Keyboard shortcuts, ignored while typing: "/" search, "n" new deal, "g d" dashboard, "g l" deals list.
+  // 3b. Keyboard shortcuts, ignored while typing: "/" search, "n" new deal, "g d" dashboard, "g l" deals list, "g s" RFQs I support.
   let gPending = false;
   let gTimer = null;
   document.addEventListener('keydown', (event) => {
@@ -127,6 +127,7 @@
       clearTimeout(gTimer);
       if (key === 'd') window.location.href = '/';
       if (key === 'l') window.location.href = '/deals';
+      if (key === 's') window.location.href = '/support';
       return;
     }
     if (key === '/') {

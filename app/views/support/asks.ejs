@@ -1,0 +1,41 @@
+<div class="page-header">
+  <h1>My asks <span class="count"><%= rows.length %></span></h1>
+</div>
+
+<section class="card table-card">
+  <% if (noUser) { %>
+    <div class="empty-state">
+      <p class="muted">Tell us who you are on the <a href="/">dashboard</a> first.</p>
+    </div>
+  <% } else if (rows.length === 0) { %>
+    <div class="empty-state">
+      <h2>No open asks for you</h2>
+      <p class="muted">When someone asks you for something on an RFQ, it shows up here.</p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Due</th>
+            <th scope="col">Deal</th>
+            <th scope="col">Ask</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of rows) { %>
+            <tr class="clickable" data-href="/deals/<%= r.deal.id %>#support">
+              <td><%- ui.dueCell(r.ask.due_on, today) %></td>
+              <td class="ellipsis"><a href="/deals/<%= r.deal.id %>#support" class="mono"><%= r.deal.id %></a> <span class="subtle"><%= r.deal.title %></span></td>
+              <td><%= r.ask.text %></td>
+              <td class="ellipsis"><%= r.customerName %></td>
+              <td><%= r.ask.status %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
