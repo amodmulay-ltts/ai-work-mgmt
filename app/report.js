@@ -2,7 +2,7 @@
  * Weekly status report as plain Markdown (PLAN.md §12.2).
  * The week runs Monday to Sunday. Pure functions: the caller passes `today`.
  */
-import { health, isOpen, moneyTotals, stageInfo, weightedValue } from './metrics.js';
+import { health, isOpen, moneyTotals, openAsks, stageInfo, weightedValue } from './metrics.js';
 import { fmtDate, moneyCompact, moneyTotalsText } from './lib/format.js';
 import { addDays, mondayOf } from './lib/dates.js';
 
@@ -47,6 +47,17 @@ export function weeklyReport(store, weekStart) {
     })
     .filter(Boolean);
 
+  // Open asks due by the end of next week. Ones due before next week starts are overdue by then.
+  const askRows = open
+    .flatMap((d) => openAsks(d).filter((a) => a.due_on && a.due_on <= next[1]).map((ask) => ({ deal: d, ask })))
+    .sort((x, y) => x.ask.due_on.localeCompare(y.ask.due_on) || x.deal.id.localeCompare(y.deal.id));
+  const askLine = ({ deal, ask }) => {
+    const customer = store.getCustomer(deal.customer_id)?.name ?? '—';
+    const assignee = store.getPerson(ask.assignee_id)?.name ?? 'unassigned';
+    const overdue = ask.due_on < next[0] ? ' (overdue)' : '';
+    return `- ${deal.id} · ${customer} · ${deal.title} · ${ask.text} · ${assignee} · due ${fmtDate(ask.due_on)}${overdue}`;
+  };
+
   const lostLines = outcome('lost').map((d) => `${line(d, store)} · reason: ${d.outcome_reason ?? '—'}`);
   const droppedLines = outcome('dropped').map((d) => `${line(d, store)} · reason: ${d.outcome_reason ?? '—'}`);
 
@@ -67,6 +78,9 @@ export function weeklyReport(store, weekStart) {
     '',
     '## Due next week',
     byLine(dueNext),
+    '',
+    '## Asks due next week',
+    askRows.length ? askRows.map(askLine).join('\n') : '- None',
     '',
     '## At risk',
     byLine(atRisk),
