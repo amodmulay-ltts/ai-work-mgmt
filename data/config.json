@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "me_person_id": null,
+  "me_person_id": "PE-0001",
   "stale_after_days": 14,
   "push_delay_seconds": 30,
   "stages": [

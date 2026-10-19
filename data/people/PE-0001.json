@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "PE-0001",
+  "name": "Amod Mulay",
+  "role": "Presales",
+  "title": null,
+  "email": "amod.mulay@ltts.com",
+  "phone": null,
+  "customer_id": null,
+  "notes": "",
+  "active": true,
+  "created_at": "2026-10-19T17:45:12+02:00",
+  "updated_at": "2026-10-19T17:45:12+02:00"
+}
