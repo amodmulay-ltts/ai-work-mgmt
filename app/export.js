@@ -2,6 +2,7 @@
  * Excel export of the deals list (PLAN.md §12.1). Uses exceljs.
  */
 import ExcelJS from 'exceljs';
+import { openAsks } from './metrics.js';
 
 const DATE = 'dd-mmm-yyyy';
 const MONEY = '#,##0';
@@ -20,6 +21,8 @@ const COLUMNS = [
   { header: 'Sales owner', key: 'sales' },
   { header: 'Presales owner', key: 'presales' },
   { header: 'Delivery owner', key: 'delivery' },
+  { header: 'Supporters', key: 'supporters' },
+  { header: 'Open asks', key: 'open_asks' },
   { header: 'BU', key: 'bu' },
   { header: 'Practice', key: 'practice' },
   { header: 'Region', key: 'region' },
@@ -70,6 +73,8 @@ function rowValues(r, store) {
     sales: name(d.sales_owner_id),
     presales: name(d.presales_owner_id),
     delivery: name(d.delivery_owner_id),
+    supporters: d.support_ids.map(name).filter(Boolean).join(', '),
+    open_asks: openAsks(d).length,
     bu: d.bu ?? '',
     practice: d.practice ?? '',
     region: d.region ?? '',

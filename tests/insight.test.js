@@ -159,9 +159,9 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
     await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
     const sheet = workbook.getWorksheet('Deals');
     assert.equal(sheet.getRow(1).getCell(1).value, 'ID');
-    assert.equal(sheet.getRow(1).cellCount, 36);
+    assert.equal(sheet.getRow(1).cellCount, 38, 'two support columns were added after Delivery owner');
     assert.equal(sheet.rowCount, 1 + app.store.listDeals().filter((d) => d.stage !== 'Won' && d.stage !== 'Lost').length, 'default filter is open deals');
-    const dateCell = sheet.getRow(2).getCell(16).value;
+    const dateCell = sheet.getRow(2).getCell(18).value;
     assert.ok(dateCell instanceof Date, 'Received is a real date');
   });
 

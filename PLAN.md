@@ -1207,7 +1207,10 @@ Add two fields to `Deal`, placed right after `delivery_owner_id` so the key orde
 ### 15.5 Export and report
 
 - **Excel (§12.1):** add two columns after **Delivery owner**, in this order: **Supporters** (names joined by ", "), and **Open asks** (count of open asks). Update the column count and the expected column number in the tests (36 becomes 38, and the date columns shift by 2). Put the new columns after **Delivery owner**, so the existing column numbers before that stay the same.
-- **Weekly report (§12.2):** add a section **Asks due next week** after **Due next week**. Each line: `- DL-… · customer · title · ask text · assignee · due DD MMM`. Empty: "- None". Overdue asks are marked "(overdue)".
+- **Weekly report (§12.2):** add a section **Asks due next week** after **Due next week**. Each line: `- DL-… · customer · title · ask text · assignee · due DD MMM`. Empty: "- None".
+  - **Built (S3):** the list holds open asks on open deals due by the end of next week. An ask due before next week starts is still open at that point, so it is listed and marked "(overdue)". Asks on won, lost or dropped deals are left out.
+  - **Built (S3):** an ask with no assignee shows "unassigned".
+- **Export column numbers changed:** the two new columns push Received from column 16 to 18, and the column count goes from 36 to 38. `tests/insight.test.js` was updated to match.
 
 ### 15.6 Tests (`tests/support.test.js`)
 
