@@ -45,7 +45,10 @@ export const FIELD_LABELS = {
 };
 
 /** Fields that are never logged. */
-const SKIPPED = new Set(['history', 'created_at', 'updated_at', 'schema_version', 'id']);
+// Supporter and ask changes write their own history entries (support.js), so they are not diffed here.
+const SKIPPED = new Set([
+  'history', 'created_at', 'updated_at', 'schema_version', 'id', 'support_ids', 'support_requests', 'support_seq',
+]);
 const PERSON_FIELDS = new Set(['sales_owner_id', 'presales_owner_id', 'delivery_owner_id']);
 
 /** How a value is shown in the timeline and in the commit message. */

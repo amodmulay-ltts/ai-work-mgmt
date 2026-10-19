@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { DEFAULT_CONFIG } from './config-defaults.js';
-import { PREFIX, ValidationError, kindOf, nowIso, validateRecord } from './models.js';
+import { PREFIX, ValidationError, kindOf, nowIso, validateRecord, withSupportDefaults } from './models.js';
 
 /** Record kinds loaded from disk, in load order. */
 const KINDS = ['customer', 'person', 'deal'];
@@ -67,7 +67,8 @@ export class Store {
         if (!name.endsWith('.json')) continue;
         const label = `${FOLDER[kind]}/${name}`;
         try {
-          const obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
+          let obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
+          if (kind === 'deal') obj = withSupportDefaults(obj);
           // Structural checks only: enum lists are checked when a record is saved.
           const errors = validateRecord(kind, obj, null);
           if (errors.length) problems.push(`${label}: ${errors.join(', ')}`);
@@ -121,7 +122,7 @@ export class Store {
       const conflictPath = path.join(this.dataDir, '_conflicts', file);
       const paths = [conflictPath];
       if (action === 'use_theirs') {
-        const remote = JSON.parse(await fs.readFile(conflictPath, 'utf8'));
+        const remote = withSupportDefaults(JSON.parse(await fs.readFile(conflictPath, 'utf8')));
         const errors = validateRecord(kind, remote, this.cfg);
         if (errors.length) throw new ValidationError(errors);
         await writeJsonAtomic(this.recordPath(kind, id), remote);

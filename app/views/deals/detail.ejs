@@ -64,6 +64,121 @@
 
 <div class="detail-grid">
   <div class="detail-main">
+    <section class="card support-card" id="support">
+      <h2>Support</h2>
+      <p class="muted">People helping on this RFQ, and what they have been asked to do.</p>
+
+      <h3>Supporters</h3>
+      <% if (supporters.length) { %>
+        <ul class="chips" aria-label="Supporters">
+          <% for (const s of supporters) { %>
+            <li>
+              <form method="post" action="/deals/<%= d.id %>/support" class="chip">
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="person_id" value="<%= s.id %>">
+                <span><%= s.name %></span>
+                <button type="submit" class="chip-remove" aria-label="Remove <%= s.name %> as a supporter">×</button>
+              </form>
+            </li>
+          <% } %>
+        </ul>
+      <% } else { %><p class="subtle">No supporters yet.</p><% } %>
+      <% if (addablePeople.length) { %>
+        <form method="post" action="/deals/<%= d.id %>/support" class="support-add">
+          <div class="field">
+            <label for="add-supporter">Add supporter</label>
+            <select id="add-supporter" name="person_id">
+              <% for (const p of addablePeople) { %><option value="<%= p.id %>"><%= p.name %></option><% } %>
+            </select>
+          </div>
+          <button class="btn btn-secondary btn-sm" type="submit" name="action" value="add">Add supporter</button>
+        </form>
+      <% } %>
+
+      <h3>Asks</h3>
+      <% if (asks.length) { %>
+        <div class="table-wrap">
+          <table class="table asks-table">
+            <thead>
+              <tr>
+                <th scope="col" class="mono">ID</th>
+                <th scope="col">Ask</th>
+                <th scope="col">Assignee</th>
+                <th scope="col">Due</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (const row of asks) { const a = row.ask; %>
+                <tr class="<%= row.open ? '' : 'inactive' %>">
+                  <td class="mono"><%= a.id %></td>
+                  <td>
+                    <%= a.text %>
+                    <details class="ask-edit">
+                      <summary>Edit</summary>
+                      <form method="post" action="/deals/<%= d.id %>/asks/<%= a.id %>" class="stack">
+                        <div class="field">
+                          <label for="text-<%= a.id %>">Ask</label>
+                          <input type="text" id="text-<%= a.id %>" name="text" value="<%= a.text %>" required>
+                        </div>
+                        <div class="field">
+                          <label for="assignee-<%= a.id %>">Assignee</label>
+                          <select id="assignee-<%= a.id %>" name="assignee_id">
+                            <option value="">Unassigned</option>
+                            <% for (const p of activePeople) { %><option value="<%= p.id %>"<%- p.id === a.assignee_id ? ' selected' : '' %>><%= p.name %></option><% } %>
+                          </select>
+                        </div>
+                        <div class="field">
+                          <label for="due-<%= a.id %>">Due</label>
+                          <input type="date" id="due-<%= a.id %>" name="due_on" value="<%= a.due_on || '' %>">
+                        </div>
+                        <button class="btn btn-secondary btn-sm" type="submit">Save ask</button>
+                      </form>
+                    </details>
+                  </td>
+                  <td><%= row.assigneeName || '—' %></td>
+                  <td><%- row.open ? ui.dueCell(a.due_on, today) : (a.due_on ? fmtDate(a.due_on) : '<span class="subtle">—</span>') %></td>
+                  <td>
+                    <form method="post" action="/deals/<%= d.id %>/asks/<%= a.id %>" class="inline">
+                      <label for="status-<%= a.id %>" class="sr-only">Status for <%= a.id %></label>
+                      <select id="status-<%= a.id %>" name="status" data-autosubmit>
+                        <% for (const s of askStatuses) { %><option value="<%= s %>"<%- s === a.status ? ' selected' : '' %>><%= s %></option><% } %>
+                      </select>
+                    </form>
+                  </td>
+                  <td class="row-actions">
+                    <form method="post" action="/deals/<%= d.id %>/asks/<%= a.id %>/delete" class="inline" data-confirm="Remove ask <%= a.id %>?">
+                      <button class="btn btn-ghost btn-sm" type="submit">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %><p class="subtle">No asks yet. Add one when someone needs something from you.</p><% } %>
+
+      <form method="post" action="/deals/<%= d.id %>/asks" class="ask-form">
+        <div class="field">
+          <label for="new-ask-text">New ask</label>
+          <input type="text" id="new-ask-text" name="text" placeholder="e.g. Effort estimate for the Q&amp;A">
+        </div>
+        <div class="field">
+          <label for="new-ask-assignee">Assignee</label>
+          <select id="new-ask-assignee" name="assignee_id">
+            <option value="">Unassigned</option>
+            <% for (const p of activePeople) { %><option value="<%= p.id %>"><%= p.name %></option><% } %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="new-ask-due">Due</label>
+          <input type="date" id="new-ask-due" name="due_on">
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit">Add ask</button>
+      </form>
+    </section>
+
     <section class="card">
       <h2>Overview</h2>
       <div class="def-grid">
