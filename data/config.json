@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "me_person_id": null,
+  "stale_after_days": 14,
+  "push_delay_seconds": 30,
+  "stages": [
+    {
+      "name": "Lead",
+      "probability": 5,
+      "terminal": false,
+      "outcome": null
+    },
+    {
+      "name": "Qualified",
+      "probability": 10,
+      "terminal": false,
+      "outcome": null
+    },
+    {
+      "name": "RFI",
+      "probability": 15,
+      "terminal": false,
+      "outcome": null
+    },
+    {
+      "name": "RFQ Received",
+      "probability": 25,
+      "terminal": false,
+      "outcome": null
+    },
+    {
+      "name": "Solutioning",
+      "probability": 35,
+      "terminal": false,
+      "outcome": null
+    },
+    {
+      "name": "Proposal Submitted",
+      "probability": 50,
+      "terminal": false,
+      "outcome": null
+    },
+    {
+      "name": "Clarification / Negotiation",
+      "probability": 70,
+      "terminal": false,
+      "outcome": null
+    },
+    {
+      "name": "Won",
+      "probability": 100,
+      "terminal": true,
+      "outcome": "won"
+    },
+    {
+      "name": "Lost",
+      "probability": 0,
+      "terminal": true,
+      "outcome": "lost"
+    },
+    {
+      "name": "Dropped",
+      "probability": 0,
+      "terminal": true,
+      "outcome": "dropped"
+    }
+  ],
+  "deal_types": [
+    "RFI",
+    "RFQ",
+    "RFP",
+    "Proactive Proposal",
+    "Change Request",
+    "Renewal / Extension"
+  ],
+  "sources": [
+    "Customer RFQ",
+    "Sales lead",
+    "Account mining",
+    "Partner",
+    "Inbound / Website",
+    "Other"
+  ],
+  "business_units": [
+    "Mobility",
+    "Sustainability",
+    "Hi-Tech"
+  ],
+  "regions": [
+    "North America",
+    "Europe",
+    "UK",
+    "India",
+    "APAC",
+    "Japan",
+    "Middle East"
+  ],
+  "pricing_models": [
+    "T&M",
+    "Fixed Price",
+    "Managed Capacity",
+    "ODC",
+    "Hybrid"
+  ],
+  "currencies": [
+    "USD",
+    "EUR",
+    "GBP",
+    "INR",
+    "JPY"
+  ],
+  "outcome_reasons": [
+    "Price",
+    "Technical fit",
+    "Relationship / incumbent",
+    "Timeline",
+    "Customer cancelled",
+    "Scope changed",
+    "No-Go decision",
+    "Other"
+  ]
+}
