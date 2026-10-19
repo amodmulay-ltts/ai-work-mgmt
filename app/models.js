@@ -9,6 +9,12 @@
  * @typedef {{ label: string, url: string }} Link
  *
  * @typedef {{
+ *   id: string, text: string, assignee_id: string | null, requested_by_id: string | null,
+ *   due_on: string | null, status: 'Open' | 'In progress' | 'Done' | 'Cancelled',
+ *   done_on: string | null, created_at: string, updated_at: string
+ * }} SupportRequest
+ *
+ * @typedef {{
  *   at: string,
  *   kind: 'created' | 'stage' | 'hold' | 'field' | 'note',
  *   text: string,
@@ -20,6 +26,7 @@
  *   schema_version: number, id: string, title: string, type: string, source: string | null,
  *   description: string, customer_id: string, contact_ids: string[], c4c_id: string | null,
  *   sales_owner_id: string | null, presales_owner_id: string | null, delivery_owner_id: string | null,
+ *   support_ids: string[], support_requests: SupportRequest[], support_seq: number,
  *   bu: string | null, practice: string | null, region: string | null, stage: string, on_hold: boolean,
  *   probability: number, priority: 'High' | 'Medium' | 'Low', go_no_go: 'Pending' | 'Go' | 'No-Go',
  *   go_no_go_on: string | null, received_on: string, qa_due: string | null, submission_due: string | null,
@@ -50,6 +57,17 @@
 export const ROLES = ['Sales', 'Presales', 'Delivery', 'Leadership', 'Customer', 'Partner', 'Other'];
 export const PRIORITIES = ['High', 'Medium', 'Low'];
 export const GO_NO_GO = ['Pending', 'Go', 'No-Go'];
+export const ASK_STATUSES = ['Open', 'In progress', 'Done', 'Cancelled'];
+/** Deal fields added for "RFQs I support" (PLAN.md §15.1). Files written before them get these. */
+const SUPPORT_DEFAULTS = { support_ids: [], support_requests: [], support_seq: 0 };
+
+/** Adds the support fields to a deal read from an older file. Returns the same object. */
+export function withSupportDefaults(deal) {
+  for (const [key, value] of Object.entries(SUPPORT_DEFAULTS)) {
+    if (!(key in deal)) deal[key] = structuredClone(value);
+  }
+  return deal;
+}
 /** Deal fields that hold a 'YYYY-MM-DD' date. */
 export const DATE_FIELDS = [
   'received_on', 'qa_due', 'submission_due', 'submitted_on', 'expected_decision_on',
@@ -145,6 +163,32 @@ function validateCustomer(c, cfg) {
   return errors;
 }
 
+/** Supporters and asks (PLAN.md §15.1). Existence of the people is checked by the routes, not here. */
+function validateSupport(d) {
+  const errors = [];
+  if (!Array.isArray(d.support_ids) || d.support_ids.some((id) => !/^PE-\d{4}$/.test(id ?? ''))) {
+    errors.push('support_ids must be a list of person ids');
+  } else if (new Set(d.support_ids).size !== d.support_ids.length) {
+    errors.push('support_ids has the same person twice');
+  }
+  if (!Number.isInteger(d.support_seq) || d.support_seq < 0) errors.push('support_seq must be a whole number');
+  if (!Array.isArray(d.support_requests)) return [...errors, 'support_requests must be a list'];
+
+  const seen = new Set();
+  for (const ask of d.support_requests) {
+    const label = ask?.id ?? '?';
+    if (!/^SR-\d{3,}$/.test(label)) errors.push(`ask id '${label}' must look like SR-001`);
+    if (seen.has(label)) errors.push(`ask ${label} appears twice`);
+    seen.add(label);
+    if (isBlank(ask?.text)) errors.push(`ask ${label}: text is required`);
+    if (!ASK_STATUSES.includes(ask?.status)) errors.push(`ask ${label}: unknown status '${ask?.status}'`);
+    if (ask?.due_on != null && !isIsoDate(ask.due_on)) errors.push(`ask ${label}: due date is not valid`);
+    if (ask?.done_on != null && !isIsoDate(ask.done_on)) errors.push(`ask ${label}: done date is not valid`);
+    if (ask?.assignee_id != null && !/^PE-\d{4}$/.test(ask.assignee_id)) errors.push(`ask ${label}: assignee is not a person`);
+  }
+  return errors;
+}
+
 function validateDeal(d, cfg) {
   const errors = [];
   const required = (field, label) => {
@@ -182,6 +226,7 @@ function validateDeal(d, cfg) {
   for (const link of Array.isArray(d.links) ? d.links : []) {
     if (!URL_RE.test(link.url ?? '')) errors.push(`Link '${link.label}' must start with http:// or https://`);
   }
+  errors.push(...validateSupport(d));
 
   if (cfg) {
     const stage = cfg.stages.find((s) => s.name === d.stage);

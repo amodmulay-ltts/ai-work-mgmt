@@ -1147,6 +1147,7 @@ Add two fields to `Deal`, placed right after `delivery_owner_id` so the key orde
  * // inside Deal, after delivery_owner_id:
  * //   support_ids: string[],                     // Person ids; no duplicates; the owner ids are not repeated here
  * //   support_requests: SupportRequest[],        // in the order created
+ * //   support_seq: number,                       // last SR number used on this deal (never reused)
  */
 ```
 
@@ -1178,8 +1179,10 @@ Add two fields to `Deal`, placed right after `delivery_owner_id` so the key orde
 | POST | `/deals/:id/asks/:askId` | Edit an ask (text, assignee, due date, status). One commit. |
 | POST | `/deals/:id/asks/:askId/delete` | Remove an ask. Allowed for any ask. One commit. |
 
-- Each POST returns a 303 to the referring page (`safeBackPath`), like `changeDeal` does.
-- Validation errors re-render the page with a 422 and keep the input, like the other forms.
+- Each POST returns a 303 to the deal page.
+- Built (S1): the supporter route takes `action` (`add` or `remove`) and `person_id`, not a full list. Each chip has its own remove form.
+- Built (S1): inline changes on the deal page (supporters, asks) show errors as a flash message and do not re-render with a 422. Only full forms (deal, customer, person) re-render with a 422.
+- Built (S1): the ask status is a select that saves on change. Text, assignee and due date are edited in a `<details>` block on the same row. Only the fields present in the request are changed.
 
 ### 15.4 UI (follow §11 exactly; no new colours or components)
 

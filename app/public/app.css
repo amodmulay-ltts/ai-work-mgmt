@@ -408,3 +408,27 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
   border: 1px solid var(--border-strong); border-radius: var(--radius);
   background: var(--surface); color: var(--text); resize: vertical;
 }
+
+/* supporters and asks on the deal page (PLAN.md §15) */
+.support-card h3 { margin-top: var(--s4); }
+.chips { list-style: none; margin: 0 0 var(--s3); padding: 0; display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s1); margin: 0;
+  padding: 2px 4px 2px var(--s2); border-radius: var(--radius-sm);
+  background: var(--surface-muted); font-size: var(--fs-sm);
+}
+.chip-remove {
+  border: 0; background: none; padding: 0 var(--s1); cursor: pointer;
+  font-size: var(--fs-md); line-height: 1; color: var(--text-muted);
+}
+.chip-remove:hover { color: var(--red); }
+.chip-remove:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.support-add, .ask-form {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s2); margin-top: var(--s3);
+}
+.support-add .field, .ask-form .field { margin: 0; }
+.ask-form .field:first-child { flex: 1 1 240px; }
+.asks-table td { vertical-align: top; }
+.ask-edit { margin-top: var(--s1); font-size: var(--fs-sm); }
+.ask-edit summary { cursor: pointer; color: var(--primary); }
+.ask-edit form { margin-top: var(--s2); }

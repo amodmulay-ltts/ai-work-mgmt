@@ -166,3 +166,51 @@ export function winStats(deals, cfg, today, days = 90) {
   }
   return { won, lost, rate: won + lost === 0 ? null : won / (won + lost) };
 }
+
+// ---------------------------------------------------------------- supporters and asks (PLAN.md §15.2)
+
+/** Open asks are still to do. Done and Cancelled asks do not count. */
+export const isOpenAsk = (ask) => ask.status === 'Open' || ask.status === 'In progress';
+
+/** @returns {object[]} the open asks on one deal */
+export function openAsks(deal) {
+  return (deal.support_requests ?? []).filter(isOpenAsk);
+}
+
+/** Dates sort ascending with empty dates last. */
+const dueCompare = (a, b) => {
+  if (a === b) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  return a < b ? -1 : 1;
+};
+
+/**
+ * Open asks assigned to one person, across the deals: [{ deal, ask }], earliest due first.
+ * Overdue asks therefore come first.
+ */
+export function asksFor(deals, personId) {
+  const rows = [];
+  for (const deal of deals) {
+    for (const ask of openAsks(deal)) {
+      if (ask.assignee_id === personId) rows.push({ deal, ask });
+    }
+  }
+  return rows.sort((x, y) => dueCompare(x.ask.due_on ?? null, y.ask.due_on ?? null) || x.deal.id.localeCompare(y.deal.id));
+}
+
+/** True when the person is a supporter, or has an open ask on the deal. */
+export function isSupportedBy(deal, personId) {
+  return (deal.support_ids ?? []).includes(personId) || openAsks(deal).some((a) => a.assignee_id === personId);
+}
+
+/** The earliest due date among the open asks, or null. */
+export function nextAskDue(deal) {
+  const dates = openAsks(deal).map((a) => a.due_on).filter(Boolean).sort();
+  return dates[0] ?? null;
+}
+
+/** An open ask whose due date is before today. */
+export function askOverdue(ask, today) {
+  return isOpenAsk(ask) && Boolean(ask.due_on) && ask.due_on < today;
+}

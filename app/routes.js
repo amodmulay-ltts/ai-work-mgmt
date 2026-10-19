@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import {
-  agingCounts, ageDays, daysInStage, daysToSubmission, health, isOpen, moneyTotals, pipelineByStage, stageInfo,
-  status, weightedValue, winStats,
+  agingCounts, ageDays, askOverdue, daysInStage, daysToSubmission, health, isOpen, isOpenAsk, moneyTotals,
+  pipelineByStage, stageInfo, status, weightedValue, winStats,
 } from './metrics.js';
-import { ValidationError, isIsoDate, nowIso, todayIso, ROLES } from './models.js';
+import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, todayIso, ROLES } from './models.js';
+import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
 import { noteEntry } from './history.js';
 import {
   customerToValues, dealToTyped, parseCustomerValues, parseDealValues, parsePersonValues,
@@ -322,6 +323,55 @@ async function saveDealFromForm(req, res, { existing }) {
   }
 }
 
+/**
+ * Ask fields from a form. Only the keys present in `body` are returned, so a status-only
+ * change does not clear the text. Returns { values } or { error }.
+ */
+function askFields(store, body) {
+  const values = {};
+  if ('text' in body) {
+    const text = clean(body.text);
+    if (!text) return { error: 'Write what is being asked.' };
+    values.text = text;
+  }
+  if ('assignee_id' in body) {
+    const id = clean(body.assignee_id);
+    if (id && !store.getPerson(id)) return { error: 'Choose the assignee from the list.' };
+    values.assignee_id = id || null;
+  }
+  if ('due_on' in body) {
+    const due = clean(body.due_on);
+    if (due && !isIsoDate(due)) return { error: 'Enter a real date for the due date.' };
+    values.due_on = due || null;
+  }
+  if ('status' in body) {
+    const status = clean(body.status);
+    if (!ASK_STATUSES.includes(status)) return { error: 'Choose a status from the list.' };
+    values.status = status;
+  }
+  return { values };
+}
+
+/** Saves a supporter or ask change made on the deal page: one commit, then back to the deal. */
+async function saveSupportChange(req, res, deal, next, { entries, message, success }) {
+  const { store } = req.app.locals;
+  const updated = { ...next, history: [...deal.history, ...entries] };
+  try {
+    await store.save([updated], `${deal.id}: ${message}`);
+    flash(res, 'success', success);
+  } catch (err) {
+    if (!(err instanceof ValidationError)) throw err;
+    flash(res, 'error', err.errors.map(plain).join('; '));
+  }
+  return res.redirect(303, `/deals/${deal.id}`);
+}
+
+/** Shows a message on the deal page and changes nothing. */
+function supportError(res, deal, text) {
+  flash(res, 'error', text);
+  return res.redirect(303, `/deals/${deal.id}`);
+}
+
 /** Applies a single change to an existing deal (stage, hold, next action) through the normal save path. */
 async function changeDeal(req, res, id, change, successText) {
   const { store } = req.app.locals;
@@ -530,6 +580,18 @@ export function createRouter() {
       outcomeState: terminal ? 'current' : 'future',
       outcomeName: terminal ? deal.stage : null,
       timeline: [...deal.history].reverse(),
+      supporters: deal.support_ids.map((id) => person(id)).filter(Boolean),
+      asks: deal.support_requests.map((ask) => ({
+        ask,
+        assigneeName: person(ask.assignee_id)?.name ?? '',
+        open: isOpenAsk(ask),
+        overdue: askOverdue(ask, today),
+      })),
+      activePeople: store.listPeople().filter((p) => p.active),
+      addablePeople: store.listPeople().filter(
+        (p) => p.active && !deal.support_ids.includes(p.id) && ![deal.sales_owner_id, deal.presales_owner_id, deal.delivery_owner_id].includes(p.id),
+      ),
+      askStatuses: ASK_STATUSES,
       today,
     });
   });
@@ -608,6 +670,75 @@ export function createRouter() {
     await store.delete(deal, `${deal.id}: deleted`);
     flash(res, 'success', `Deleted ${deal.id}.`);
     return res.redirect(303, '/deals');
+  });
+
+  // ------------------------------------------------ supporters and asks (PLAN.md §15)
+  // Supporters: action 'add' or 'remove' with person_id.
+  router.post('/deals/:id/support', async (req, res) => {
+    const { store } = req.app.locals;
+    const deal = store.getDeal(req.params.id);
+    if (!deal) return notFound(req, res, 'This deal');
+    const person = store.getPerson(clean(req.body.person_id));
+    if (!person) return supportError(res, deal, 'Choose a person first.');
+    const owners = [deal.sales_owner_id, deal.presales_owner_id, deal.delivery_owner_id];
+    const action = clean(req.body.action);
+    const result = changeSupporters(deal, {
+      action,
+      person,
+      owners,
+      at: nowIso(),
+      names: (id) => store.getPerson(id)?.name ?? id,
+    });
+    if (result.error) return supportError(res, deal, result.error);
+    const success = action === 'add' ? `${person.name} added as a supporter.` : `${person.name} removed as a supporter.`;
+    return saveSupportChange(req, res, deal, result.deal, { entries: [result.entry], message: 'supporters updated', success });
+  });
+
+  router.post('/deals/:id/asks', async (req, res) => {
+    const { store } = req.app.locals;
+    const deal = store.getDeal(req.params.id);
+    if (!deal) return notFound(req, res, 'This deal');
+    const form = askFields(store, { assignee_id: '', due_on: '', ...req.body, text: req.body.text ?? '' });
+    if (form.error) return supportError(res, deal, form.error);
+    const now = nowIso();
+    const { deal: next, ask } = addAsk(deal, { text: form.values.text, assignee_id: form.values.assignee_id ?? null, due_on: form.values.due_on ?? null }, now);
+    return saveSupportChange(req, res, deal, next, {
+      entries: askEntries(null, ask, { at: now }),
+      message: `ask ${ask.id} added`,
+      success: `Ask ${ask.id} added.`,
+    });
+  });
+
+  router.post('/deals/:id/asks/:askId', async (req, res) => {
+    const { store } = req.app.locals;
+    const deal = store.getDeal(req.params.id);
+    if (!deal) return notFound(req, res, 'This deal');
+    const before = deal.support_requests.find((a) => a.id === req.params.askId);
+    if (!before) return supportError(res, deal, 'That ask no longer exists.');
+    const form = askFields(store, req.body);
+    if (form.error) return supportError(res, deal, form.error);
+    const now = nowIso();
+    const next = changeAsk(deal, before.id, form.values, { today: todayIso(), now });
+    const after = findAsk(next, before.id);
+    const names = (id) => store.getPerson(id)?.name ?? id;
+    return saveSupportChange(req, res, deal, next, {
+      entries: askEntries(before, after, { at: now, names }),
+      message: `ask ${before.id} updated`,
+      success: `Ask ${before.id} saved.`,
+    });
+  });
+
+  router.post('/deals/:id/asks/:askId/delete', async (req, res) => {
+    const { store } = req.app.locals;
+    const deal = store.getDeal(req.params.id);
+    if (!deal) return notFound(req, res, 'This deal');
+    const before = deal.support_requests.find((a) => a.id === req.params.askId);
+    if (!before) return supportError(res, deal, 'That ask no longer exists.');
+    return saveSupportChange(req, res, deal, removeAsk(deal, before.id), {
+      entries: [removedEntry(before, nowIso())],
+      message: `ask ${before.id} removed`,
+      success: `Ask ${before.id} removed.`,
+    });
   });
 
   // ------------------------------------------------ customers
