@@ -1114,3 +1114,129 @@ Bosch · C4C 4589123 ⧉ · Sales: Priya S · Presales: Amod M
 - [ ] No external network requests from the browser (check the DevTools Network tab: everything comes from 127.0.0.1).
 - [ ] `npm test` passes on Linux and Windows.
 - [ ] The UI matches §11: tokens only, no inline colours, and every page uses the components as specified.
+
+---
+
+## 15. Feature: RFQs I support
+
+**Goal:** the user often supports RFQs that other people own (a colleague's sales deal, or another presales person's bid). Today the app only tracks the owner, so support work is invisible. This feature lets the user record "I support this RFQ", list the asks made of them, and see what they owe and when.
+
+**Terms used here:**
+- **Supporter:** a person in `Deal.support_ids`. Usually `role: 'Presales'`, but any active person is allowed.
+- **Support request (ask):** one thing a supporter has been asked to do on a deal, such as "technical answers for Q&A", "effort estimate", "architecture slide". Asks are stored inside the deal file.
+- **"My RFQs"** means deals where `me_person_id` is in `support_ids`, or where any open ask is assigned to `me_person_id`.
+
+### 15.1 Data model changes (`app/models.js`, `app/config-defaults.js`)
+
+Add two fields to `Deal`, placed right after `delivery_owner_id` so the key order stays stable:
+
+```js
+/**
+ * @typedef {{
+ *   id: string,                                  // SR-NNN, unique within the deal (e.g. SR-001)
+ *   text: string,                                // what is needed, one line
+ *   assignee_id: string | null,                  // a Person (any role); null = unassigned
+ *   requested_by_id: string | null,              // a Person; null when unknown
+ *   due_on: string | null,                       // YYYY-MM-DD
+ *   status: 'Open' | 'In progress' | 'Done' | 'Cancelled',
+ *   done_on: string | null,                      // set automatically when status becomes Done
+ *   created_at: string,
+ *   updated_at: string
+ * }} SupportRequest
+ *
+ * // inside Deal, after delivery_owner_id:
+ * //   support_ids: string[],                     // Person ids; no duplicates; the owner ids are not repeated here
+ * //   support_requests: SupportRequest[],        // in the order created
+ */
+```
+
+**Rules:**
+- A new deal has `support_ids: []` and `support_requests: []`.
+- `validateRecord('deal', …)`: each `support_ids` entry must be a known person id (checked in the store, not in `validateRecord`, same as other references). `support_requests[].status` must be one of the four values. `due_on` must be a valid date when set. `text` is required.
+- Support request ids are `SR-001`, `SR-002`, … per deal. The next id is one more than the highest existing number in that deal (gaps are not reused).
+- `done_on` is set to today when `status` changes to `Done` and cleared when it changes away from `Done`. The same rule as `submitted_on` in §4.3.
+- Cancelled and Done asks do not count as open.
+- Every add, edit, status change and removal of an ask appends one `HistoryEntry` to the deal (kind `field`, text such as "Ask SR-002 Done: Effort estimate").
+- No config change is needed. The status list is fixed in the model, as `GO_NO_GO` is.
+
+### 15.2 Metrics (`app/metrics.js`, pure, unit-tested)
+
+- `openAsks(deal)` returns asks with status `Open` or `In progress`.
+- `asksFor(deals, personId)` returns `[{ deal, ask }]` for every open ask whose `assignee_id` is `personId`, sorted by `due_on` (nulls last), then by deal id.
+- `isSupportedBy(deal, personId)` is true when `support_ids` contains `personId`, or any open ask is assigned to `personId`.
+- `nextAskDue(deal)` is the earliest `due_on` among open asks, or null.
+- `askOverdue(ask, today)` is true when `due_on < today` and the status is open.
+
+### 15.3 Routes and pages (`app/routes.js`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/support` | **RFQs I support.** Lists deals where `isSupportedBy(deal, me)` is true. Filters: `q`, `status` (default `open`, same values as §10), `who` (`me` default, or any person id, to see a colleague's supported RFQs). |
+| GET | `/support/asks` | **My asks.** Lists `asksFor(deals, me)` across all deals, with overdue first. |
+| POST | `/deals/:id/support` | Save the supporter list. Body: `support_ids` (repeated field). One commit. |
+| POST | `/deals/:id/asks` | Create an ask. Body: `text`, `assignee_id`, `due_on`. One commit. |
+| POST | `/deals/:id/asks/:askId` | Edit an ask (text, assignee, due date, status). One commit. |
+| POST | `/deals/:id/asks/:askId/delete` | Remove an ask. Allowed for any ask. One commit. |
+
+- Each POST returns a 303 to the referring page (`safeBackPath`), like `changeDeal` does.
+- Validation errors re-render the page with a 422 and keep the input, like the other forms.
+
+### 15.4 UI (follow §11 exactly; no new colours or components)
+
+**Deal detail (`/deals/:id`):** add a card **Support** under the deal header, below the owners.
+- Chips for each supporter (person name, with a small × that is removed on save), plus an **Add supporter** `<select>` from active people.
+- Below it, a table **Asks**: `ID · Ask · Assignee · Due · Status`. The due cell uses `dueCell` (§11.4). The status is a `<select>` that saves on change (autosubmit, §11.7).
+- A **New ask** row at the bottom of the table: text input, assignee select, due date, Add button. Empty state: "No asks yet. Add one when someone needs something from you."
+- Overdue asks use the existing overdue style (red text on the due cell). No new colour.
+
+**Deals list (`/deals`):** add a **Support** chip-filter alongside Owner (`Me` / `Anyone`). Add a **Supporters** column, showing up to two names, then "+N".
+
+**Support page (`/support`):** page layout as §11.5 "list page": title **RFQs I support**, a count line, then the same deal table partial (`partials/deal-table.ejs`) with two extra columns: **My open asks** (count, linked to the deal) and **Next ask due** (`dueCell`). Empty state: "You are not supporting any open RFQs. Add yourself as a supporter on a deal to see it here."
+
+**My asks (`/support/asks`):** a plain table: `Due · Deal · Ask · Status`, overdue first, each row linking to the deal. Empty state: "No open asks for you."
+
+**Navigation:** the top bar gets two items, **Support** and **My asks**, placed after **Deals**. The keyboard shortcut `g s` opens `/support`.
+
+**Dashboard (`/`):** add one card, **Asks for me**, in the column after **Next actions**. It shows the 5 earliest open asks (`asksFor`), with overdue ones first, and a link **All asks** to `/support/asks`. Its KPI count goes into the header line: "3 asks due this week".
+
+**Deal row (`partials/deal-table.ejs`):** no change, apart from the optional columns above.
+
+### 15.5 Export and report
+
+- **Excel (§12.1):** add two columns after **Delivery owner**, in this order: **Supporters** (names joined by ", "), and **Open asks** (count of open asks). Update the column count and the expected column number in the tests (36 becomes 38, and the date columns shift by 2). Put the new columns after **Delivery owner**, so the existing column numbers before that stay the same.
+- **Weekly report (§12.2):** add a section **Asks due next week** after **Due next week**. Each line: `- DL-… · customer · title · ask text · assignee · due DD MMM`. Empty: "- None". Overdue asks are marked "(overdue)".
+
+### 15.6 Tests (`tests/support.test.js`)
+
+- Adding a supporter that is not a person id is rejected.
+- Adding an ask gives `SR-001`, and the next ask gives `SR-002`. After one is removed, the next ask is still `SR-003`, not a reused number.
+- Marking an ask Done sets `done_on` to today. Changing it back to Open clears `done_on`.
+- `asksFor` excludes Done and Cancelled asks, and sorts overdue asks first.
+- `isSupportedBy` is true for a supporter and for an assignee, and false for others.
+- `/support` shows a deal the user supports and hides a deal they do not.
+- Each save makes exactly one commit and adds a history entry.
+
+### 15.7 Phases for this feature
+
+**Phase S1 — Supporters and asks (data, metrics, deal page).**
+- Model and validation (§15.1). Metrics (§15.2). Store and routes for the deal-page POSTs (§15.3, first four rows only; the delete route is included).
+- Deal detail Support card (§15.4).
+- Tests from §15.6 that cover the model and the metrics.
+- **Check:** a user can add themselves as a supporter, add three asks with different due dates, mark one Done, and see the history entries. `npm test` passes.
+
+**Phase S2 — Pages and dashboard.**
+- `/support` and `/support/asks`, nav items, shortcut `g s`, the dashboard card and the Deals filter/column (§15.3, §15.4).
+- **Check:** every page has an empty state and a `<title>`. The support page and the dashboard agree on the open ask count.
+
+**Phase S3 — Export and report.**
+- Excel columns and the weekly report section (§15.5).
+- **Check:** the xlsx has 38 columns, and the report lists asks due next week.
+
+Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `main` and deleted once its tests pass, as the working rule in NOTES.md §2 says.
+
+### 15.8 Decisions and open questions
+
+- **Decided:** asks live inside the deal file, not in a separate folder, so one deal is one file and one commit (the same reason the history is inside the deal).
+- **Decided:** a supporter is a person, not free text, so names match the people list and the customer/person auto-create rules still work.
+- **Open (answer before S1):** should the user log effort hours per supported RFQ, for a "time on support" total? This is not in S1–S3. If yes, add `hours` to `SupportRequest` in a later phase.
+- **Open (answer before S2):** should the **Support** nav item replace **Deals** for the user, or sit beside it? The spec assumes beside it.
