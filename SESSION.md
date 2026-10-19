@@ -13,7 +13,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Phase 1 — Core tracking | Done (65 tests pass) | `phase-1-core` |
 | Phase 2 — Insight and settings | Done (74 tests pass) | `phase-2-insight` |
 | Phase 3 — Quality of life | Done (78 tests pass) | `phase-3-polish` |
-| Feature: RFQs I support (spec only, PLAN.md §15) | Planned; open questions in §15.8 | `feature-supported-rfqs-plan` |
+| Feature: RFQs I support (PLAN.md §15, phases S1–S3) | Done (123 tests pass) | merged to `main` |
 
 **Push status:** `main` is ahead of `origin/main` and has not been pushed. This environment has no GitHub credentials. The user pushes from their own terminal with `git push origin main`.
 
@@ -44,4 +44,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-19 — session
 - Done: added the working rule (one branch per feature, merge and delete once tested), recorded in NOTES.md §2. Branches for phases 0–3 deleted (already merged).
 - Done: planned "RFQs I support" as PLAN.md §15 (supporters and asks on a deal; `/support` and `/support/asks` pages; export and report additions; phases S1–S3). Spec only, no code.
-- Next: answer the two open questions in PLAN.md §15.8, then build S1 on its own branch.
+- Built RFQs I support in three phases, each on its own branch, merged and deleted after its tests passed: S1 supporters and asks (26 tests), S2 pages, dashboard card, deals filter (15), S3 export and weekly report (4). Total 123 pass.
+- Open questions in PLAN.md §15.8 were answered by default (no hours tracking; nav beside Deals). Revisit if the user says otherwise.
+- Next: user review on the real data; push `main` from the user's terminal.

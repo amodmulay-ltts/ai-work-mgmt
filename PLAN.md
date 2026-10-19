@@ -1244,5 +1244,6 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 - **Decided:** asks live inside the deal file, not in a separate folder, so one deal is one file and one commit (the same reason the history is inside the deal).
 - **Decided:** a supporter is a person, not free text, so names match the people list and the customer/person auto-create rules still work.
-- **Open (answer before S1):** should the user log effort hours per supported RFQ, for a "time on support" total? This is not in S1–S3. If yes, add `hours` to `SupportRequest` in a later phase.
-- **Open (answer before S2):** should the **Support** nav item replace **Deals** for the user, or sit beside it? The spec assumes beside it.
+- **Answered by default (2026-10-19, user has not replied):** no hours tracking in S1–S3. If wanted later, add `hours` to `SupportRequest` in a new phase.
+- **Answered by default (2026-10-19):** the **Support** and **My asks** nav items sit beside **Deals**, not in place of it.
+- **Status:** S1, S2 and S3 are built and merged to `main`, with 123 tests passing.

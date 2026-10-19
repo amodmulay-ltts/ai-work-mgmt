@@ -80,6 +80,14 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **Export uses the list's filters**, including the default "open" filter.
 - **Next-action updates return to the page the user came from**, so the dashboard's inline update stays on the dashboard.
 
+### Made while building RFQs I support (2026-10-19)
+- **Asks live inside the deal file.** One deal is one file and one commit, the same as the history.
+- **Ask numbers come from `support_seq`** (last number used), so a removed ask's number is never reused. "Highest existing + 1" would reuse it.
+- **Older deal files get empty support fields on load** (`withSupportDefaults`). They are not treated as broken.
+- **Inline changes on the deal page show errors as a flash message**, not a 422 re-render. Full forms still re-render with 422.
+- **"Asks due next week" includes overdue asks**, marked "(overdue)". Asks on closed deals are left out.
+- **Owners cannot also be supporters.** New deals default the presales owner to the current user, so you cannot support your own deal. This is intended.
+
 ### Working method (set by the user, 2026-10-18)
 - **Every feature or phase gets its own branch**, so a change cannot break the software unnoticed.
 - **Once its tests pass, merge the branch into `main` and delete the branch.** Nothing is pushed unless the user asks.
@@ -173,3 +181,9 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - Changed files: `app/report.js` (new), `app/lib/dates.js` (new), `app/routes.js`, `app/public/app.js`, `app/public/app.css`, `app/views/report-weekly.ejs` (new), `app/views/dashboard.ejs`, `README.md`, `tests/report.test.js` (new).
 - Checks: `npm test` 78 of 78 pass on Node 24. An end-to-end run of `run.js` on a temp copy: every page answers (200, or 404 for an unknown page); `Ctrl+C` pushed the lock release (3 commits on the remote).
 - Next step: the Windows checks for Phase 0 and the push of `main`, both waiting on the user.
+
+### 2026-10-19 — RFQs I support — S1, S2, S3 — Linux
+- Done: supporters and asks on the deal page (S1); `/support` and `/support/asks`, the dashboard card "Asks for me", nav items, `g s`, a Support filter and Supporters column on the deals list (S2); Supporters and Open asks Excel columns, and "Asks due next week" in the weekly report (S3). Spec in PLAN.md §15.
+- Changed files: `app/models.js`, `app/store.js`, `app/forms.js`, `app/history.js`, `app/metrics.js`, `app/support.js` (new), `app/routes.js`, `app/export.js`, `app/report.js`, `app/public/app.js`, `app/public/app.css`, `app/views/deals/detail.ejs`, `app/views/deals/list.ejs`, `app/views/support/` (new), `app/views/partials/deal-table.ejs`, `app/views/dashboard.ejs`, `app/views/layout.ejs`, `README.md`, `tests/support.test.js` (new), `tests/support-pages.test.js` (new), `tests/support-export.test.js` (new), `tests/insight.test.js` (column numbers).
+- Checks: `npm test` 123 of 123 pass on Node 22 (78 existing, 26 + 15 + 4 new). Tests run after each phase; each branch was merged only when they passed.
+- Not checked: a visual browser check of the new cards and the chips; Windows.
