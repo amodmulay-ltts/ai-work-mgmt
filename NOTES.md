@@ -92,6 +92,10 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding type-to-confirm deletes (2026-10-21)
+- **Records need the challenge, small items do not yet.** Opportunity, customer and person deletes need the typed ID or exact name. Ask and connect removals keep the plain confirm. Saved as a standing rule in memory (feedback-confirm-deletes).
+- **The check is exact after trimming spaces, and case-sensitive** for names, so a typo cannot pass.
+
 ### Made while adding customer connects (2026-10-21)
 - **Connects are Teams meetings and visits only.** Calls and emails are not logged. The customer is the only link: an RFQ has no connect field, which keeps RFQs simple.
 - **Flag uses its own setting** (`connect_after_days`, 30), not the stale setting for opportunities, because a customer contact cycle is slower than a deal update cycle.

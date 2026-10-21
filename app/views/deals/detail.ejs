@@ -28,9 +28,7 @@
       <button class="btn btn-secondary" type="submit"><%= d.on_hold ? 'Resume' : 'Put on hold' %></button>
     </form>
     <a class="btn btn-secondary" href="/opportunities/<%= d.id %>/edit">Edit</a>
-    <form method="post" action="/opportunities/<%= d.id %>/delete" class="inline" data-confirm="Delete <%= d.id %>? This removes the opportunity file and commits the removal.">
-      <button class="btn btn-danger" type="submit">Delete</button>
-    </form>
+    <%- include('../partials/delete-form', { action: `/opportunities/${d.id}/delete`, expected: d.id, key: d.id, what: 'opportunity' }) %>
   </div>
 </div>
 
