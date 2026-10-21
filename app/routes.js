@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 import {
   agingCounts, ageDays, askOverdue, asksFor, byBusinessUnit, daysInStage, daysToSubmission, hasAllTags, health, healthMix, isOpen, isOpenAsk, isSupportedBy,
-  moneyTotals, submissionsByMonth, openAsks, pipelineByStage, stageInfo, status, weightedValue, winStats,
+  moneyTotals, submissionsByMonth, winsByYear, openAsks, pipelineByStage, stageInfo, status, weightedValue, winStats,
 } from './metrics.js';
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
@@ -129,6 +129,7 @@ function dashboardView(store, cfg, today, me, tags) {
     recent: [...rows].sort((a, b) => b.deal.updated_at.localeCompare(a.deal.updated_at)).slice(0, 8),
     pipeline: pipelineByStage(deals, cfg),
     aging: agingCounts(deals, cfg, today),
+    wins: winsByYear(deals, cfg, today),
     health: healthMix(open),
     submissions: submissionsByMonth(deals, cfg, today),
     byBu: byBusinessUnit(open.map((r) => r.deal), cfg),
