@@ -115,3 +115,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-21 — customer chart — Linux
 - Done: Open opportunities by customer, in the chart row beside Health and BU. Top 8 by count, each with its value per currency. 240 tests pass.
+
+### 2026-10-21 — chart links — Linux
+- Done: dashboard health, BU, customer and submission-month charts, and the wins page, link to the opportunities list. New list filters: submit_month (YYYY-MM), closed_year (YYYY), and bu=none (no BU). A dashboard tag-balance bug (an extra closing div left by the KPI edit) is fixed. 246 tests pass.
+- Not checked in a browser yet: the look of the chart links.

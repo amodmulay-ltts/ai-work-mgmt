@@ -332,13 +332,12 @@ export function winsByYear(deals, cfg, today) {
 export function byCustomer(deals, cfg, nameOf) {
   const groups = new Map();
   for (const d of deals) {
-    const name = nameOf(d.customer_id);
-    if (!groups.has(name)) groups.set(name, { customer: name, count: 0, pairs: [] });
-    const group = groups.get(name);
+    if (!groups.has(d.customer_id)) groups.set(d.customer_id, { customerId: d.customer_id, customer: nameOf(d.customer_id), count: 0, pairs: [] });
+    const group = groups.get(d.customer_id);
     group.count += 1;
     group.pairs.push([d.currency, d.est_value]);
   }
   return [...groups.values()]
     .sort((a, b) => b.count - a.count || a.customer.localeCompare(b.customer))
-    .map((g) => ({ customer: g.customer, count: g.count, totals: moneyTotals(g.pairs, cfg) }));
+    .map((g) => ({ customerId: g.customerId, customer: g.customer, count: g.count, totals: moneyTotals(g.pairs, cfg) }));
 }

@@ -14,10 +14,10 @@
     %>
     <div class="col-chart" role="img" aria-label="<%= yrs.map((y) => y.year + ' ' + y.won + ' won').join(', ') %>">
       <% for (const y of yrs) { %>
-        <div class="col" title="<%= y.year %>: <%= y.won %> won, <%= y.lost %> lost">
+        <a class="col" href="/opportunities?status=won&closed_year=<%= y.year %>" title="<%= y.year %>: <%= y.won %> won, <%= y.lost %> lost · see them">
           <span class="col-value"><%= y.won %></span>
           <span class="col-bar" style="height: <%= Math.round((y.won / maxWon) * 80) %>%"></span>
-        </div>
+        </a>
       <% } %>
     </div>
     <div class="col-labels" aria-hidden="true">
@@ -38,8 +38,8 @@
           <% for (const y of [...yrs].reverse()) { %>
             <tr>
               <td><%= y.year %></td>
-              <td class="num"><%= y.won %></td>
-              <td class="num"><%= y.lost %></td>
+              <td class="num"><a href="/opportunities?status=won&closed_year=<%= y.year %>"><%= y.won %></a></td>
+              <td class="num"><a href="/opportunities?status=lost&closed_year=<%= y.year %>"><%= y.lost %></a></td>
               <td class="num"><%= y.rate === null ? '—' : Math.round(y.rate * 100) + '%' %></td>
               <td><%= moneyTotalsText(y.wonTotals) %></td>
             </tr>

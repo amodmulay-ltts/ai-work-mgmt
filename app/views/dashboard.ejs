@@ -63,7 +63,6 @@
     </div>
     <div class="kpi-sub"><%= k.won.count %> won</div>
   </div>
-  </div>
 </div>
 
 <%
@@ -82,12 +81,12 @@
     <% } else { %>
       <div class="stack-bar" role="img" aria-label="<%= healthRows.map(([l, label]) => label + ' ' + hm[l]).join(', ') %>">
         <% for (const [level, label] of healthRows) { if (hm[level]) { %>
-          <span class="stack-seg seg-<%= level %>" style="flex-grow: <%= hm[level] %>" title="<%= label %>: <%= hm[level] %>"></span>
+          <a class="stack-seg seg-<%= level %>" href="/opportunities?health=<%= level %>" style="flex-grow: <%= hm[level] %>" title="<%= label %>: <%= hm[level] %> · see them"></a>
         <% } } %>
       </div>
       <ul class="legend">
         <% for (const [level, label] of healthRows) { %>
-          <li><span class="health health-<%= level %>" aria-hidden="true"></span> <%= label %> <strong><%= hm[level] %></strong></li>
+          <li><a class="chart-link" href="/opportunities?health=<%= level %>"><span class="health health-<%= level %>" aria-hidden="true"></span> <%= label %> <strong><%= hm[level] %></strong></a></li>
         <% } %>
       </ul>
     <% } %>
@@ -99,11 +98,11 @@
       <p class="subtle">No open opportunities.</p>
     <% } %>
     <% for (const b of view.byBu) { %>
-      <div class="bar-row" title="<%= b.bu %>: <%= b.count %> open">
+      <a class="bar-row" href="/opportunities?bu=<%= encodeURIComponent(b.bu === 'No BU' ? 'none' : b.bu) %>" title="<%= b.bu %>: <%= b.count %> open · see them">
         <span class="bar-label"><%= b.bu %></span>
         <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((b.count / maxBu) * 100) %>%"></span></span>
         <span class="bar-value"><%= b.count %> · <%= moneyTotalsText(b.totals) %></span>
-      </div>
+      </a>
     <% } %>
   </section>
 
@@ -117,11 +116,11 @@
       const maxCustomer = Math.max(1, ...topCustomers.map((c) => c.count));
     %>
     <% for (const c of topCustomers) { %>
-      <div class="bar-row" title="<%= c.customer %>: <%= c.count %> open">
+      <a class="bar-row" href="/opportunities?customer=<%= c.customerId %>" title="<%= c.customer %>: <%= c.count %> open · see them">
         <span class="bar-label"><%= c.customer %></span>
         <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((c.count / maxCustomer) * 100) %>%"></span></span>
         <span class="bar-value"><%= c.count %> · <%= moneyTotalsText(c.totals) %></span>
-      </div>
+      </a>
     <% } %>
     <% if (view.byCustomer.length > 8) { %>
       <p class="card-foot muted">+<%= view.byCustomer.length - 8 %> more customers</p>
@@ -314,10 +313,10 @@
     <h2>Submissions due, next 6 months</h2>
     <div class="col-chart" role="img" aria-label="<%= sub.months.map((m) => m.label + ' ' + m.count).join(', ') %>">
       <% for (const m of sub.months) { %>
-        <div class="col" title="<%= m.label %>: <%= m.count %> due">
+        <a class="col" href="/opportunities?submit_month=<%= m.key %>" title="<%= m.label %>: <%= m.count %> due · see them">
           <span class="col-value"><%= m.count %></span>
           <span class="col-bar" style="height: <%= Math.round((m.count / maxSub) * 80) %>%"></span>
-        </div>
+        </a>
       <% } %>
     </div>
     <div class="col-labels" aria-hidden="true">
