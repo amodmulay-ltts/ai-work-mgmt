@@ -80,6 +80,12 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **Export uses the list's filters**, including the default "open" filter.
 - **Next-action updates return to the page the user came from**, so the dashboard's inline update stays on the dashboard.
 
+### Made while adding opportunity types (2026-10-21)
+- **Type is required and drives the form.** Types (Lead, RFI, RFQ, RFP, Proactive Proposal, Change Request, Renewal / Extension) are listed in `config.json` under `opportunity_types`, each with the optional fields it shows and the fields it requires.
+- **Lead** is a new customer, or a new opportunity with an existing customer. It is a type; the stage list is unchanged.
+- **Hidden fields are stored empty, never deleted.** Changing the type keeps every value. An optional field that has a value is always shown.
+- **Existing opportunities** get RFQ when their tags include RFQ, otherwise Lead.
+
 ### Made while changing deal type to tags and renaming (2026-10-21)
 - **Type is a tag.** The fixed Type list is gone. Tags are free text: the form suggests known tags, and a new tag typed in is added to `config.tags` in the same commit. Settings can edit the list, but a tag that a deal still uses cannot be removed.
 - **Old files keep their type.** A deal file with `type` loads with the type as its first tag, and the key is dropped on the next save.
