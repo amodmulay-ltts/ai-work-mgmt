@@ -13,6 +13,7 @@ export const DEFAULT_CONFIG = {
   schema_version: 1,
   me_person_id: null,
   stale_after_days: 14,
+  connect_after_days: 30,
   push_delay_seconds: 30,
   stages: [
     { name: 'Lead', probability: 5, terminal: false, outcome: null },

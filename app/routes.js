@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 import {
   agingCounts, ageDays, askOverdue, asksFor, byBusinessUnit, daysInStage, daysToSubmission, hasAllTags, health, healthMix, isOpen, isOpenAsk, isSupportedBy,
@@ -6,6 +7,7 @@ import {
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
 import { resolveTags } from './lib/tags.js';
+import { connectState, connectSummary, newConnect } from './lib/connects.js';
 import { noteEntry } from './history.js';
 import {
   customerToValues, dealToTyped, parseCustomerValues, parseDealValues, parsePersonValues,
@@ -95,7 +97,16 @@ function dashboardView(store, cfg, today, me, tags) {
         .sort((a, b) => dueText(a.deal.next_action_due).localeCompare(dueText(b.deal.next_action_due)))
     : [];
   const myAsks = me ? asksFor(deals, me.id) : [];
+  // Customers with open work whose last connect is too old, or missing. Never-connected first, then oldest.
+  const connectFlags = [...new Set(open.map((r) => r.deal.customer_id))]
+    .map((id) => store.getCustomer(id))
+    .filter(Boolean)
+    .map((c) => ({ customer: c, openCount: open.filter((r) => r.deal.customer_id === c.id).length, connect: connectState(c, today, cfg.connect_after_days) }))
+    .filter((r) => r.connect.flagged)
+    .sort((a, b) => (a.connect.last ?? '').localeCompare(b.connect.last ?? ''))
+    .slice(0, 10);
   return {
+    connectFlags,
     kpi: {
       open: open.length,
       onHold: open.filter((r) => r.deal.on_hold).length,
@@ -143,7 +154,7 @@ const unique = (items) => [...new Set(items)];
 
 /** Form values as strings, for the settings page. */
 function settingsValues(body) {
-  const out = { name: clean(body.name), email: clean(body.email), stale_after_days: clean(body.stale_after_days) };
+  const out = { name: clean(body.name), email: clean(body.email), stale_after_days: clean(body.stale_after_days), connect_after_days: clean(body.connect_after_days) };
   for (const key of LIST_KEYS) out[key] = String(body[key] ?? '');
   return out;
 }
@@ -156,6 +167,7 @@ async function renderSettings(req, res, { values, errors = {}, formErrors = [], 
     name: me?.name ?? '',
     email: me?.email ?? '',
     stale_after_days: String(cfg.stale_after_days),
+    connect_after_days: String(cfg.connect_after_days),
     ...Object.fromEntries(LIST_KEYS.map((key) => [key, cfg[key].join('\n')])),
   };
   await renderPage(req, res, 'settings', {
@@ -437,6 +449,8 @@ function customerRows(store, cfg, today) {
       openCount: open.length,
       openTotals: moneyTotals(open.map((d) => [d.currency, d.est_value]), cfg),
       lastActivity: last,
+      connects: connectSummary(c.connects),
+      connect: connectState(c, today, cfg.connect_after_days),
       today,
     };
   });
@@ -877,8 +891,48 @@ export function createRouter() {
       contacts: store.listPeople().filter((p) => p.customer_id === customer.id),
       openRows: rows.filter((r) => r.open),
       closedRows: rows.filter((r) => !r.open),
+      connects: [...customer.connects]
+        .sort((a, b) => b.on.localeCompare(a.on))
+        .map((c) => ({ ...c, whoName: store.getPerson(c.who_id)?.name ?? '—' })),
+      connect: connectState(customer, today, cfg.connect_after_days),
+      people: store.listPeople().filter((p) => p.active),
       today,
     });
+  });
+
+  // Connects (Teams meetings and visits) are logged on the customer. Each one is saved as its own change.
+  router.post('/customers/:id/connects', async (req, res) => {
+    const { store } = req.app.locals;
+    const customer = store.getCustomer(req.params.id);
+    if (!customer) return notFound(req, res, 'This customer');
+    const today = todayIso();
+    const { entry, errors } = newConnect(req.body, { id: randomUUID().slice(0, 8), people: store.listPeople().filter((p) => p.active), today });
+    if (errors.length) {
+      flash(res, 'error', errors.join(' '));
+      return res.redirect(303, `/customers/${customer.id}`);
+    }
+    try {
+      await store.save([{ ...customer, connects: [...customer.connects, entry] }], `${customer.id}: connect ${entry.kind} on ${entry.on}`);
+      flash(res, 'success', `Connect logged for ${entry.on}.`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      flash(res, 'error', err.errors.map(plain).join('; '));
+    }
+    return res.redirect(303, `/customers/${customer.id}`);
+  });
+
+  router.post('/customers/:id/connects/:connectId/delete', async (req, res) => {
+    const { store } = req.app.locals;
+    const customer = store.getCustomer(req.params.id);
+    if (!customer) return notFound(req, res, 'This customer');
+    const gone = customer.connects.find((c) => c.id === req.params.connectId);
+    if (!gone) {
+      flash(res, 'error', 'That connect no longer exists.');
+      return res.redirect(303, `/customers/${customer.id}`);
+    }
+    await store.save([{ ...customer, connects: customer.connects.filter((c) => c.id !== gone.id) }], `${customer.id}: connect on ${gone.on} removed`);
+    flash(res, 'success', 'Connect removed.');
+    return res.redirect(303, `/customers/${customer.id}`);
   });
 
   router.get('/customers/:id/edit', async (req, res) => {
@@ -962,6 +1016,10 @@ export function createRouter() {
     }
     const stale = Number(values.stale_after_days);
     if (!Number.isInteger(stale) || stale < 1) errors.stale_after_days = 'Enter a whole number of days, 1 or more.';
+    // A form that does not send the connect setting leaves it as it is.
+    const connectSent = body.connect_after_days !== undefined;
+    const connectAfter = connectSent ? Number(values.connect_after_days) : cfg.connect_after_days;
+    if (connectSent && (!Number.isInteger(connectAfter) || connectAfter < 1)) errors.connect_after_days = 'Enter a whole number of days, 1 or more.';
     for (const key of LIST_KEYS) {
       // Tags are optional: an empty tag list is allowed.
       if (key !== 'tags' && list(key).length === 0) errors[key] = 'Keep at least one item.';
@@ -986,6 +1044,7 @@ export function createRouter() {
     const newCfg = {
       ...cfg,
       stale_after_days: stale,
+      connect_after_days: connectAfter,
       business_units: list('business_units'),
       regions: list('regions'),
       currencies: currencies.map((c) => c.toUpperCase()),

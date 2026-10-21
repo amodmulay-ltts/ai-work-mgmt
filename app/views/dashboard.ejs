@@ -239,6 +239,34 @@
 </div>
 
 <section class="card table-card">
+  <h2 class="card-pad">Customers to connect with</h2>
+  <% if (view.connectFlags.length === 0) { %>
+    <p class="subtle">Every customer with open work has been connected with recently.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Customer</th>
+            <th scope="col" class="num">Open opportunities</th>
+            <th scope="col">Last connected</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of view.connectFlags) { %>
+            <tr class="clickable" data-href="/customers/<%= r.customer.id %>">
+              <td><a href="/customers/<%= r.customer.id %>"><%= r.customer.name %></a></td>
+              <td class="num"><%= r.openCount %></td>
+              <td class="text-red"><%= r.connect.text %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="card table-card">
   <h2 class="card-pad">Recently updated</h2>
   <%- include('partials/deal-table', { rows: view.recent, cfg, today, empty: 'No opportunities yet.' }) %>
 </section>

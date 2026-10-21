@@ -5,6 +5,8 @@
  * PLAN.md §5.1 is the reference for every field.
  */
 
+import { connectErrors } from './lib/connects.js';
+
 /**
  * @typedef {{ label: string, url: string }} Link
  *
@@ -189,6 +191,7 @@ function validatePerson(p) {
 
 function validateCustomer(c, cfg) {
   const errors = [];
+  for (const connect of c.connects ?? []) errors.push(...connectErrors(connect));
   if (!/^CU-\d{4}$/.test(c.id ?? '')) errors.push('id must look like CU-0001');
   if (isBlank(c.name)) errors.push('Name is required');
   if (c.website && !URL_RE.test(c.website)) errors.push('Website must start with http:// or https://');

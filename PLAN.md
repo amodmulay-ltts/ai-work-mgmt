@@ -1249,3 +1249,21 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 - **Answered by default (2026-10-19, user has not replied):** no hours tracking in S1–S3. If wanted later, add `hours` to `SupportRequest` in a new phase.
 - **Answered by default (2026-10-19):** the **Support** and **My asks** nav items sit beside **Deals**, not in place of it.
 - **Status:** S1, S2 and S3 are built and merged to `main`, with 123 tests passing.
+
+## 16. Customer connects
+
+**Purpose.** Track the time spent with a customer on Teams meetings and visits, the first time we connected and the most recent time. Calls and emails are not connects.
+
+**Data.** A customer gets an optional `connects` list. Each entry: `id` (8 characters), `on` (YYYY-MM-DD, not in the future), `kind` (`Teams` or `Visit`), `who_id` (an active person, or null), `with` (who we met, up to 100 characters, optional), `note` (up to 500 characters, optional), `created_at`. A customer file without `connects` loads with an empty list. Unknown fields are kept on save.
+
+**Settings.** `connect_after_days` (default 30) is the limit used for the flag. Settings validate it as a whole number of 1 or more. A settings form that does not send it keeps the current value.
+
+**Flag.** A customer is flagged when it has no connect, or the most recent one is more than `connect_after_days` days before today.
+
+**Pages.**
+- Customer page: a Connections card with first and last connected, the list (date, kind, our person, who we met, note; Remove per entry), and a form to log one. Each add or remove is one commit.
+- Customers list: "First connected" and "Last connected" columns. A flagged value is red.
+- Dashboard: a "Customers to connect with" card for flagged customers that have open opportunities. Never connected first, then the oldest last connect. Up to 10.
+
+**Not in scope yet.** Connects from an opportunity, export to Excel, connect reports, and a connect count in the weekly report.
+

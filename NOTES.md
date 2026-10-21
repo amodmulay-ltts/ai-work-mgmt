@@ -92,6 +92,12 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding customer connects (2026-10-21)
+- **Connects are Teams meetings and visits only.** Calls and emails are not logged. The customer is the only link: an RFQ has no connect field, which keeps RFQs simple.
+- **Flag uses its own setting** (`connect_after_days`, 30), not the stale setting for opportunities, because a customer contact cycle is slower than a deal update cycle.
+- **Flag shows on the dashboard only for customers with open opportunities.** On the list it shows for every customer. Change either if you want it the other way.
+- **Saving a customer always writes `connects`**, so new customer files have the field too.
+
 ### Made while adding dashboard charts (2026-10-21)
 - **Three charts, one question each.** Health is a stacked status bar with words beside it (status colours are used only for status). Submissions are columns for the next six months, one hue, values printed on every column (six values is few enough). BU is bars in the same style as the existing stage and aging bars. No chart library.
 - **Every chart has its numbers in text** (legend, column values or bar values), which covers the table-view need. The app has no dark mode, so there is no dark palette. Charts use the existing tokens.

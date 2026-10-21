@@ -20,6 +20,77 @@
 <div class="detail-grid">
   <div class="detail-main">
     <section class="card">
+      <h2>Connections</h2>
+      <p class="<%= connect.flagged ? 'text-red' : 'muted' %>">
+        <% if (connects.length) { %>
+          First connected <%= fmtDate(connects.at(-1).on) %> · last connected <%= fmtDate(connects[0].on) %> (<%= connect.text %>)
+        <% } else { %>
+          Never connected. Log a Teams meeting or a visit below.
+        <% } %>
+      </p>
+      <% if (connects.length) { %>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Kind</th>
+                <th scope="col">Our person</th>
+                <th scope="col">Met</th>
+                <th scope="col">Note</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (const c of connects) { %>
+                <tr>
+                  <td><%= fmtDate(c.on) %></td>
+                  <td><%= c.kind %></td>
+                  <td><%= c.whoName %></td>
+                  <td><%= c.with || '—' %></td>
+                  <td class="ellipsis" title="<%= c.note %>"><%= c.note || '—' %></td>
+                  <td class="row-actions">
+                    <form method="post" action="/customers/<%= customer.id %>/connects/<%= c.id %>/delete" class="inline" data-confirm="Remove this connect?">
+                      <button class="btn btn-ghost btn-sm" type="submit">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+      <form method="post" action="/customers/<%= customer.id %>/connects" class="ask-form">
+        <div class="field">
+          <label for="connect-on">Date</label>
+          <input type="date" id="connect-on" name="on" required max="<%= today %>" value="<%= today %>">
+        </div>
+        <div class="field">
+          <label for="connect-kind">Kind</label>
+          <select id="connect-kind" name="kind" required>
+            <option value="Teams">Teams</option>
+            <option value="Visit">Visit</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="connect-who">Our person</label>
+          <select id="connect-who" name="who_id">
+            <option value="">Unassigned</option>
+            <% for (const p of people) { %><option value="<%= p.id %>"><%= p.name %></option><% } %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="connect-with">Who we met</label>
+          <input type="text" id="connect-with" name="with" maxlength="100">
+        </div>
+        <div class="field field-wide">
+          <label for="connect-note">Note</label>
+          <input type="text" id="connect-note" name="note" maxlength="500">
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit">Log connect</button>
+      </form>
+    </section>
+    <section class="card">
       <h2>Open opportunities</h2>
       <%- include('../partials/deal-table', { rows: openRows, cfg, today, empty: 'No open opportunities for this customer.' }) %>
     </section>
