@@ -68,6 +68,64 @@
   </div>
 </div>
 
+<%
+  const hm = view.health;
+  const hTotal = hm.red + hm.amber + hm.green + hm.hold;
+  const healthRows = [['red', 'Red'], ['amber', 'Amber'], ['green', 'Green'], ['hold', 'On hold']];
+  const sub = view.submissions;
+  const maxSub = Math.max(1, ...sub.months.map((m) => m.count));
+  const maxBu = Math.max(1, ...view.byBu.map((b) => b.count));
+%>
+<div class="chart-grid">
+  <section class="card chart-card">
+    <h2>Health of open opportunities</h2>
+    <% if (hTotal === 0) { %>
+      <p class="subtle">No open opportunities.</p>
+    <% } else { %>
+      <div class="stack-bar" role="img" aria-label="<%= healthRows.map(([l, label]) => label + ' ' + hm[l]).join(', ') %>">
+        <% for (const [level, label] of healthRows) { if (hm[level]) { %>
+          <span class="stack-seg seg-<%= level %>" style="flex-grow: <%= hm[level] %>" title="<%= label %>: <%= hm[level] %>"></span>
+        <% } } %>
+      </div>
+      <ul class="legend">
+        <% for (const [level, label] of healthRows) { %>
+          <li><span class="health health-<%= level %>" aria-hidden="true"></span> <%= label %> <strong><%= hm[level] %></strong></li>
+        <% } %>
+      </ul>
+    <% } %>
+  </section>
+
+  <section class="card chart-card">
+    <h2>Submissions due, next 6 months</h2>
+    <div class="col-chart" role="img" aria-label="<%= sub.months.map((m) => m.label + ' ' + m.count).join(', ') %>">
+      <% for (const m of sub.months) { %>
+        <div class="col" title="<%= m.label %>: <%= m.count %> due">
+          <span class="col-value"><%= m.count %></span>
+          <span class="col-bar" style="height: <%= Math.round((m.count / maxSub) * 80) %>%"></span>
+        </div>
+      <% } %>
+    </div>
+    <div class="col-labels" aria-hidden="true">
+      <% for (const m of sub.months) { %><span><%= m.label %></span><% } %>
+    </div>
+    <p class="card-foot <%= sub.overdue ? 'text-red' : 'muted' %>"><%= sub.overdue %> overdue · <%= sub.later %> later</p>
+  </section>
+
+  <section class="card chart-card">
+    <h2>Open opportunities by BU</h2>
+    <% if (view.byBu.length === 0) { %>
+      <p class="subtle">No open opportunities.</p>
+    <% } %>
+    <% for (const b of view.byBu) { %>
+      <div class="bar-row" title="<%= b.bu %>: <%= b.count %> open">
+        <span class="bar-label"><%= b.bu %></span>
+        <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((b.count / maxBu) * 100) %>%"></span></span>
+        <span class="bar-value"><%= b.count %> · <%= moneyTotalsText(b.totals) %></span>
+      </div>
+    <% } %>
+  </section>
+</div>
+
 <div class="dash-grid">
   <section class="card table-card">
     <h2 class="card-pad">Needs attention</h2>

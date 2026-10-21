@@ -217,3 +217,70 @@ export function nextAskDue(deal) {
 export function askOverdue(ask, today) {
   return isOpenAsk(ask) && Boolean(ask.due_on) && ask.due_on < today;
 }
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * How many open opportunities are at each health level (dashboard status bar).
+ * @param {Array<{ health: { level: string } }>} rows open dashboard rows
+ * @returns {{ red: number, amber: number, green: number, hold: number }}
+ */
+export function healthMix(rows) {
+  const mix = { red: 0, amber: 0, green: 0, hold: 0 };
+  for (const r of rows) {
+    if (r.health.level in mix) mix[r.health.level] += 1;
+  }
+  return mix;
+}
+
+/**
+ * Open opportunities whose submission is due in each of the next `months` calendar months, counted
+ * from the month of `today`. Overdue submissions (before today) and later ones are counted apart.
+ * @returns {{ months: Array<{ key: string, label: string, count: number }>, overdue: number, later: number }}
+ */
+export function submissionsByMonth(deals, cfg, today, months = 6) {
+  let [year, month] = today.slice(0, 7).split('-').map(Number);
+  const keys = [];
+  for (let i = 0; i < months; i += 1) {
+    keys.push({ key: `${year}-${String(month).padStart(2, '0')}`, label: MONTH_NAMES[month - 1], count: 0 });
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+  }
+  const byKey = new Map(keys.map((m) => [m.key, m]));
+  let overdue = 0;
+  let later = 0;
+  for (const d of deals) {
+    if (!isOpen(d, cfg) || !d.submission_due || d.submitted_on) continue;
+    if (d.submission_due < today) {
+      overdue += 1;
+      continue;
+    }
+    const slot = byKey.get(d.submission_due.slice(0, 7));
+    if (slot) slot.count += 1;
+    else later += 1;
+  }
+  return { months: keys, overdue, later };
+}
+
+/**
+ * Open opportunities per business unit, with the count and the estimated value per currency.
+ * Opportunities without a BU are listed last under 'No BU'.
+ * @returns {Array<{ bu: string, count: number, totals: Record<string, number> }>}
+ */
+export function byBusinessUnit(deals, cfg) {
+  const groups = new Map();
+  for (const d of deals) {
+    const name = d.bu || 'No BU';
+    if (!groups.has(name)) groups.set(name, { bu: name, count: 0, pairs: [] });
+    const group = groups.get(name);
+    group.count += 1;
+    group.pairs.push([d.currency, d.est_value]);
+  }
+  const rank = (g) => (g.bu === 'No BU' ? 1 : 0);
+  return [...groups.values()]
+    .sort((a, b) => rank(a) - rank(b) || b.count - a.count || a.bu.localeCompare(b.bu))
+    .map((g) => ({ bu: g.bu, count: g.count, totals: moneyTotals(g.pairs, cfg) }));
+}

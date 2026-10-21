@@ -92,6 +92,11 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding dashboard charts (2026-10-21)
+- **Three charts, one question each.** Health is a stacked status bar with words beside it (status colours are used only for status). Submissions are columns for the next six months, one hue, values printed on every column (six values is few enough). BU is bars in the same style as the existing stage and aging bars. No chart library.
+- **Every chart has its numbers in text** (legend, column values or bar values), which covers the table-view need. The app has no dark mode, so there is no dark palette. Charts use the existing tokens.
+- **Calculations are pure functions in metrics.js** (healthMix, submissionsByMonth, byBusinessUnit) so they are tested with a fixed date.
+
 ### Made while adding BU from the forms (2026-10-21)
 - **BU is free text on the forms, like tags.** The form suggests the configured BUs. A new one is added to `config.business_units` in the same commit as the record. Matching ignores case, so `mobility` stores `Mobility`. Max 40 characters.
 - **Settings still owns the list.** A BU removed there is not checked against existing records yet (tags are). Open question for the user.

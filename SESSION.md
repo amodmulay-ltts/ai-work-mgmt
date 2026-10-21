@@ -17,7 +17,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Tags replace deal type; dashboard and list tag filter; Deal renamed Opportunity | Done (149 tests pass); implementation review complete | merged to `main` |
 | Opportunity types drive the form and detail page | Done (169 tests pass); browser check pending | merged to `main` |
 | Table headers and look and feel (UI analysis TODO) | Done (175 tests pass); checked in headless Chrome | merged to `main` |
-| New BU added from the opportunity and customer forms | Done (185 tests pass) | `bu-list`, merged to `main` |
+| New BU added from the opportunity and customer forms | Done (185 tests pass) | merged to `main` |
+| Dashboard charts: health, submissions by month, BU | Done (189 tests pass) | `dashboard-charts` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -73,3 +74,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — add BU from the forms — Linux
 - Done: BU on the opportunity and customer forms is a text field with the BU list as suggestions. A new BU is added to `config.business_units` in the same save, as new tags are. Settings still edits the list. 185 tests pass (new file `tests/bu-free-text.test.js`).
 - Next: user review. Removing a BU in Settings does not yet check whether opportunities use it (tags do).
+
+### 2026-10-21 — dashboard charts — Linux
+- Done: three charts on the dashboard (health status bar, submissions due next 6 months, open opportunities by BU). Server-rendered HTML and CSS, no library. Checked in headless Chrome with seeded data.
+- Found, not fixed: at 800px the top bar overflows sideways (the right-hand group is 45px too wide). It predates these charts.
