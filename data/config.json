@@ -2,6 +2,7 @@
   "schema_version": 1,
   "me_person_id": "PE-0001",
   "stale_after_days": 14,
+  "connect_after_days": 30,
   "push_delay_seconds": 30,
   "stages": [
     {
@@ -73,7 +74,99 @@
     "Proactive Proposal",
     "Change Request",
     "Renewal / Extension",
-    "Prospect"
+    "Prospect",
+    "Meetin with Henrike for feedback"
+  ],
+  "opportunity_types": [
+    {
+      "name": "Lead",
+      "fields": [],
+      "required": []
+    },
+    {
+      "name": "RFI",
+      "fields": [
+        "qa_due",
+        "submission_due",
+        "submitted_on",
+        "go_no_go",
+        "go_no_go_on",
+        "expected_decision_on",
+        "effort_person_months",
+        "duration_months",
+        "pricing_model",
+        "incumbent",
+        "competitors"
+      ],
+      "required": [
+        "submission_due"
+      ]
+    },
+    {
+      "name": "RFQ",
+      "fields": [
+        "qa_due",
+        "submission_due",
+        "submitted_on",
+        "go_no_go",
+        "go_no_go_on",
+        "expected_decision_on",
+        "effort_person_months",
+        "duration_months",
+        "pricing_model",
+        "incumbent",
+        "competitors"
+      ],
+      "required": [
+        "submission_due"
+      ]
+    },
+    {
+      "name": "RFP",
+      "fields": [
+        "qa_due",
+        "submission_due",
+        "submitted_on",
+        "go_no_go",
+        "go_no_go_on",
+        "expected_decision_on",
+        "effort_person_months",
+        "duration_months",
+        "pricing_model",
+        "incumbent",
+        "competitors"
+      ],
+      "required": [
+        "submission_due"
+      ]
+    },
+    {
+      "name": "Proactive Proposal",
+      "fields": [
+        "expected_start_on",
+        "expected_decision_on",
+        "pricing_model"
+      ],
+      "required": []
+    },
+    {
+      "name": "Change Request",
+      "fields": [
+        "expected_start_on",
+        "expected_decision_on",
+        "pricing_model"
+      ],
+      "required": []
+    },
+    {
+      "name": "Renewal / Extension",
+      "fields": [
+        "expected_start_on",
+        "expected_decision_on",
+        "pricing_model"
+      ],
+      "required": []
+    }
   ],
   "sources": [
     "Customer RFQ",
