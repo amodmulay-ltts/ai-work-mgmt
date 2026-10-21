@@ -9,6 +9,7 @@
   --border-strong: #CBD5E1;
   --text: #0F172A;
   --text-muted: #64748B;
+  --text-header: #475569; /* table column headings: 6.9:1 on --surface-muted (AA) */
   --text-subtle: #94A3B8;
 
   /* colour – brand / action */
@@ -242,13 +243,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 }
 .filters .search { min-width: 220px; }
 .table-card { padding: 0; overflow: hidden; }
+.table-card > p { margin: 0; padding: var(--s3) var(--s4) var(--s4); }
+.table-card > .card-foot { margin: 0; padding: var(--s3) var(--s4) var(--s4); }
+/* The wrapper scrolls sideways on narrow screens. Headers are not sticky: a scroll container here would stop position: sticky from working. */
 .table-wrap { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
 .table th {
-  position: sticky; top: var(--nav-h); z-index: 1;
   background: var(--surface-muted); text-align: left;
   font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
-  color: var(--text-muted); padding: 0 var(--s3); height: 36px; white-space: nowrap;
+  color: var(--text-header); padding: 0 var(--s3); height: 36px; white-space: nowrap;
   border-bottom: 1px solid var(--border);
 }
 .table td {
@@ -429,6 +432,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 }
 .support-add .field, .ask-form .field { margin: 0; }
 .ask-form .field:first-child { flex: 1 1 240px; }
+/* The asks table runs edge to edge inside the support card, like the other table cards. */
+.support-card .table-wrap { margin: 0 calc(-1 * var(--s4)); border-top: 1px solid var(--border); }
+.asks-table th:first-child, .asks-table td:first-child { padding-left: var(--s4); }
+.asks-table th:last-child, .asks-table td:last-child { padding-right: var(--s4); }
 .asks-table td { vertical-align: top; }
 .ask-edit { margin-top: var(--s1); font-size: var(--fs-sm); }
 .ask-edit summary { cursor: pointer; color: var(--primary); }

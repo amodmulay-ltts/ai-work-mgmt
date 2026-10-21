@@ -92,6 +92,12 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while fixing table headers and look and feel (2026-10-21)
+- **No sticky table headers.** `.table-wrap` scrolls sideways on narrow screens, and that makes it the scroll container, so `position: sticky` on `th` never pins anything (measured in headless Chrome). Pinning would need the sideways scroll removed, which costs more on narrow screens than pinned headers gain. Revisit only if long lists become a problem.
+- **Column headings use `--text-header` (#475569)**, about 6.9:1 on the header band. The muted token (about 4.3:1) was below AA for 12px text.
+- **Tables sit flush in their cards.** Any table card uses `card table-card` with the title and footer in `card-pad`. The Asks table inside the support card uses a negative margin to run edge to edge.
+- **Not done, on purpose:** wide tables do not hide columns on narrow windows (desktop tool; horizontal scroll is enough). The `:has()` two-column dashboard layout has no fallback beyond one column on older browsers.
+
 ### Made while building RFQs I support (2026-10-19)
 - **Asks live inside the deal file.** One deal is one file and one commit, the same as the history.
 - **Ask numbers come from `support_seq`** (last number used), so a removed ask's number is never reused. "Highest existing + 1" would reuse it.
