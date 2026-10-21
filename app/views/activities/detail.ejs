@@ -1,0 +1,79 @@
+<div class="page-header deal-head">
+  <div>
+    <span class="mono"><%= activity.id %></span>
+    <h1><%= activity.title %></h1>
+    <p class="muted meta-line">
+      <%= activity.kind %> · <%= activity.status %>
+      <% if (owner) { %> · Owner: <%= owner %><% } %>
+      <% if (activity.start_on) { %> · Started <%= fmtDate(activity.start_on) %><% } %>
+      <% if (activity.target_on) { %> · Target <%= fmtDate(activity.target_on) %><% } %>
+    </p>
+  </div>
+  <div class="page-actions">
+    <form method="post" action="/activities/<%= activity.id %>/status" class="inline">
+      <label class="sr-only" for="activity-set-status">Status</label>
+      <select id="activity-set-status" name="status" data-autosubmit>
+        <% for (const s of statuses) { %><option value="<%= s %>"<%- s === activity.status ? ' selected' : '' %>><%= s %></option><% } %>
+      </select>
+      <noscript><button class="btn btn-secondary btn-sm" type="submit">Set status</button></noscript>
+    </form>
+    <a class="btn btn-secondary" href="/activities/<%= activity.id %>/edit">Edit</a>
+    <%- include('../partials/delete-form', { action: `/activities/${activity.id}/delete`, expected: activity.id, what: 'activity', key: activity.id }) %>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-main">
+    <section class="card">
+      <h2>Updates</h2>
+      <p class="<%= quiet.quiet ? 'text-red' : 'muted' %>">
+        <% if (updates.length) { %>
+          Last update <%= fmtDate(quiet.last) %> (<%= quiet.days === 0 ? 'today' : quiet.days + ' days ago' %>)<% if (quiet.quiet) { %> · no update for more than <%= staleDays %> days while in progress<% } %>
+        <% } else { %>
+          No updates yet. Add what has happened since you started.
+        <% } %>
+      </p>
+      <form method="post" action="/activities/<%= activity.id %>/updates" class="ask-form">
+        <div class="field field-wide">
+          <label for="update-text">What happened</label>
+          <input type="text" id="update-text" name="text" maxlength="1000" required>
+        </div>
+        <div class="field">
+          <label for="update-on">Date</label>
+          <input type="date" id="update-on" name="on" max="<%= today %>" value="<%= today %>">
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit">Add update</button>
+      </form>
+      <% if (updates.length) { %>
+        <ol class="timeline">
+          <% for (const u of updates) { %>
+            <li>
+              <span class="tl-time"><%= fmtDate(u.on) %></span>
+              <div><%= u.text %></div>
+            </li>
+          <% } %>
+        </ol>
+      <% } %>
+    </section>
+  </div>
+  <aside class="detail-side">
+    <section class="card">
+      <h2>Description</h2>
+      <% if (activity.description) { %><div class="note"><%= activity.description %></div><% } else { %><p class="subtle">No description.</p><% } %>
+    </section>
+    <section class="card">
+      <h2>Links</h2>
+      <% if (activity.links.length) { %>
+        <ul class="plain-list">
+          <% for (const l of activity.links) { %><li><a href="<%= l %>" rel="noopener"><%= l %></a></li><% } %>
+        </ul>
+      <% } else { %><p class="subtle">No links.</p><% } %>
+    </section>
+    <section class="card">
+      <h2>Tags</h2>
+      <% if (activity.tags.length) { %>
+        <% for (const t of activity.tags) { %><span class="tag"><%= t %></span> <% } %>
+      <% } else { %><p class="subtle">No tags.</p><% } %>
+    </section>
+  </aside>
+</div>

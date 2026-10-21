@@ -8,10 +8,11 @@ import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, 
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
 import { resolveTags } from './lib/tags.js';
 import { connectState, connectSummary, newConnect } from './lib/connects.js';
+import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { noteEntry } from './history.js';
 import {
   customerToValues, dealToTyped, parseCustomerValues, parseDealValues, parsePersonValues,
-  personToValues, saveCustomer, saveDeal, savePerson, typedToValues,
+  personToValues, saveActivity, saveCustomer, saveDeal, savePerson, typedToValues,
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
@@ -108,8 +109,19 @@ function dashboardView(store, cfg, today, me, tags) {
     .filter((r) => r.connect.flagged)
     .sort((a, b) => (a.connect.last ?? '').localeCompare(b.connect.last ?? ''))
     .slice(0, 10);
+  // Internal activities are not opportunities: they are not filtered by tag and not in the pipeline.
+  const activities = store.listActivities();
+  const activityView = {
+    counts: Object.fromEntries(ACTIVITY_STATUSES.map((s) => [s, activities.filter((a) => a.status === s).length])),
+    inProgress: activities
+      .filter((a) => a.status === 'In progress')
+      .map((a) => ({ activity: a, owner: store.getPerson(a.owner_id)?.name ?? '—', ...activityQuiet(a, today, cfg.stale_after_days) }))
+      .sort((x, y) => x.last.localeCompare(y.last))
+      .slice(0, 8),
+  };
   return {
     connectFlags,
+    activities: activityView,
     kpi: {
       open: open.length,
       onHold: open.filter((r) => r.deal.on_hold).length,
@@ -486,6 +498,22 @@ async function renderCustomerForm(req, res, { existing, values, errors = {}, sta
     errors,
     action: existing ? `/customers/${existing.id}` : '/customers',
     personNames: store.listPeople().filter((p) => p.active).map((p) => p.name),
+  }, code);
+}
+
+/** New and edit form for an internal activity. Owners are the active people. */
+async function renderActivityForm(req, res, { existing, values, errors = {}, status: code = 200 }) {
+  const { store } = req.app.locals;
+  await renderPage(req, res, 'activities/form', {
+    title: existing ? `Edit ${existing.id}` : 'New activity',
+    active: 'activities',
+    existing,
+    values,
+    errors,
+    kinds: ACTIVITY_KINDS,
+    statuses: ACTIVITY_STATUSES,
+    people: store.listPeople().filter((p) => p.active),
+    action: existing ? `/activities/${existing.id}` : '/activities',
   }, code);
 }
 
@@ -1185,6 +1213,148 @@ export function createRouter() {
       flash(res, 'error', err.message);
     }
     return res.redirect(303, '/people');
+  });
+
+  // ------------------------------------------------ internal activities (PLAN.md §17)
+  router.get('/activities', async (req, res) => {
+    const { store } = req.app.locals;
+    const cfg = store.config();
+    const today = todayIso();
+    const q = req.query.status ?? '';
+    const kind = ACTIVITY_KINDS.includes(req.query.kind) ? req.query.kind : '';
+    const statusFilter = ACTIVITY_STATUSES.includes(q) ? q : '';
+    const rows = store
+      .listActivities()
+      .filter((a) => {
+        if (statusFilter) return a.status === statusFilter;
+        if (q === 'all') return true;
+        return OPEN_ACTIVITY_STATUSES.includes(a.status);
+      })
+      .filter((a) => !kind || a.kind === kind)
+      .map((a) => ({
+        activity: a,
+        owner: store.getPerson(a.owner_id)?.name ?? '—',
+        ...activityQuiet(a, today, cfg.stale_after_days),
+      }))
+      .sort((a, b) => b.last.localeCompare(a.last));
+    await renderPage(req, res, 'activities/list', {
+      title: 'Activities',
+      active: 'activities',
+      rows,
+      filter: { status: q, kind },
+      kinds: ACTIVITY_KINDS,
+      statuses: ACTIVITY_STATUSES,
+    });
+  });
+
+  router.get('/activities/new', async (req, res) => {
+    await renderActivityForm(req, res, {
+      existing: null,
+      values: { title: '', kind: 'Prototype', status: 'Idea', owner_id: '', start_on: '', target_on: '', description: '', links: '', tags: '' },
+    });
+  });
+
+  router.post('/activities', async (req, res) => {
+    const { store } = req.app.locals;
+    const { typed, errors } = parseActivityForm(req.body);
+    if (typed && typed.owner_id && !store.getPerson(typed.owner_id)) errors.owner_id = 'Pick a person from the list.';
+    if (Object.keys(errors).length) return renderActivityForm(req, res, { existing: null, values: req.body, errors, status: 422 });
+    try {
+      const { activity } = await saveActivity(store, typed, { existing: null });
+      flash(res, 'success', `Created ${activity.id}`);
+      return res.redirect(303, `/activities/${activity.id}`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderActivityForm(req, res, { existing: null, values: req.body, errors: { title: plain(err.errors[0]) }, status: 422 });
+    }
+  });
+
+  router.get('/activities/:id', async (req, res) => {
+    const { store } = req.app.locals;
+    const activity = store.getActivity(req.params.id);
+    if (!activity) return notFound(req, res, 'This activity');
+    const cfg = store.config();
+    const today = todayIso();
+    await renderPage(req, res, 'activities/detail', {
+      title: `${activity.id} · ${activity.title}`,
+      active: 'activities',
+      activity,
+      owner: store.getPerson(activity.owner_id)?.name ?? null,
+      updates: [...activity.updates].sort((a, b) => b.on.localeCompare(a.on) || b.created_at.localeCompare(a.created_at)),
+      quiet: activityQuiet(activity, today, cfg.stale_after_days),
+      staleDays: cfg.stale_after_days,
+      statuses: ACTIVITY_STATUSES,
+      today,
+    });
+  });
+
+  router.get('/activities/:id/edit', async (req, res) => {
+    const { store } = req.app.locals;
+    const activity = store.getActivity(req.params.id);
+    if (!activity) return notFound(req, res, 'This activity');
+    await renderActivityForm(req, res, {
+      existing: activity,
+      values: { ...activity, links: activity.links.join('\n'), tags: activity.tags.join(', '), owner_id: activity.owner_id ?? '' },
+    });
+  });
+
+  router.post('/activities/:id', async (req, res) => {
+    const { store } = req.app.locals;
+    const activity = store.getActivity(req.params.id);
+    if (!activity) return notFound(req, res, 'This activity');
+    const { typed, errors } = parseActivityForm(req.body);
+    if (typed && typed.owner_id && !store.getPerson(typed.owner_id)) errors.owner_id = 'Pick a person from the list.';
+    if (Object.keys(errors).length) return renderActivityForm(req, res, { existing: activity, values: req.body, errors, status: 422 });
+    try {
+      await saveActivity(store, typed, { existing: activity });
+      flash(res, 'success', 'Activity saved.');
+      return res.redirect(303, `/activities/${activity.id}`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderActivityForm(req, res, { existing: activity, values: req.body, errors: { title: plain(err.errors[0]) }, status: 422 });
+    }
+  });
+
+  // A status change is its own save, so it shows up as its own commit.
+  router.post('/activities/:id/status', async (req, res) => {
+    const { store } = req.app.locals;
+    const activity = store.getActivity(req.params.id);
+    if (!activity) return notFound(req, res, 'This activity');
+    const status = String(req.body.status ?? '');
+    if (!ACTIVITY_STATUSES.includes(status)) {
+      flash(res, 'error', 'Pick a status from the list.');
+    } else if (status !== activity.status) {
+      await store.save([{ ...activity, status }], `${activity.id}: status ${activity.status} → ${status}`);
+      flash(res, 'success', `Status set to ${status}.`);
+    }
+    return res.redirect(303, `/activities/${activity.id}`);
+  });
+
+  router.post('/activities/:id/updates', async (req, res) => {
+    const { store } = req.app.locals;
+    const activity = store.getActivity(req.params.id);
+    if (!activity) return notFound(req, res, 'This activity');
+    const { update, error } = newActivityUpdate(req.body, { at: nowIso(), today: todayIso() });
+    if (error) {
+      flash(res, 'error', error);
+      return res.redirect(303, `/activities/${activity.id}`);
+    }
+    await store.save([{ ...activity, updates: [...activity.updates, update] }], `${activity.id}: update on ${update.on}`);
+    flash(res, 'success', 'Update added.');
+    return res.redirect(303, `/activities/${activity.id}`);
+  });
+
+  router.post('/activities/:id/delete', async (req, res) => {
+    const { store } = req.app.locals;
+    const activity = store.getActivity(req.params.id);
+    if (!activity) return notFound(req, res, 'This activity');
+    if (!typedRight(req, activity.id)) {
+      flash(res, 'error', `Nothing was deleted. Type ${activity.id} exactly to delete it.`);
+      return res.redirect(303, `/activities/${activity.id}`);
+    }
+    await store.delete(activity, `${activity.id}: deleted`);
+    flash(res, 'success', `Deleted ${activity.id}.`);
+    return res.redirect(303, '/activities');
   });
 
   return router;

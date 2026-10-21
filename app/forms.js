@@ -505,3 +505,27 @@ export async function savePerson(store, typed, { existing = null }) {
   return { person };
 }
 
+
+/**
+ * Saves an internal activity (new or existing). The updates log is kept as it is: the form does not
+ * change it, and each update is added by its own save (PLAN.md §17).
+ * @returns {Promise<{ activity: object }>}
+ */
+export async function saveActivity(store, typed, { existing = null }) {
+  const id = existing ? existing.id : await store.nextId('activity');
+  const now = nowIso();
+  const activity = {
+    ...(existing ?? {}),
+    schema_version: 1,
+    id,
+    ...typed,
+    updates: existing ? existing.updates : [],
+    created_at: existing ? existing.created_at : now,
+    updated_at: now,
+  };
+  const errors = validateRecord('activity', activity, null);
+  if (errors.length) throw new ValidationError(errors);
+  const message = existing ? `${id}: updated` : `${id}: created – ${typed.title}`;
+  await store.save([activity], message);
+  return { activity };
+}

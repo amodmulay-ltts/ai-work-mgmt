@@ -6,8 +6,8 @@ import { resolveTags } from './lib/tags.js';
 import { withConnectDefaults } from './lib/connects.js';
 
 /** Record kinds loaded from disk, in load order. */
-const KINDS = ['customer', 'person', 'deal'];
-const FOLDER = { deal: 'deals', customer: 'customers', person: 'people' };
+const KINDS = ['customer', 'person', 'deal', 'activity'];
+const FOLDER = { deal: 'deals', customer: 'customers', person: 'people', activity: 'activities' };
 /** Conflict copies written by GitSync: <record id>.<YYYYMMDD-HHMMSS>.theirs.json */
 const CONFLICT_RE = /^((?:DL-\d{4}-\d{4})|(?:CU|PE)-\d{4})\.(\d{8}-\d{6})\.theirs\.json$/;
 
@@ -26,7 +26,7 @@ export class Store {
     this.mutex = mutex;
     this.problems = [];
     this.cfg = structuredClone(DEFAULT_CONFIG);
-    this.records = { deal: new Map(), customer: new Map(), person: new Map() };
+    this.records = { deal: new Map(), customer: new Map(), person: new Map(), activity: new Map() };
     this.lockPath = path.join(this.dataDir, '_lock.json');
     this.holder = null;
     this.lockWarning = null;
@@ -54,7 +54,7 @@ export class Store {
   /** Reads every record file into memory. Files that fail to parse or validate go to `problems`. */
   async loadAll() {
     const problems = [];
-    const records = { deal: new Map(), customer: new Map(), person: new Map() };
+    const records = { deal: new Map(), customer: new Map(), person: new Map(), activity: new Map() };
     let cfg = structuredClone(DEFAULT_CONFIG);
     try {
       cfg = { ...cfg, ...JSON.parse(await fs.readFile(this.configPath, 'utf8')) };
@@ -168,6 +168,14 @@ export class Store {
 
   listDeals() {
     return [...this.records.deal.values()];
+  }
+
+  listActivities() {
+    return [...this.records.activity.values()].sort((a, b) => a.id.localeCompare(b.id));
+  }
+
+  getActivity(id) {
+    return this.records.activity.get(id) ?? null;
   }
 
   getDeal(id) {

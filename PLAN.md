@@ -1267,3 +1267,21 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 **Not in scope yet.** Connects from an opportunity, export to Excel, connect reports, and a connect count in the weekly report.
 
+## 17. Internal activities
+
+**Purpose.** Record work that is not a customer opportunity: prototypes, concepts and AI solutions being built. They do not have a customer or a pipeline stage, so they never count in the pipeline, win rate or health.
+
+**Data.** A new record kind, `activity`, in `data/activities/` with ids `AC-0001`. Fields: `title` (required, up to 120 characters), `kind` (Prototype, Concept, AI solution or Other), `status` (Idea, In progress, On hold, Done or Stopped), `owner_id` (an active person, or null), `start_on`, `target_on` (the target cannot be before the start), `description` (up to 2000 characters), `links` (http or https), `tags`, `updates` (a dated log), `created_at`, `updated_at`. Opportunities, customers and people are unchanged.
+
+**Updates.** Each update has an id, a date (today or earlier), and text up to 1000 characters. Adding one is its own commit. The form does not change the updates.
+
+**Status.** Changing the status from the detail page is its own commit. Idea, In progress and On hold are open. Done and Stopped are closed and leave the default list.
+
+**Pages.**
+- `/activities`: open activities by default. Filters for status (including All) and kind.
+- `/activities/new`, `/activities/:id/edit`, `/activities/:id` (updates, status, description, links, tags).
+- Delete uses the type-to-confirm box: the ID must be typed (section 16 rule for deletes).
+- Dashboard: an "Internal activities" card with the count by status and the in-progress activities. An in-progress activity with no update for longer than the stale setting is shown as quiet.
+
+**Not in scope yet.** Export to Excel, the weekly report, linking an activity to a customer or an opportunity, and filtering the dashboard card by tag.
+
