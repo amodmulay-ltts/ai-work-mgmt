@@ -57,3 +57,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — implementation review
 - Done: reviewed the implementation against `PLAN.md`; follow-up suggestions were delivered in chat.
 - Tests: 149/149 pass with a command-scoped `safe.bareRepository=all` setting. Without it, two git-sync tests are blocked by the machine's `safe.bareRepository=explicit` setting for generated bare test remotes.
+
+### 2026-10-21 — opportunity types — Linux
+- Done: Type is required again and drives the form (Lead, RFI, RFQ, RFP, Proactive Proposal, Change Request, Renewal / Extension). Each type shows its own fields, and the deal page prints only applicable rows. Hidden fields are stored empty. 169 tests pass.
+- Next: user review in the browser (the show and hide script is not browser-tested here).
