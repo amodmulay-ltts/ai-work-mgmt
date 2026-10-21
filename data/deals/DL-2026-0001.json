@@ -20,7 +20,7 @@
   "region": "Europe",
   "stage": "Proposal Submitted",
   "on_hold": false,
-  "probability": 20,
+  "probability": 50,
   "priority": "Medium",
   "go_no_go": "Pending",
   "go_no_go_on": null,
@@ -36,7 +36,7 @@
   "effort_person_months": null,
   "duration_months": null,
   "pricing_model": "Fixed Price",
-  "incumbent": "nON",
+  "incumbent": "Non",
   "competitors": [],
   "outcome_reason": null,
   "next_action": null,
@@ -50,8 +50,23 @@
       "text": "Opportunity created",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-10-21T15:02:19+02:00",
+      "kind": "field",
+      "text": "Probability: 20 → 50",
+      "from_value": "20",
+      "to_value": "50"
+    },
+    {
+      "at": "2026-10-21T15:02:19+02:00",
+      "kind": "field",
+      "text": "Incumbent: nON → Non",
+      "from_value": "nON",
+      "to_value": "Non"
     }
   ],
   "created_at": "2026-10-21T10:33:07+02:00",
-  "updated_at": "2026-10-21T10:33:07+02:00"
+  "updated_at": "2026-10-21T15:02:19+02:00",
+  "type": "Lead"
 }
