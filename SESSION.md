@@ -15,6 +15,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Phase 3 — Quality of life | Done (78 tests pass) | `phase-3-polish` |
 | Feature: RFQs I support (PLAN.md §15, phases S1–S3) | Done | merged to `main` |
 | Tags replace deal type; dashboard and list tag filter; Deal renamed Opportunity | Done (149 tests pass); implementation review complete | merged to `main` |
+| Opportunity types drive the form and detail page | Done (169 tests pass); browser check pending | merged to `main` |
+| Table headers and look and feel (UI analysis TODO) | Done (175 tests pass); checked in headless Chrome | `ui-table-headers`, merged to `main` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -61,3 +63,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — opportunity types — Linux
 - Done: Type is required again and drives the form (Lead, RFI, RFQ, RFP, Proactive Proposal, Change Request, Renewal / Extension). Each type shows its own fields, and the deal page prints only applicable rows. Hidden fields are stored empty. 169 tests pass.
 - Next: user review in the browser (the show and hide script is not browser-tested here).
+
+### 2026-10-21 — table headers and look and feel — Linux
+- Done: resolved the UI TODO list. Sticky table headers removed (they never worked: `.table-wrap` scrolls sideways, which made it the scroll container). Column headings darker (`--text-header`, AA contrast). Stray monospace on the Asks heading removed. Needs attention and Asks tables now sit edge to edge in their cards, like the other lists. Wide tables and the `:has()` fallback left as they are (see NOTES §2).
+- Verified in headless Chrome: header top stays in place when scrolled (before: scrolled away) and the asks header is in the sans font. 175 tests pass (new file `tests/table-headers.test.js`).
+- Next: user review in the browser.
