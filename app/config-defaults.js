@@ -19,7 +19,8 @@ export const DEFAULT_CONFIG = {
     { name: 'Lost', probability: 0, terminal: true, outcome: 'lost' },
     { name: 'Dropped', probability: 0, terminal: true, outcome: 'dropped' },
   ],
-  deal_types: ['RFI', 'RFQ', 'RFP', 'Proactive Proposal', 'Change Request', 'Renewal / Extension'],
+  // Tags on opportunities. Starts with the usual types; the user adds and removes tags freely.
+  tags: ['RFQ', 'RFI', 'RFP', 'Proactive Proposal', 'Change Request', 'Renewal / Extension'],
   sources: ['Customer RFQ', 'Sales lead', 'Account mining', 'Partner', 'Inbound / Website', 'Other'],
   business_units: ['Mobility', 'Sustainability', 'Hi-Tech'],
   regions: ['North America', 'Europe', 'UK', 'India', 'APAC', 'Japan', 'Middle East'],

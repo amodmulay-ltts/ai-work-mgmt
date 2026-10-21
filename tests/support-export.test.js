@@ -106,7 +106,7 @@ describe('support export and weekly report', () => {
       assert.equal(sheet.getRow(1).getCell(13).value, 'Supporters');
       assert.equal(sheet.getRow(1).getCell(14).value, 'Open asks');
       assert.equal(sheet.getRow(1).getCell(18).value, 'Received');
-      assert.equal(sheet.getRow(1).cellCount, 38);
+      assert.equal(sheet.getRow(1).cellCount, 37);
 
       let alpha = null;
       sheet.eachRow((row, n) => {

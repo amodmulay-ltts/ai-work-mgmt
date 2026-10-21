@@ -23,7 +23,7 @@
  * }} HistoryEntry
  *
  * @typedef {{
- *   schema_version: number, id: string, title: string, type: string, source: string | null,
+ *   schema_version: number, id: string, title: string, source: string | null,
  *   description: string, customer_id: string, contact_ids: string[], c4c_id: string | null,
  *   sales_owner_id: string | null, presales_owner_id: string | null, delivery_owner_id: string | null,
  *   support_ids: string[], support_requests: SupportRequest[], support_seq: number,
@@ -60,6 +60,18 @@ export const GO_NO_GO = ['Pending', 'Go', 'No-Go'];
 export const ASK_STATUSES = ['Open', 'In progress', 'Done', 'Cancelled'];
 /** Deal fields added for "RFQs I support" (PLAN.md §15.1). Files written before them get these. */
 const SUPPORT_DEFAULTS = { support_ids: [], support_requests: [], support_seq: 0 };
+
+/**
+ * Older deals had one fixed 'type' (RFQ, RFI, …). It is now a tag, so the type becomes the first tag.
+ * Returns the deal without the type key.
+ */
+export function migrateDealType(deal) {
+  if (!('type' in deal)) return deal;
+  const { type, ...rest } = deal;
+  const tags = Array.isArray(rest.tags) ? rest.tags : [];
+  const merged = type && !tags.some((t) => t.toLowerCase() === String(type).toLowerCase()) ? [type, ...tags] : tags;
+  return { ...rest, tags: merged };
+}
 
 /** Adds the support fields to a deal read from an older file. Returns the same object. */
 export function withSupportDefaults(deal) {
@@ -197,7 +209,6 @@ function validateDeal(d, cfg) {
   if (!/^DL-\d{4}-\d{4}$/.test(d.id ?? '')) errors.push('id must look like DL-2026-0001');
   required('title', 'Title');
   required('customer_id', 'Customer');
-  required('type', 'Type');
   required('stage', 'Stage');
   required('received_on', 'Received on');
 
@@ -229,13 +240,14 @@ function validateDeal(d, cfg) {
   errors.push(...validateSupport(d));
 
   if (cfg) {
+    const unknownTags = (Array.isArray(d.tags) ? d.tags : []).filter((t) => !cfg.tags.includes(t));
+    for (const tag of unknownTags) errors.push(`Tag: unknown value '${tag}'`);
     const stage = cfg.stages.find((s) => s.name === d.stage);
     if (!stage && d.stage) errors.push(`Stage: unknown value '${d.stage}'`);
     if (stage && (stage.outcome === 'lost' || stage.outcome === 'dropped') && isBlank(d.outcome_reason)) {
       errors.push('An outcome reason is required for Lost and Dropped deals');
     }
     const checks = [
-      ['type', cfg.deal_types, 'Type'],
       ['source', cfg.sources, 'Source'],
       ['bu', cfg.business_units, 'BU'],
       ['region', cfg.regions, 'Region'],

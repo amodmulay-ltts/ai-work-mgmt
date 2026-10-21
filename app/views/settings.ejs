@@ -39,6 +39,7 @@
       <%- ui.field({ name: 'pricing_models', label: 'Pricing models', type: 'textarea', rows: 5, value: values.pricing_models, error: errors.pricing_models || '' }) %>
       <%- ui.field({ name: 'sources', label: 'Sources', type: 'textarea', rows: 5, value: values.sources, error: errors.sources || '' }) %>
       <%- ui.field({ name: 'outcome_reasons', label: 'Outcome reasons', type: 'textarea', rows: 5, value: values.outcome_reasons, error: errors.outcome_reasons || '' }) %>
+      <%- ui.field({ name: 'tags', label: 'Tags', type: 'textarea', rows: 5, value: values.tags, error: errors.tags || '', help: 'Used to tag opportunities, e.g. RFQ. A tag that opportunities still use cannot be removed here.' }) %>
     </div>
   </section>
 
