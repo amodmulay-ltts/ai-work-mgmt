@@ -147,6 +147,7 @@ a:hover { text-decoration: underline; }
 
 /* form fields */
 .field { display: flex; flex-direction: column; gap: var(--s1); margin-bottom: var(--s3); }
+.field[hidden] { display: none; }
 .field label { font-size: var(--fs-sm); font-weight: 500; }
 .field .help { font-size: var(--fs-xs); color: var(--text-muted); }
 input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea {

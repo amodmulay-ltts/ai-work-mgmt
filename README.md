@@ -29,6 +29,7 @@ Keyboard shortcuts, when you are not typing in a field: `/` search, `n` new oppo
 ### Pages
 
 - **Dashboard:** what needs attention, your next actions, pipeline and aging, recent changes.
+- **Type:** every opportunity has a type: Lead (a new customer, or a new opportunity with an existing customer), RFI, RFQ, RFP, Proactive proposal, Change request or Renewal. The type decides which fields the form asks for. Fields that a type does not use are stored empty, so changing the type never deletes anything. Each type's fields are listed in `config.json` under `opportunity_types`.
 - **Tags:** every opportunity can have tags, such as RFQ or Hot lead. Type a new tag on an opportunity and it is added to the list. The dashboard and the opportunities list can be filtered by tags (an opportunity must have every tag picked). Tags are managed in **Settings**; a tag that opportunities still use cannot be removed.
 - **Opportunities:** filter, sort and search. Export the current view to Excel with **Export to Excel**.
 - **Support** and **My asks:** RFQs where you are a supporter (or have an open ask), and the asks other people have given you. Add supporters and asks on an opportunity's page, under **Support**.

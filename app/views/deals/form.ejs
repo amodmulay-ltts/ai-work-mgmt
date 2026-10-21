@@ -1,6 +1,16 @@
 <%
-  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
-  const sel = (name, label, options, opts = {}) => ui.field({ name, label, type: 'select', value: values[name] ?? '', options, error: errors[name] || '', ...opts });
+  // Optional fields list the types that use them. app.js shows and hides them when the type changes.
+  // A field with a value is always shown, so nothing already entered is hidden.
+  const optionalKeys = new Set(cfg.opportunity_types.flatMap((t) => t.fields));
+  const attrsFor = (name) => {
+    if (!optionalKeys.has(name)) return '';
+    const types = cfg.opportunity_types.filter((t) => t.fields.includes(name)).map((t) => t.name);
+    const filled = (values[name] ?? '') !== '';
+    const visible = shows(name, values.type ?? '', values[name] ?? '');
+    return `data-types="${ui.esc(types.join('|'))}" data-filled="${filled ? 'yes' : 'no'}"${visible ? '' : ' hidden'}`;
+  };
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', wrapAttrs: attrsFor(name), ...opts });
+  const sel = (name, label, options, opts = {}) => ui.field({ name, label, type: 'select', value: values[name] ?? '', options, error: errors[name] || '', wrapAttrs: attrsFor(name), ...opts });
   const sourceOptions = ui.optionsOf(cfg.sources);
   const stageOptions = cfg.stages.map((s) => [s.name, s.name]);
   const priorityOptions = [['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low']];

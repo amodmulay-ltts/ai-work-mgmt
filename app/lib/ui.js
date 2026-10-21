@@ -43,7 +43,7 @@ export function dueCell(iso, today, { done = null } = {}) {
 }
 
 /** Form field: label, input, error and help text. Keeps what the user typed. */
-export function field({ name, label, type = 'text', value = '', required = false, error = '', help = '', options = null, list = null, rows = 0, span = false, placeholder = '' }) {
+export function field({ name, label, type = 'text', value = '', required = false, error = '', help = '', options = null, list = null, rows = 0, span = false, placeholder = '', wrapAttrs = '' }) {
   const id = `f-${name}`;
   const describedBy = [error ? `${id}-error` : '', help ? `${id}-help` : ''].filter(Boolean).join(' ');
   const attrs = [
@@ -71,7 +71,7 @@ export function field({ name, label, type = 'text', value = '', required = false
   }
 
   const requiredMark = required ? ' <span class="req" aria-hidden="true">*</span>' : '';
-  return `<div class="field${span ? ' span-all' : ''}${type === 'checkbox' ? ' field-check' : ''}">
+  return `<div class="field${span ? ' span-all' : ''}${type === 'checkbox' ? ' field-check' : ''}"${wrapAttrs ? ' ' + wrapAttrs : ''}>
   <label for="${id}">${esc(label)}${requiredMark}</label>
   ${input}
   ${error ? `<p class="error" id="${id}-error">${esc(error)}</p>` : ''}
