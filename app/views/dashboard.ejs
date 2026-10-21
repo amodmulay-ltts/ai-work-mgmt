@@ -126,56 +126,6 @@
   </section>
 </div>
 
-<section class="card wins-card">
-  <h2>Wins by year</h2>
-  <% if (view.wins.years.length === 0) { %>
-    <p class="subtle">No closed opportunities yet. Won and lost opportunities appear here by the year they closed.</p>
-  <% } else { %>
-    <%
-      const yrs = view.wins.years;
-      const maxWon = Math.max(1, ...yrs.map((y) => y.won));
-    %>
-    <div class="col-chart" role="img" aria-label="<%= yrs.map((y) => y.year + ' ' + y.won + ' won').join(', ') %>">
-      <% for (const y of yrs) { %>
-        <div class="col" title="<%= y.year %>: <%= y.won %> won, <%= y.lost %> lost">
-          <span class="col-value"><%= y.won %></span>
-          <span class="col-bar" style="height: <%= Math.round((y.won / maxWon) * 80) %>%"></span>
-        </div>
-      <% } %>
-    </div>
-    <div class="col-labels" aria-hidden="true">
-      <% for (const y of yrs) { %><span><%= y.year %></span><% } %>
-    </div>
-    <div class="table-wrap wins-table">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Year</th>
-            <th scope="col" class="num">Won</th>
-            <th scope="col" class="num">Lost</th>
-            <th scope="col" class="num">Win rate</th>
-            <th scope="col">Won value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (const y of [...yrs].reverse()) { %>
-            <tr>
-              <td><%= y.year %></td>
-              <td class="num"><%= y.won %></td>
-              <td class="num"><%= y.lost %></td>
-              <td class="num"><%= y.rate === null ? '—' : Math.round(y.rate * 100) + '%' %></td>
-              <td><%= moneyTotalsText(y.wonTotals) %></td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
-    <% if (view.wins.undated.won || view.wins.undated.lost) { %>
-      <p class="card-foot muted"><%= view.wins.undated.won %> won and <%= view.wins.undated.lost %> lost have no closed date, so they are not in any year. Add the closed date on the opportunity to count them.</p>
-    <% } %>
-  <% } %>
-</section>
-
 <div class="dash-grid">
   <section class="card table-card">
     <h2 class="card-pad">Needs attention</h2>

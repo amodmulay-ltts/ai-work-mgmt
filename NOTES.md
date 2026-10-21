@@ -92,6 +92,9 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while moving wins to their own page (2026-10-21)
+- **Wins by year lives on /wins**, not the dashboard. The dashboard is for open work. The page reads the same data.
+
 ### Made while adding people merge (2026-10-21)
 - **Merge, not only delete.** A mistaken person is usually referenced in many places, so delete alone is blocked. Merge moves every reference, so the work is kept.
 - **One reference list** (lib/merge.js personRefs) answers both "is it in use?" and "what moves?", so a new field that holds a person id must be added there.

@@ -103,3 +103,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — merge people — Linux
 - Done: Merge… on the People page moves every reference of a wrong person to the right one and removes the wrong person, in one commit. Typed-name challenge as for deletes. Delete now also refuses a person used on an ask, a connect or an activity (it checked only opportunities and account managers). 235 tests pass.
 - Not checked in a browser yet: the merge page layout.
+
+### 2026-10-21 — wins page — Linux
+- Done: Wins by year moved from the dashboard to /wins, with a Wins nav link. The dashboard no longer computes it. 236 tests pass.
