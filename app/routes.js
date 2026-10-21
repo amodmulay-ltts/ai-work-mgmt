@@ -3,7 +3,7 @@ import {
   agingCounts, ageDays, askOverdue, asksFor, daysInStage, daysToSubmission, hasAllTags, health, isOpen, isOpenAsk, isSupportedBy,
   moneyTotals, openAsks, pipelineByStage, stageInfo, status, weightedValue, winStats,
 } from './metrics.js';
-import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, todayIso, ROLES } from './models.js';
+import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
 import { resolveTags } from './lib/tags.js';
 import { noteEntry } from './history.js';
@@ -320,7 +320,10 @@ function newDealValues(store, cfg, customerId) {
 
 async function renderDealForm(req, res, { existing, values, errors = {}, formErrors = [], status: code = 200 }) {
   const { store } = req.app.locals;
+  const cfg = store.config();
   await renderPage(req, res, 'deals/form', {
+    // Whether a field is shown for a type, given its current value (see showField in models.js).
+    shows: (key, type, value) => showField(cfg, { type, [key]: value }, key),
     title: existing ? `Edit ${existing.id}` : 'New opportunity',
     active: 'deals',
     existing,
@@ -622,6 +625,7 @@ export function createRouter() {
       outcomeState: terminal ? 'current' : 'future',
       outcomeName: terminal ? deal.stage : null,
       timeline: [...deal.history].reverse(),
+      visible: (key) => showField(cfg, deal, key),
       supporters: deal.support_ids.map((id) => person(id)).filter(Boolean),
       asks: deal.support_requests.map((ask) => ({
         ask,

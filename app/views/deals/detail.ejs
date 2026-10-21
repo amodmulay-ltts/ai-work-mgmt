@@ -186,7 +186,7 @@
         <%- textRow('BU', d.bu) %>
         <%- textRow('Practice', d.practice) %>
         <%- textRow('Region', d.region) %>
-        <%- textRow('Go / No-Go', d.go_no_go + (d.go_no_go_on ? ' · ' + fmtDate(d.go_no_go_on) : '')) %>
+        <% if (visible('go_no_go')) { %><%- textRow('Go / No-Go', d.go_no_go + (d.go_no_go_on ? ' · ' + fmtDate(d.go_no_go_on) : '')) %><% } %>
         <%- textRow('Delivery owner', owners.delivery) %>
         <%- textRow('Contacts', contacts.map((c) => c.name).join(', ')) %>
       </div>
@@ -197,11 +197,11 @@
       <h2>Dates</h2>
       <div class="def-grid">
         <%- dateRow('Received', d.received_on) %>
-        <%- dateRow('Q&amp;A due', d.qa_due) %>
-        <%- dateRow('Submission due', d.submission_due) %>
-        <%- dateRow('Submitted', d.submitted_on) %>
-        <%- dateRow('Expected decision', d.expected_decision_on) %>
-        <%- dateRow('Expected start', d.expected_start_on) %>
+        <% if (visible('qa_due')) { %><%- dateRow('Q&amp;A due', d.qa_due) %><% } %>
+        <% if (visible('submission_due')) { %><%- dateRow('Submission due', d.submission_due) %><% } %>
+        <% if (visible('submitted_on')) { %><%- dateRow('Submitted', d.submitted_on) %><% } %>
+        <% if (visible('expected_decision_on')) { %><%- dateRow('Expected decision', d.expected_decision_on) %><% } %>
+        <% if (visible('expected_start_on')) { %><%- dateRow('Expected start', d.expected_start_on) %><% } %>
         <%- dateRow('Closed', d.closed_on) %>
       </div>
     </section>
@@ -211,17 +211,17 @@
       <div class="def-grid">
         <%- textRow('Estimated value', d.est_value == null ? '' : moneyCompact(d.est_value, d.currency)) %>
         <%- textRow('Weighted value', row.weighted == null ? '' : moneyCompact(row.weighted, d.currency)) %>
-        <%- textRow('Effort (person-months)', d.effort_person_months) %>
-        <%- textRow('Duration (months)', d.duration_months) %>
-        <%- textRow('Pricing model', d.pricing_model) %>
+        <% if (visible('effort_person_months')) { %><%- textRow('Effort (person-months)', d.effort_person_months) %><% } %>
+        <% if (visible('duration_months')) { %><%- textRow('Duration (months)', d.duration_months) %><% } %>
+        <% if (visible('pricing_model')) { %><%- textRow('Pricing model', d.pricing_model) %><% } %>
       </div>
     </section>
 
     <section class="card">
       <h2>Competition</h2>
       <div class="def-grid">
-        <%- textRow('Incumbent', d.incumbent) %>
-        <%- textRow('Competitors', d.competitors.join(', ')) %>
+        <% if (visible('incumbent')) { %><%- textRow('Incumbent', d.incumbent) %><% } %>
+        <% if (visible('competitors')) { %><%- textRow('Competitors', d.competitors.join(', ')) %><% } %>
       </div>
     </section>
 
@@ -243,12 +243,14 @@
         <% for (const [label, value] of nums) { %>
           <div class="kpi-row"><span><%= label %></span><strong><%= value %></strong></div>
         <% } %>
+        <% if (visible('submission_due')) { %>
         <div class="kpi-row">
           <span>Submission</span>
           <strong class="<%= toSubmit !== null && toSubmit < 0 ? 'text-red' : '' %>">
             <% if (d.submitted_on) { %>submitted<% } else if (toSubmit === null) { %>—<% } else if (toSubmit < 0) { %><%= -toSubmit %>d overdue<% } else if (toSubmit === 0) { %>today<% } else { %>in <%= toSubmit %>d<% } %>
           </strong>
         </div>
+        <% } %>
         <div class="kpi-row"><span>Value</span><strong><%= d.est_value == null ? '—' : moneyCompact(d.est_value, d.currency) %></strong></div>
       </div>
     </section>

@@ -14,6 +14,17 @@
     select.addEventListener('change', () => select.form.submit());
   });
 
+  // 3c. Opportunity type: the form shows the fields the chosen type uses, and any field that already has a value.
+  document.querySelectorAll('select[name="type"]').forEach((select) => {
+    const apply = () => {
+      document.querySelectorAll('[data-types]').forEach((el) => {
+        const types = el.dataset.types.split('|');
+        el.hidden = !(types.includes(select.value) || el.dataset.filled === 'yes');
+      });
+    };
+    select.addEventListener('change', apply);
+  });
+
   // 4. Unsaved changes: forms with data-guard warn before the page is left after an edit.
   document.querySelectorAll('form[data-guard]').forEach((form) => {
     let dirty = false;
