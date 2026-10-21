@@ -1,0 +1,62 @@
+<div class="page-header">
+  <h1>Activities <span class="count"><%= rows.length %></span></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/activities/new">+ New activity</a>
+  </div>
+</div>
+
+<p class="muted">Prototypes, concepts and AI solutions that are not customer opportunities. They do not count in the pipeline.</p>
+
+<form method="get" action="/activities" class="filters">
+  <label class="sr-only" for="activity-status">Status</label>
+  <select id="activity-status" name="status" data-autosubmit>
+    <option value="">Open</option>
+    <option value="all"<%- filter.status === 'all' ? ' selected' : '' %>>All</option>
+    <% for (const s of statuses) { %><option value="<%= s %>"<%- filter.status === s ? ' selected' : '' %>><%= s %></option><% } %>
+  </select>
+  <label class="sr-only" for="activity-kind">Kind</label>
+  <select id="activity-kind" name="kind" data-autosubmit>
+    <option value="">All kinds</option>
+    <% for (const k of kinds) { %><option value="<%= k %>"<%- filter.kind === k ? ' selected' : '' %>><%= k %></option><% } %>
+  </select>
+  <noscript><button class="btn btn-secondary btn-sm" type="submit">Apply</button></noscript>
+</form>
+
+<section class="card table-card">
+  <% if (rows.length === 0) { %>
+    <div class="empty-state">
+      <h2>No activities here</h2>
+      <p class="muted">Add a prototype, a concept or an AI solution you are working on.</p>
+      <a class="btn btn-primary" href="/activities/new">+ New activity</a>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Kind</th>
+            <th scope="col">Status</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Target</th>
+            <th scope="col">Last update</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of rows) { const a = r.activity; %>
+            <tr class="clickable" data-href="/activities/<%= a.id %>">
+              <td class="mono"><a href="/activities/<%= a.id %>"><%= a.id %></a></td>
+              <td class="ellipsis" title="<%= a.title %>"><%= a.title %></td>
+              <td><%= a.kind %></td>
+              <td><%= a.status %></td>
+              <td><%= r.owner %></td>
+              <td><%= a.target_on ? fmtDate(a.target_on) : '—' %></td>
+              <td class="<%= r.quiet ? 'text-red' : '' %>"><%= fmtDate(r.last) %><% if (r.quiet) { %> · quiet <%= r.days %> days<% } %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

@@ -317,6 +317,41 @@
 </section>
 
 <section class="card table-card">
+  <h2 class="card-pad">Internal activities</h2>
+  <p class="card-pad muted">
+    <% for (const s of Object.keys(view.activities.counts)) { %><%= s %> <%= view.activities.counts[s] %><% if (s !== 'Stopped') { %> · <% } %><% } %>
+  </p>
+  <% if (view.activities.inProgress.length === 0) { %>
+    <p class="subtle">Nothing in progress. Add a prototype or concept from <a href="/activities">Activities</a>.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Kind</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Last update</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of view.activities.inProgress) { %>
+            <tr class="clickable" data-href="/activities/<%= r.activity.id %>">
+              <td class="mono"><a href="/activities/<%= r.activity.id %>"><%= r.activity.id %></a></td>
+              <td class="ellipsis"><%= r.activity.title %></td>
+              <td><%= r.activity.kind %></td>
+              <td><%= r.owner %></td>
+              <td class="<%= r.quiet ? 'text-red' : '' %>"><%= fmtDate(r.last) %><% if (r.quiet) { %> · quiet <%= r.days %> days<% } %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="card table-card">
   <h2 class="card-pad">Recently updated</h2>
   <%- include('partials/deal-table', { rows: view.recent, cfg, today, empty: 'No opportunities yet.' }) %>
 </section>

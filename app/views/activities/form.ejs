@@ -1,0 +1,27 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+%>
+<div class="page-header">
+  <h1><%= title %></h1>
+</div>
+
+<form method="post" action="<%= action %>" class="deal-form" data-guard novalidate>
+  <section class="card form-section">
+    <h3>Activity</h3>
+    <div class="form-grid">
+      <%- f('title', 'Title', { required: true, span: true, help: 'For example: Supplier quality AI assistant.' }) %>
+      <%- ui.field({ name: 'kind', label: 'Kind', type: 'select', value: values.kind, options: ui.optionsOf(kinds), required: true, error: errors.kind || '' }) %>
+      <%- ui.field({ name: 'status', label: 'Status', type: 'select', value: values.status, options: ui.optionsOf(statuses), required: true, error: errors.status || '' }) %>
+      <%- ui.field({ name: 'owner_id', label: 'Owner', type: 'select', value: values.owner_id, options: people.map((p) => [p.id, p.name]), placeholder: 'Unassigned', error: errors.owner_id || '' }) %>
+      <%- f('tags', 'Tags', { help: 'Separate tags with commas, e.g. AI, Mobility.' }) %>
+      <%- f('start_on', 'Started on', { type: 'date' }) %>
+      <%- f('target_on', 'Target date', { type: 'date' }) %>
+      <%- f('description', 'Description', { type: 'textarea', span: true, rows: 4 }) %>
+      <%- f('links', 'Links', { type: 'textarea', span: true, rows: 2, help: 'One per line. Demo, repository or document links.' }) %>
+    </div>
+  </section>
+  <div class="form-footer">
+    <a class="btn btn-ghost" href="<%= existing ? '/activities/' + existing.id : '/activities' %>">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>

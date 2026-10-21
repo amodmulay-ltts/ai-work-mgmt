@@ -5,6 +5,8 @@
  * PLAN.md §5.1 is the reference for every field.
  */
 
+import { activityErrors } from './lib/activities.js';
+
 import { connectErrors } from './lib/connects.js';
 
 /**
@@ -111,7 +113,7 @@ export const DATE_FIELDS = [
   'expected_start_on', 'closed_on', 'go_no_go_on', 'next_action_due',
 ];
 
-const PREFIX = { deal: 'DL', customer: 'CU', person: 'PE' };
+const PREFIX = { deal: 'DL', customer: 'CU', person: 'PE', activity: 'AC' };
 const REQUIRED_LABELS = { submission_due: 'Submission due' };
 const EMAIL_RE = /^[^@\s]+@[^@\s]+$/;
 const URL_RE = /^https?:\/\/\S+$/;
@@ -129,7 +131,7 @@ export class ValidationError extends Error {
 export function kindOf(id) {
   const entry = Object.entries(PREFIX).find(([, prefix]) => id.startsWith(`${prefix}-`));
   if (!entry) throw new Error(`Unknown record id: ${id}`);
-  return /** @type {'deal' | 'customer' | 'person'} */ (entry[0]);
+  return /** @type {'deal' | 'customer' | 'person' | 'activity'} */ (entry[0]);
 }
 
 export { PREFIX };
@@ -173,6 +175,7 @@ const isBlank = (v) => v === null || v === undefined || (typeof v === 'string' &
  * @returns {string[]}
  */
 export function validateRecord(kind, obj, cfg = null) {
+  if (kind === 'activity') return activityErrors(obj);
   if (kind === 'person') return validatePerson(obj);
   if (kind === 'customer') return validateCustomer(obj, cfg);
   return validateDeal(obj, cfg);

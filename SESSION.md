@@ -21,7 +21,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Dashboard charts: health, submissions by month, BU | Done (189 tests pass) | merged to `main` |
 | Customer connects (PLAN.md §16) | Done (202 tests pass) | merged to `main` |
 | Type-to-confirm for deletes | Done (208 tests pass) | merged to `main` |
-| Wins by year (dashboard) | Done (213 tests pass) | `yearly-wins` |
+| Wins by year (dashboard) | Done (213 tests pass) | merged to `main` |
+| Internal activities (PLAN.md §17) | Done (226 tests pass) | `internal-activities` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -93,3 +94,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — wins by year — Linux
 - Done: the dashboard has a Wins by year card. It shows won counts per closing year as columns, and a table of won, lost, win rate and won value per year. Years run from the first closed year to this year. Dropped deals are left out of the rate. Terminal deals with no closed date are counted apart. 213 tests pass.
 - Next: user review. Older wins are entered by setting the Closed on date on the opportunity. Import from a file is not built.
+
+### 2026-10-21 — internal activities — Linux
+- Done: a new record kind, activity (AC-0001), for prototypes, concepts and AI solutions that are not opportunities. It has its own pages, a dated updates log and a status, and it is not in the pipeline or win stats. The dashboard has an Internal activities card, and the type-to-confirm delete applies. Spec in PLAN.md §17. 226 tests pass.
+- Next: user review. Export and weekly report are not included yet.

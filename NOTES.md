@@ -92,6 +92,11 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding internal activities (2026-10-21)
+- **Activities are a separate record kind, not opportunities.** An opportunity needs a customer and runs through RFQ stages, so a prototype would distort the pipeline and win rate. The AC prefix and data/activities folder are new; nothing existing moved.
+- **Updates are a log inside the activity file**, like the history on opportunities, so one file holds the whole story.
+- **Quiet uses the stale setting** (14 days by default) and only applies to in-progress activities.
+
 ### Made while adding wins by year (2026-10-21)
 - **Wins are counted by closing year** (closed_on), the same field the 90-day win rate uses. Dropped is not a loss, so it is left out of the rate.
 - **Old wins are entered with the form.** The Closed on field already exists. There is no import from a file yet.
