@@ -142,7 +142,6 @@ function dashboardView(store, cfg, today, me, tags) {
     recent: [...rows].sort((a, b) => b.deal.updated_at.localeCompare(a.deal.updated_at)).slice(0, 8),
     pipeline: pipelineByStage(deals, cfg),
     aging: agingCounts(deals, cfg, today),
-    wins: winsByYear(deals, cfg, today),
     health: healthMix(open),
     submissions: submissionsByMonth(deals, cfg, today),
     byBu: byBusinessUnit(open.map((r) => r.deal), cfg),
@@ -774,6 +773,13 @@ export function createRouter() {
 
   // ------------------------------------------------ RFQs I support and my asks (PLAN.md §15.3)
   // The support page shows the current user's RFQs by default. ?who=<person id> shows a colleague's.
+  // Wins by year has its own page, so the dashboard stays about the open work.
+  router.get('/wins', async (req, res) => {
+    const { store } = req.app.locals;
+    const cfg = store.config();
+    await renderPage(req, res, 'wins', { title: 'Wins', active: 'wins', wins: winsByYear(store.listDeals(), cfg, todayIso()) });
+  });
+
   router.get('/support', async (req, res) => {
     const { store } = req.app.locals;
     const cfg = store.config();

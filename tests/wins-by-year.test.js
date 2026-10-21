@@ -50,7 +50,7 @@ describe('wins and losses by closing year', () => {
   });
 });
 
-describe('the dashboard shows wins by year', () => {
+describe('wins by year has its own page, not the dashboard', () => {
   let app;
   let close;
 
@@ -84,9 +84,14 @@ describe('the dashboard shows wins by year', () => {
     await close();
   });
 
-  test('a card lists each year with its wins, losses and rate', async () => {
+  test('the dashboard no longer has the wins card', async () => {
     const html = await (await fetch(`${app.base}/`)).text();
-    assert.match(html, /<h2>Wins by year<\/h2>/);
+    assert.doesNotMatch(html, /Wins by year/);
+  });
+
+  test('the wins page lists each year with its wins, losses and rate', async () => {
+    const html = await (await fetch(`${app.base}/wins`)).text();
+    assert.match(html, /<h1>Wins by year<\/h1>/);
     assert.match(html, /<td>2025<\/td>\s*<td class="num">1<\/td>\s*<td class="num">0<\/td>\s*<td class="num">100%<\/td>/);
   });
 });
