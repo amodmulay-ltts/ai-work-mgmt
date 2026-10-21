@@ -497,3 +497,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 .wins-card th:first-child, .wins-card td:first-child { padding-left: var(--s4); }
 .wins-card th:last-child, .wins-card td:last-child { padding-right: var(--s4); }
 
+/* dashboard: the two open-opportunity cards, and the one chart that sits on its own */
+.kpi-grid.kpi-grid-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.chart-grid-one { grid-template-columns: minmax(0, 1fr); }
+.chart-grid-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 1100px) {
+  .chart-grid-two { grid-template-columns: minmax(0, 1fr); }
+}
+

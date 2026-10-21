@@ -29,7 +29,6 @@
   const wt = Object.entries(k.weighted);
   const maxStage = Math.max(1, ...view.pipeline.map((s) => s.count));
   const maxAge = Math.max(1, ...Object.values(view.aging));
-  const win = k.win.rate === null ? '—' : Math.round(k.win.rate * 100) + '%';
 %>
 <%- include('partials/tag-filter', { all: cfg.tags, tags, base: '/', query: tagQuery }) %>
 <div class="page-header dash-head">
@@ -41,7 +40,7 @@
   </div>
 </div>
 
-<div class="kpi-grid">
+<div class="kpi-grid kpi-grid-two">
   <div class="card kpi">
     <div class="kpi-label">Open opportunities</div>
     <div class="kpi-value"><%= k.open %></div>
@@ -56,16 +55,6 @@
     </div>
     <div class="kpi-sub">weighted · open opportunities</div>
   </div>
-  <div class="card kpi">
-    <div class="kpi-label">Due in 7 days</div>
-    <div class="kpi-value"><%= k.dueSoon %></div>
-    <div class="kpi-sub <%= k.overdue ? 'text-red' : '' %>"><%= k.overdue ? k.overdue + ' overdue' : 'none overdue' %></div>
-  </div>
-  <div class="card kpi">
-    <div class="kpi-label">Win rate (90 days)</div>
-    <div class="kpi-value"><%= win %></div>
-    <div class="kpi-sub"><%= k.win.won %> won · <%= k.win.lost %> lost</div>
-  </div>
 </div>
 
 <%
@@ -76,7 +65,7 @@
   const maxSub = Math.max(1, ...sub.months.map((m) => m.count));
   const maxBu = Math.max(1, ...view.byBu.map((b) => b.count));
 %>
-<div class="chart-grid">
+<div class="chart-grid chart-grid-two">
   <section class="card chart-card">
     <h2>Health of open opportunities</h2>
     <% if (hTotal === 0) { %>
@@ -96,22 +85,6 @@
   </section>
 
   <section class="card chart-card">
-    <h2>Submissions due, next 6 months</h2>
-    <div class="col-chart" role="img" aria-label="<%= sub.months.map((m) => m.label + ' ' + m.count).join(', ') %>">
-      <% for (const m of sub.months) { %>
-        <div class="col" title="<%= m.label %>: <%= m.count %> due">
-          <span class="col-value"><%= m.count %></span>
-          <span class="col-bar" style="height: <%= Math.round((m.count / maxSub) * 80) %>%"></span>
-        </div>
-      <% } %>
-    </div>
-    <div class="col-labels" aria-hidden="true">
-      <% for (const m of sub.months) { %><span><%= m.label %></span><% } %>
-    </div>
-    <p class="card-foot <%= sub.overdue ? 'text-red' : 'muted' %>"><%= sub.overdue %> overdue · <%= sub.later %> later</p>
-  </section>
-
-  <section class="card chart-card">
     <h2>Open opportunities by BU</h2>
     <% if (view.byBu.length === 0) { %>
       <p class="subtle">No open opportunities.</p>
@@ -125,6 +98,46 @@
     <% } %>
   </section>
 </div>
+
+<section class="card table-card">
+  <h2 class="card-pad">Internal activities</h2>
+  <p class="card-pad muted">
+    <% for (const s of Object.keys(view.activities.counts)) { %><%= s %> <%= view.activities.counts[s] %><% if (s !== 'Stopped') { %> · <% } %><% } %>
+  </p>
+  <% if (view.activities.inProgress.length === 0) { %>
+    <p class="subtle">Nothing in progress. Add a prototype or concept from <a href="/activities">Activities</a>.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Kind</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Last update</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of view.activities.inProgress) { %>
+            <tr class="clickable" data-href="/activities/<%= r.activity.id %>">
+              <td class="mono"><a href="/activities/<%= r.activity.id %>"><%= r.activity.id %></a></td>
+              <td class="ellipsis"><%= r.activity.title %></td>
+              <td><%= r.activity.kind %></td>
+              <td><%= r.owner %></td>
+              <td class="<%= r.quiet ? 'text-red' : '' %>"><%= fmtDate(r.last) %><% if (r.quiet) { %> · quiet <%= r.days %> days<% } %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="card table-card">
+  <h2 class="card-pad">Recently updated</h2>
+  <%- include('partials/deal-table', { rows: view.recent, cfg, today, empty: 'No opportunities yet.' }) %>
+</section>
 
 <div class="dash-grid">
   <section class="card table-card">
@@ -266,43 +279,22 @@
   <% } %>
 </section>
 
-<section class="card table-card">
-  <h2 class="card-pad">Internal activities</h2>
-  <p class="card-pad muted">
-    <% for (const s of Object.keys(view.activities.counts)) { %><%= s %> <%= view.activities.counts[s] %><% if (s !== 'Stopped') { %> · <% } %><% } %>
-  </p>
-  <% if (view.activities.inProgress.length === 0) { %>
-    <p class="subtle">Nothing in progress. Add a prototype or concept from <a href="/activities">Activities</a>.</p>
-  <% } else { %>
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Title</th>
-            <th scope="col">Kind</th>
-            <th scope="col">Owner</th>
-            <th scope="col">Last update</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (const r of view.activities.inProgress) { %>
-            <tr class="clickable" data-href="/activities/<%= r.activity.id %>">
-              <td class="mono"><a href="/activities/<%= r.activity.id %>"><%= r.activity.id %></a></td>
-              <td class="ellipsis"><%= r.activity.title %></td>
-              <td><%= r.activity.kind %></td>
-              <td><%= r.owner %></td>
-              <td class="<%= r.quiet ? 'text-red' : '' %>"><%= fmtDate(r.last) %><% if (r.quiet) { %> · quiet <%= r.days %> days<% } %></td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
+<div class="chart-grid chart-grid-one">
+  <section class="card chart-card">
+    <h2>Submissions due, next 6 months</h2>
+    <div class="col-chart" role="img" aria-label="<%= sub.months.map((m) => m.label + ' ' + m.count).join(', ') %>">
+      <% for (const m of sub.months) { %>
+        <div class="col" title="<%= m.label %>: <%= m.count %> due">
+          <span class="col-value"><%= m.count %></span>
+          <span class="col-bar" style="height: <%= Math.round((m.count / maxSub) * 80) %>%"></span>
+        </div>
+      <% } %>
     </div>
-  <% } %>
-</section>
+    <div class="col-labels" aria-hidden="true">
+      <% for (const m of sub.months) { %><span><%= m.label %></span><% } %>
+    </div>
+    <p class="card-foot <%= sub.overdue ? 'text-red' : 'muted' %>"><%= sub.overdue %> overdue · <%= sub.later %> later</p>
+  </section>
+</div>
 
-<section class="card table-card">
-  <h2 class="card-pad">Recently updated</h2>
-  <%- include('partials/deal-table', { rows: view.recent, cfg, today, empty: 'No opportunities yet.' }) %>
-</section>
 <% } %>

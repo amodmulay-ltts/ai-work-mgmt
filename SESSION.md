@@ -106,3 +106,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-21 — wins page — Linux
 - Done: Wins by year moved from the dashboard to /wins, with a Wins nav link. The dashboard no longer computes it. 236 tests pass.
+
+### 2026-10-21 — dashboard layout — Linux
+- Done: the KPI row has two cards (Open opportunities, Weighted pipeline). Due in 7 days and Win rate are removed. Health and BU are one row. Internal activities is the third row, with Recently updated below it. Needs attention, Asks, Pipeline and Aging stay in their places. Submissions due moved to the bottom. 236 tests pass.
