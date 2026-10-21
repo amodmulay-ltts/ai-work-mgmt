@@ -1,7 +1,6 @@
 <%
   const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
   const sel = (name, label, options, opts = {}) => ui.field({ name, label, type: 'select', value: values[name] ?? '', options, error: errors[name] || '', ...opts });
-  const typeOptions = ui.optionsOf(cfg.deal_types);
   const sourceOptions = ui.optionsOf(cfg.sources);
   const stageOptions = cfg.stages.map((s) => [s.name, s.name]);
   const priorityOptions = [['High', 'High'], ['Medium', 'Medium'], ['Low', 'Low']];
@@ -23,7 +22,6 @@
     <h3>Basics</h3>
     <div class="form-grid">
       <%- f('title', 'Title', { required: true, span: true, placeholder: 'e.g. ADAS validation services – Phase 2' }) %>
-      <%- sel('type', 'Type', typeOptions, { required: true, placeholder: 'Choose…' }) %>
       <%- sel('source', 'Source', sourceOptions, { placeholder: 'Choose…' }) %>
       <%- f('c4c_id', 'C4C ID', { help: 'Plain text, copied from C4C.' }) %>
       <%- f('description', 'Scope summary', { type: 'textarea', span: true, rows: 3 }) %>
@@ -88,7 +86,8 @@
       <%- sel('outcome_reason', 'Outcome reason', ui.optionsOf(cfg.outcome_reasons), { placeholder: 'Needed for Lost and Dropped', help: 'Required when the stage is Lost or Dropped.' }) %>
       <%- f('next_action', 'Next action', { span: true }) %>
       <%- f('next_action_due', 'Next action due', { type: 'date' }) %>
-      <%- f('tags', 'Tags', { span: true, help: 'Separate tags with commas, e.g. HIL, ADAS' }) %>
+      <%- f('tags', 'Tags', { span: true, list: 'tag-options', help: 'Separate tags with commas, e.g. RFQ, HIL. Type a new tag to create it.' }) %>
+      <%- ui.datalist('tag-options', cfg.tags) %>
     </div>
   </section>
 

@@ -8,15 +8,16 @@
 import { diff } from './history.js';
 import { nowIso, validateRecord, ValidationError, DATE_FIELDS } from './models.js';
 import { stageInfo } from './metrics.js';
+import { resolveTags } from './lib/tags.js';
 
 const TEXT_FIELDS = [
-  'title', 'type', 'source', 'description', 'customer', 'contacts', 'c4c_id', 'sales_owner', 'presales_owner',
+  'title', 'source', 'description', 'customer', 'contacts', 'c4c_id', 'sales_owner', 'presales_owner',
   'delivery_owner', 'bu', 'practice', 'region', 'stage', 'priority', 'go_no_go', 'currency', 'pricing_model',
   'incumbent', 'competitors', 'outcome_reason', 'next_action', 'tags', 'links', 'probability',
   'est_value', 'effort_person_months', 'duration_months',
 ];
 const NUMBER_FIELDS = ['est_value', 'effort_person_months', 'duration_months'];
-const REQUIRED = { title: 'Title', customer: 'Customer', type: 'Type', stage: 'Stage', received_on: 'Received on' };
+const REQUIRED = { title: 'Title', customer: 'Customer', stage: 'Stage', received_on: 'Received on' };
 
 /** Trimmed text of one form field, '' when missing. */
 const text = (values, key) => (typeof values[key] === 'string' ? values[key].trim() : '');
@@ -101,7 +102,6 @@ export function dealToTyped(deal, store) {
   const name = (id) => store.getPerson(id)?.name ?? '';
   return {
     title: deal.title,
-    type: deal.type,
     source: deal.source,
     description: deal.description,
     customer: store.getCustomer(deal.customer_id)?.name ?? '',
@@ -274,6 +274,10 @@ export function duplicateC4cWarning(store, c4cId, selfId) {
  */
 export async function saveDeal(store, typed, { existing = null, today }) {
   const cfg = store.config();
+  // Tags are free text. Known tags keep their spelling, and new ones are added to config.tags in the same commit.
+  const tagged = resolveTags(typed.tags, cfg.tags);
+  if (tagged.errors.length) throw new ValidationError(tagged.errors);
+  const cfgNext = tagged.added.length ? { ...cfg, tags: [...cfg.tags, ...tagged.added] } : cfg;
   const refs = await resolveReferences(store, typed);
   const now = nowIso();
   const id = existing ? existing.id : await store.nextId('deal');
@@ -282,7 +286,6 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     schema_version: 1,
     id,
     title: typed.title,
-    type: typed.type,
     source: typed.source,
     description: typed.description,
     customer_id: refs.customerId,
@@ -321,7 +324,7 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     outcome_reason: typed.outcome_reason,
     next_action: typed.next_action,
     next_action_due: typed.next_action_due,
-    tags: typed.tags,
+    tags: tagged.tags,
     links: typed.links,
     history: existing ? [...existing.history] : [],
     created_at: existing ? existing.created_at : now,
@@ -338,10 +341,10 @@ export async function saveDeal(store, typed, { existing = null, today }) {
   const { entries, summary } = diff(existing, deal, lookup);
   deal.history = [...deal.history, ...entries];
 
-  const errors = validateRecord('deal', deal, cfg);
+  const errors = validateRecord('deal', deal, cfgNext);
   if (errors.length) throw new ValidationError(errors);
 
-  await store.save([...refs.created, deal], `${id}: ${summary}`);
+  await store.save([...refs.created, deal], `${id}: ${summary}`, { config: tagged.added.length ? cfgNext : undefined });
   const warnings = [duplicateC4cWarning(store, deal.c4c_id, id)].filter(Boolean);
   return { deal, createdNames: refs.createdNames, warnings };
 }

@@ -5,6 +5,7 @@ import {
 } from './metrics.js';
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
+import { resolveTags } from './lib/tags.js';
 import { noteEntry } from './history.js';
 import {
   customerToValues, dealToTyped, parseCustomerValues, parseDealValues, parsePersonValues,
@@ -116,7 +117,7 @@ const dueText = (iso) => iso ?? '\uffff';
 
 // ---------------------------------------------------------------- settings
 
-const LIST_KEYS = ['business_units', 'regions', 'currencies', 'pricing_models', 'sources', 'outcome_reasons'];
+const LIST_KEYS = ['business_units', 'regions', 'currencies', 'pricing_models', 'sources', 'outcome_reasons', 'tags'];
 
 /** Non-empty lines, trimmed. */
 const lines = (value) => String(value ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
@@ -260,7 +261,6 @@ function newDealValues(store, cfg, customerId) {
   const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
   return typedToValues({
     title: '',
-    type: '',
     source: null,
     description: '',
     customer: customer?.name ?? '',
@@ -926,7 +926,20 @@ export function createRouter() {
     const stale = Number(values.stale_after_days);
     if (!Number.isInteger(stale) || stale < 1) errors.stale_after_days = 'Enter a whole number of days, 1 or more.';
     for (const key of LIST_KEYS) {
-      if (list(key).length === 0) errors[key] = 'Keep at least one item.';
+      // Tags are optional: an empty tag list is allowed.
+      if (key !== 'tags' && list(key).length === 0) errors[key] = 'Keep at least one item.';
+    }
+    // A tag can be removed only when no deal uses it. A form that does not send tags leaves them as they are.
+    const tagsSent = body.tags !== undefined;
+    const tags = tagsSent ? resolveTags(lines(values.tags), []).tags : cfg.tags;
+    if (tagsSent) {
+      for (const tag of cfg.tags.filter((t) => !tags.includes(t))) {
+        const used = store.listDeals().filter((d) => d.tags.includes(tag)).length;
+        if (used) {
+          errors.tags = `'${tag}' is used by ${used} deal${used === 1 ? '' : 's'}. Remove it from them first.`;
+          break;
+        }
+      }
     }
     const currencies = list('currencies');
     if (currencies.some((c) => !/^[A-Za-z]{3}$/.test(c))) errors.currencies = 'Use three-letter codes, such as EUR or USD.';
@@ -942,6 +955,7 @@ export function createRouter() {
       pricing_models: list('pricing_models'),
       sources: list('sources'),
       outcome_reasons: list('outcome_reasons'),
+      tags,
     };
     try {
       if (me) {

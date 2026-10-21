@@ -1,7 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { DEFAULT_CONFIG } from './config-defaults.js';
-import { PREFIX, ValidationError, kindOf, nowIso, validateRecord, withSupportDefaults } from './models.js';
+import { PREFIX, ValidationError, kindOf, migrateDealType, nowIso, validateRecord, withSupportDefaults } from './models.js';
+import { resolveTags } from './lib/tags.js';
 
 /** Record kinds loaded from disk, in load order. */
 const KINDS = ['customer', 'person', 'deal'];
@@ -68,7 +69,7 @@ export class Store {
         const label = `${FOLDER[kind]}/${name}`;
         try {
           let obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
-          if (kind === 'deal') obj = withSupportDefaults(obj);
+          if (kind === 'deal') obj = withSupportDefaults(migrateDealType(obj));
           // Structural checks only: enum lists are checked when a record is saved.
           const errors = validateRecord(kind, obj, null);
           if (errors.length) problems.push(`${label}: ${errors.join(', ')}`);
@@ -78,6 +79,9 @@ export class Store {
         }
       }
     }
+    // Every tag on a deal is a known tag, even if config.json was edited by hand.
+    const allTags = [...records.deal.values()].flatMap((d) => d.tags);
+    cfg = { ...cfg, tags: [...cfg.tags, ...resolveTags(allTags, cfg.tags).added] };
     this.cfg = cfg;
     this.records = records;
     this.problems = problems;
@@ -122,7 +126,7 @@ export class Store {
       const conflictPath = path.join(this.dataDir, '_conflicts', file);
       const paths = [conflictPath];
       if (action === 'use_theirs') {
-        const remote = withSupportDefaults(JSON.parse(await fs.readFile(conflictPath, 'utf8')));
+        const remote = withSupportDefaults(migrateDealType(JSON.parse(await fs.readFile(conflictPath, 'utf8'))));
         const errors = validateRecord(kind, remote, this.cfg);
         if (errors.length) throw new ValidationError(errors);
         await writeJsonAtomic(this.recordPath(kind, id), remote);
@@ -246,8 +250,10 @@ export class Store {
     return this.mutex.run(async () => {
       const now = nowIso();
       const prepared = records.map((r) => ({ ...r, updated_at: now }));
+      // Validate against the config this save will write, so a new tag and the deal that uses it go together.
+      const cfgNow = config ? { ...structuredClone(DEFAULT_CONFIG), ...config } : this.cfg;
       const errors = prepared.flatMap((r) =>
-        validateRecord(kindOf(r.id), r, this.cfg).map((e) => `${r.id}: ${e}`),
+        validateRecord(kindOf(r.id), r, cfgNow).map((e) => `${r.id}: ${e}`),
       );
       if (errors.length) throw new ValidationError(errors);
 
