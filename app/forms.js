@@ -284,6 +284,7 @@ export async function saveDeal(store, typed, { existing = null, today }) {
   const id = existing ? existing.id : await store.nextId('deal');
 
   const deal = {
+    ...(existing ?? {}),
     schema_version: 1,
     id,
     title: typed.title,
@@ -404,6 +405,7 @@ export async function saveCustomer(store, typed, { existing = null }) {
   const now = nowIso();
   const id = existing ? existing.id : await allocateId(store, 'customer', pending);
   const customer = {
+    ...(existing ?? {}),
     schema_version: 1,
     id,
     name: typed.name,
@@ -469,6 +471,7 @@ export async function savePerson(store, typed, { existing = null }) {
   const now = nowIso();
   const id = existing ? existing.id : await store.nextId('person');
   const person = {
+    ...(existing ?? {}),
     schema_version: 1,
     id,
     name: typed.name,
