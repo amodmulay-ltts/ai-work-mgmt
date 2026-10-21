@@ -124,3 +124,24 @@ describe('filter by tag', () => {
     assert.match(page.html, /class="btn btn-ghost">Clear</);
   });
 });
+
+describe('tag filter: pages that do not pass tags', () => {
+  let app;
+
+  before(async () => {
+    app = await startApp();
+    await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
+  });
+
+  after(async () => {
+    await app.close();
+  });
+
+  test('the dashboard renders its tag bar with no tag picked, and after a failed save on the first-run form', async () => {
+    const page = await get(app.base, '/');
+    assert.equal(page.status, 200);
+    assert.match(page.html, /aria-label="Filter by tag"/);
+    const failed = await post(app.base, '/setup', { name: '', email: '' });
+    assert.equal(failed.status, 422);
+  });
+});

@@ -13,7 +13,8 @@ import { todayIso } from '../models.js';
  */
 export async function renderPage(req, res, view, data = {}, status = 200) {
   const { git, store } = req.app.locals;
-  const defaults = { title: '', active: '', me: null, values: {}, errors: {}, formErrors: [], message: '' };
+  // tags and tagQuery are used by the tag filter on the dashboard and the deals list.
+  const defaults = { title: '', active: '', me: null, values: {}, errors: {}, formErrors: [], message: '', tags: [], tagQuery: '' };
   const locals = {
     ...defaults,
     sync: await git.status(),
