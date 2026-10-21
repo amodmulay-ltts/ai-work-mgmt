@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "AC-0001",
+  "title": "ROI Calculator",
+  "kind": "Concept",
+  "status": "In progress",
+  "owner_id": "PE-0001",
+  "start_on": "2026-09-16",
+  "target_on": null,
+  "description": "ROI calculator tool for customers to find the cost of implementation of AI w.r.t. various models in such as BBC, only AI etc",
+  "links": [],
+  "tags": [
+    "Tool"
+  ],
+  "updates": [],
+  "created_at": "2026-10-21T16:05:01+02:00",
+  "updated_at": "2026-10-21T16:05:01+02:00"
+}
