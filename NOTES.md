@@ -92,6 +92,9 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding the customer chart (2026-10-21)
+- **Customer chart counts open opportunities**, the same measure as the BU chart, showing the top 8. The full list is one step away on the Customers page.
+
 ### Made while adding won to date (2026-10-21)
 - **Won to date uses the estimated value** (est_value), per currency, not a sum across currencies. It counts opportunities in a won stage, so it follows the tag filter like the other figures.
 
