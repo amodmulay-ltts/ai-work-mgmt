@@ -80,6 +80,12 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **Export uses the list's filters**, including the default "open" filter.
 - **Next-action updates return to the page the user came from**, so the dashboard's inline update stays on the dashboard.
 
+### Made while changing deal type to tags and renaming (2026-10-21)
+- **Type is a tag.** The fixed Type list is gone. Tags are free text: the form suggests known tags, and a new tag typed in is added to `config.tags` in the same commit. Settings can edit the list, but a tag that a deal still uses cannot be removed.
+- **Old files keep their type.** A deal file with `type` loads with the type as its first tag, and the key is dropped on the next save.
+- **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
+- **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
+
 ### Made while building RFQs I support (2026-10-19)
 - **Asks live inside the deal file.** One deal is one file and one commit, the same as the history.
 - **Ask numbers come from `support_seq`** (last number used), so a removed ask's number is never reused. "Highest existing + 1" would reuse it.
@@ -187,3 +193,8 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - Changed files: `app/models.js`, `app/store.js`, `app/forms.js`, `app/history.js`, `app/metrics.js`, `app/support.js` (new), `app/routes.js`, `app/export.js`, `app/report.js`, `app/public/app.js`, `app/public/app.css`, `app/views/deals/detail.ejs`, `app/views/deals/list.ejs`, `app/views/support/` (new), `app/views/partials/deal-table.ejs`, `app/views/dashboard.ejs`, `app/views/layout.ejs`, `README.md`, `tests/support.test.js` (new), `tests/support-pages.test.js` (new), `tests/support-export.test.js` (new), `tests/insight.test.js` (column numbers).
 - Checks: `npm test` 123 of 123 pass on Node 22 (78 existing, 26 + 15 + 4 new). Tests run after each phase; each branch was merged only when they passed.
 - Not checked: a visual browser check of the new cards and the chips; Windows.
+
+### 2026-10-21 — tags and opportunity rename — Linux
+- Done: tags replace the fixed deal type (`app/lib/tags.js` new; models, store, forms, export, settings changed). Dashboard and deals list filter by tag (`partials/tag-filter.ejs` new). Visible names and /deals URLs now say opportunity (35 files, phrase-level, identifiers untouched).
+- Tests: 148 of 148 pass on Node 22. New: `tests/tags.test.js` (17), `tests/tags-filter.test.js` (8), `tests/rename.test.js` (3). Existing export expectations updated (37 columns; sheet "Opportunities"; file "opportunities-…").
+- Not checked: a visual browser check of the tag chips; Windows.
