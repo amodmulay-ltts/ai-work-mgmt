@@ -510,3 +510,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
   .chart-grid-three { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* chart elements that link to the opportunities list (they look like the chart, not like text links) */
+a.bar-row, a.col, a.stack-seg { color: inherit; text-decoration: none; }
+a.bar-row:hover .bar-label, a.bar-row:focus-visible .bar-label { color: var(--text); text-decoration: underline; }
+a.col:hover .col-bar { opacity: 0.8; }
+a.stack-seg:hover { opacity: 0.8; }
+.chart-link { color: inherit; text-decoration: none; }
+.chart-link:hover { text-decoration: underline; }
+

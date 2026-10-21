@@ -92,6 +92,6 @@ describe('wins by year has its own page, not the dashboard', () => {
   test('the wins page lists each year with its wins, losses and rate', async () => {
     const html = await (await fetch(`${app.base}/wins`)).text();
     assert.match(html, /<h1>Wins by year<\/h1>/);
-    assert.match(html, /<td>2025<\/td>\s*<td class="num">1<\/td>\s*<td class="num">0<\/td>\s*<td class="num">100%<\/td>/);
+    assert.match(html, /<td>2025<\/td>\s*<td class="num"><a [^>]*>1<\/a><\/td>\s*<td class="num"><a [^>]*>0<\/a><\/td>\s*<td class="num">100%<\/td>/);
   });
 });

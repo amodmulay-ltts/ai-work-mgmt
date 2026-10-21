@@ -278,6 +278,9 @@ function listDeals(store, cfg, today, query) {
     bu: query.bu || '',
     priority: query.priority || '',
     health: query.health || '',
+    // Chart links (dashboard and wins page): open deals due in a month, and won or lost deals closed in a year.
+    submit_month: /^\d{4}-\d{2}$/.test(query.submit_month ?? '') ? query.submit_month : '',
+    closed_year: /^\d{4}$/.test(query.closed_year ?? '') ? query.closed_year : '',
   };
   const sortKey = SORTS[query.sort] ? query.sort : 'submission_due';
   const dir = query.dir === 'desc' ? -1 : 1;
@@ -293,7 +296,12 @@ function listDeals(store, cfg, today, query) {
   const supporterId = filter.support === 'me' ? cfg.me_person_id : filter.support;
   if (supporterId) rows = rows.filter((r) => isSupportedBy(r.deal, supporterId));
   if (tags.length) rows = rows.filter((r) => hasAllTags(r.deal, tags));
-  if (filter.bu) rows = rows.filter((r) => r.deal.bu === filter.bu);
+  if (filter.bu === 'none') rows = rows.filter((r) => !r.deal.bu);
+  else if (filter.bu) rows = rows.filter((r) => r.deal.bu === filter.bu);
+  if (filter.submit_month) {
+    rows = rows.filter((r) => r.open && r.deal.submission_due && !r.deal.submitted_on && r.deal.submission_due.slice(0, 7) === filter.submit_month);
+  }
+  if (filter.closed_year) rows = rows.filter((r) => r.deal.closed_on?.slice(0, 4) === filter.closed_year);
   if (filter.priority) rows = rows.filter((r) => r.deal.priority === filter.priority);
   if (filter.health) rows = rows.filter((r) => r.health.level === filter.health);
   if (q) {
