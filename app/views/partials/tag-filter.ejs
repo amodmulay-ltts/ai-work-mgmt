@@ -1,0 +1,16 @@
+<%
+  // Tag chips for filtering. Each chip adds or removes one tag from the URL and keeps the other filters.
+  const linkFor = (list) => {
+    const parts = [query, ...list.map((t) => 'tag=' + encodeURIComponent(t))].filter(Boolean);
+    return parts.length ? `${base}?${parts.join('&')}` : base;
+  };
+%>
+<% if (all.length) { %>
+  <nav class="tag-filter" aria-label="Filter by tag">
+    <span class="tag-filter-label">Tags</span>
+    <a href="<%= linkFor([]) %>" class="tag-chip<%= tags.length === 0 ? ' active' : '' %>"<%- tags.length === 0 ? ' aria-current="true"' : '' %>>All</a>
+    <% for (const t of all) { const on = tags.includes(t); const next = on ? tags.filter((x) => x !== t) : [...tags, t]; %>
+      <a href="<%= linkFor(next) %>" class="tag-chip<%= on ? ' active' : '' %>" aria-pressed="<%= on ? 'true' : 'false' %>"><%= t %></a>
+    <% } %>
+  </nav>
+<% } %>

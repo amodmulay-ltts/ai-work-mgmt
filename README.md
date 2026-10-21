@@ -29,6 +29,7 @@ Keyboard shortcuts, when you are not typing in a field: `/` search, `n` new deal
 ### Pages
 
 - **Dashboard:** what needs attention, your next actions, pipeline and aging, recent changes.
+- **Tags:** every deal can have tags, such as RFQ or Hot lead. Type a new tag on a deal and it is added to the list. The dashboard and the deals list can be filtered by tags (a deal must have every tag picked). Tags are managed in **Settings**; a tag that deals still use cannot be removed.
 - **Deals:** filter, sort and search. Export the current view to Excel with **Export to Excel**.
 - **Support** and **My asks:** RFQs where you are a supporter (or have an open ask), and the asks other people have given you. Add supporters and asks on a deal's page, under **Support**.
 - **Customers** and **People:** a customer or a person is created automatically when you type a new name on a deal. You can also add them here.
