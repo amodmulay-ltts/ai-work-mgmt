@@ -4,7 +4,7 @@
 </div>
   <section class="card first-run">
     <h2>Welcome — tell us who you are</h2>
-    <p class="muted">Your name is used as the presales owner for new deals. You can change it later in Settings.</p>
+    <p class="muted">Your name is used as the presales owner for new opportunities. You can change it later in Settings.</p>
     <form method="post" action="/setup" novalidate>
       <div class="field">
         <label for="name">Your name <span class="req" aria-hidden="true">*</span></label>
@@ -36,14 +36,14 @@
   <h1><%= greeting %>, <%= firstName %></h1>
   <div class="page-actions">
     <a class="btn btn-secondary" href="/report/weekly">Weekly report</a>
-    <a class="btn btn-secondary" href="/export/deals.xlsx">Export to Excel</a>
+    <a class="btn btn-secondary" href="/export/opportunities.xlsx">Export to Excel</a>
     <form method="post" action="/sync" class="inline"><button class="btn btn-secondary" type="submit">Sync now</button></form>
   </div>
 </div>
 
 <div class="kpi-grid">
   <div class="card kpi">
-    <div class="kpi-label">Open deals</div>
+    <div class="kpi-label">Open opportunities</div>
     <div class="kpi-value"><%= k.open %></div>
     <div class="kpi-sub"><%= k.onHold %> on hold</div>
   </div>
@@ -54,7 +54,7 @@
       <% for (const [currency, amount] of wt.slice(0, 4)) { %><div><%= moneyCompact(amount, currency) %></div><% } %>
       <% if (wt.length > 4) { %><div class="kpi-sub">+<%= wt.length - 4 %> more</div><% } %>
     </div>
-    <div class="kpi-sub">weighted · open deals</div>
+    <div class="kpi-sub">weighted · open opportunities</div>
   </div>
   <div class="card kpi">
     <div class="kpi-label">Due in 7 days</div>
@@ -87,9 +87,9 @@
           </thead>
           <tbody>
             <% for (const r of view.attention) { %>
-              <tr class="clickable" data-href="/deals/<%= r.deal.id %>">
+              <tr class="clickable" data-href="/opportunities/<%= r.deal.id %>">
                 <td class="c-health"><%- ui.healthDot(r.health) %></td>
-                <td class="mono"><a href="/deals/<%= r.deal.id %>"><%= r.deal.id %></a></td>
+                <td class="mono"><a href="/opportunities/<%= r.deal.id %>"><%= r.deal.id %></a></td>
                 <td class="ellipsis" title="<%= r.deal.title %>"><%= r.deal.title %></td>
                 <td class="ellipsis"><%= r.customerName %></td>
                 <td class="ellipsis" title="<%= r.health.reasons.join(' · ') %>"><%= r.health.reasons[0] %></td>
@@ -99,20 +99,20 @@
         </table>
       </div>
     <% } %>
-    <p class="card-foot"><a href="/deals">All deals →</a></p>
+    <p class="card-foot"><a href="/opportunities">All opportunities →</a></p>
   </section>
 
   <section class="card">
     <h2>My next actions</h2>
     <% if (view.actions.length === 0) { %>
-      <p class="subtle">No open deals have you as presales owner yet.</p>
+      <p class="subtle">No open opportunities have you as presales owner yet.</p>
     <% } %>
     <ul class="action-list">
       <% for (const r of view.actions) { const d = r.deal; %>
         <li class="action">
           <div class="action-main">
             <div>
-              <a href="/deals/<%= d.id %>"><%= d.title %></a>
+              <a href="/opportunities/<%= d.id %>"><%= d.title %></a>
               <span class="mono subtle"><%= d.id %></span>
             </div>
             <div class="muted">
@@ -121,7 +121,7 @@
             </div>
           </div>
           <button type="button" class="btn btn-ghost btn-sm" data-reveal="na-<%= d.id %>" aria-expanded="false" aria-controls="na-<%= d.id %>" aria-label="Update next action for <%= d.title %>">✓</button>
-          <form method="post" action="/deals/<%= d.id %>/next-action" class="reveal-form" id="na-<%= d.id %>" hidden>
+          <form method="post" action="/opportunities/<%= d.id %>/next-action" class="reveal-form" id="na-<%= d.id %>" hidden>
             <input type="text" name="next_action" value="<%= d.next_action || '' %>" placeholder="What happens next" aria-label="Next action">
             <input type="date" name="next_action_due" value="<%= d.next_action_due || '' %>" aria-label="Due">
             <button class="btn btn-primary btn-sm" type="submit">Save</button>
@@ -144,7 +144,7 @@
         <li class="action">
           <div class="action-main">
             <div>
-              <a href="/deals/<%= r.deal.id %>#support"><%= r.ask.text %></a>
+              <a href="/opportunities/<%= r.deal.id %>#support"><%= r.ask.text %></a>
               <span class="mono subtle"><%= r.deal.id %></span>
             </div>
             <div class="muted">
@@ -169,7 +169,7 @@
     <% } %>
   </section>
   <section class="card">
-    <h2>Aging of open deals</h2>
+    <h2>Aging of open opportunities</h2>
     <% for (const [bucket, count] of Object.entries(view.aging)) { %>
       <div class="bar-row">
         <span class="bar-label">Age <%= bucket %> days</span>
@@ -182,6 +182,6 @@
 
 <section class="card table-card">
   <h2 class="card-pad">Recently updated</h2>
-  <%- include('partials/deal-table', { rows: view.recent, cfg, today, empty: 'No deals yet.' }) %>
+  <%- include('partials/deal-table', { rows: view.recent, cfg, today, empty: 'No opportunities yet.' }) %>
 </section>
 <% } %>

@@ -112,7 +112,7 @@ test('a customer with deals cannot be deleted', async () => {
   try {
     await store.save([customer('CU-0001', 'Bosch')], 'CU-0001: created – Bosch');
     store.records.deal.set('DL-2026-0001', { id: 'DL-2026-0001', customer_id: 'CU-0001' });
-    await assert.rejects(store.delete(store.getCustomer('CU-0001'), 'x'), /Customer has 1 deal/);
+    await assert.rejects(store.delete(store.getCustomer('CU-0001'), 'x'), /Customer has 1 opportunity/);
   } finally {
     await cleanup(dir);
   }

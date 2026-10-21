@@ -1,13 +1,13 @@
 /**
  * Supporters and asks for "RFQs I support" (PLAN.md §15). Pure functions: each returns a
- * new deal object and never touches the disk. The routes save the result in one commit.
+ * new opportunity object and never touches the disk. The routes save the result in one commit.
  */
 import { ASK_STATUSES } from './models.js';
 
 const pad3 = (n) => String(n).padStart(3, '0');
 
 /**
- * A new ask on a deal. `support_seq` is the last number used, so a removed ask's number is never reused.
+ * A new ask on an opportunity. `support_seq` is the last number used, so a removed ask's number is never reused.
  * @returns {{ deal: object, ask: object }}
  */
 export function addAsk(deal, { text, assignee_id = null, due_on = null }, now) {
@@ -100,7 +100,7 @@ export function changeSupporters(deal, { action, person, owners, at, names }) {
     return { deal: { ...deal, support_ids }, ...supporterEntry(deal, support_ids, at, names), error: null };
   }
   if (action !== 'add') return { ...none, error: 'Unknown action.' };
-  if (owners.includes(person.id)) return { ...none, error: `${person.name} already owns this deal.` };
+  if (owners.includes(person.id)) return { ...none, error: `${person.name} already owns this opportunity.` };
   if (deal.support_ids.includes(person.id)) return { ...none, error: `${person.name} is already a supporter.` };
   const support_ids = [...deal.support_ids, person.id];
   return { deal: { ...deal, support_ids }, ...supporterEntry(deal, support_ids, at, names), error: null };

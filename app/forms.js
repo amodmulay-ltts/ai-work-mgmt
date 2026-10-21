@@ -153,7 +153,7 @@ async function allocateId(store, kind, pending) {
 
 /**
  * Finds or creates a customer, person and so on, by name. Records created here are
- * pushed onto `pending` and saved in the same commit as the deal.
+ * pushed onto `pending` and saved in the same commit as the opportunity.
  */
 async function ensureCustomer(store, name, pending, created) {
   const existing = store.findCustomerByName(name);
@@ -234,7 +234,7 @@ export async function resolveReferences(store, typed) {
   return { customerId: customer.id, refs, contactIds: unique(contactIds), created: pending, createdNames };
 }
 
-/** Stage rules from PLAN.md §4.3, applied before a deal is saved. */
+/** Stage rules from PLAN.md §4.3, applied before an opportunity is saved. */
 export function applyStageRules(deal, existing, cfg, { today, me }) {
   const stage = stageInfo(cfg, deal.stage);
   const oldStage = existing ? stageInfo(cfg, existing.stage) : null;
@@ -264,13 +264,13 @@ export function duplicateC4cWarning(store, c4cId, selfId) {
 }
 
 /**
- * Saves a deal from typed fields: resolves names, applies the stage rules, writes the
+ * Saves an opportunity from typed fields: resolves names, applies the stage rules, writes the
  * deal and any new customers or people in one commit.
  * @param {import('./store.js').Store} store
  * @param {Record<string, any>} typed
  * @param {{ existing?: object | null, today: string }} options
  * @returns {Promise<{ deal: object, createdNames: string[], warnings: string[] }>}
- * @throws {ValidationError} when the deal fails validation (nothing is written)
+ * @throws {ValidationError} when the opportunity fails validation (nothing is written)
  */
 export async function saveDeal(store, typed, { existing = null, today }) {
   const cfg = store.config();
@@ -294,7 +294,7 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     sales_owner_id: refs.refs.sales_owner_id,
     presales_owner_id: refs.refs.presales_owner_id,
     delivery_owner_id: refs.refs.delivery_owner_id,
-    // Supporters and asks are changed on the deal page, not in this form, so they carry over.
+    // Supporters and asks are changed on the opportunity page, not in this form, so they carry over.
     support_ids: existing?.support_ids ?? [],
     support_requests: existing?.support_requests ?? [],
     support_seq: existing?.support_seq ?? 0,

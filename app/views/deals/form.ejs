@@ -52,7 +52,7 @@
       <%- f('expected_decision_on', 'Expected decision', { type: 'date' }) %>
       <%- f('expected_start_on', 'Expected start', { type: 'date' }) %>
       <%- f('go_no_go_on', 'Go / No-Go date', { type: 'date' }) %>
-      <%- f('closed_on', 'Closed on', { type: 'date', help: 'Filled in automatically when the deal is Won, Lost or Dropped.' }) %>
+      <%- f('closed_on', 'Closed on', { type: 'date', help: 'Filled in automatically when the opportunity is Won, Lost or Dropped.' }) %>
     </div>
   </section>
 
@@ -99,7 +99,7 @@
   </section>
 
   <div class="form-footer">
-    <a class="btn btn-ghost" href="<%= existing ? '/deals/' + existing.id : '/deals' %>">Cancel</a>
+    <a class="btn btn-ghost" href="<%= existing ? '/opportunities/' + existing.id : '/opportunities' %>">Cancel</a>
     <button class="btn btn-primary" type="submit">Save</button>
   </div>
 </form>

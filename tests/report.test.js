@@ -40,7 +40,7 @@ describe('weekly report', () => {
       body: new URLSearchParams({ name: 'Amod', email: '' }),
     });
     const today = new Date().toISOString().slice(0, 10);
-    await fetch(`${base}/deals`, {
+    await fetch(`${base}/opportunities`, {
       method: 'POST',
       redirect: 'manual',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -56,7 +56,7 @@ describe('weekly report', () => {
     await cleanup(dir);
   });
 
-  test('the report page lists the week and the new deal, as Markdown in a textarea', async () => {
+  test('the report page lists the week and the new opportunity, as Markdown in a textarea', async () => {
     const res = await fetch(`${base}/report/weekly`);
     assert.equal(res.status, 200);
     const html = await res.text();

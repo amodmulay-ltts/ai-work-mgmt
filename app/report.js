@@ -6,7 +6,7 @@ import { health, isOpen, moneyTotals, openAsks, stageInfo, weightedValue } from 
 import { fmtDate, moneyCompact, moneyTotalsText } from './lib/format.js';
 import { addDays, mondayOf } from './lib/dates.js';
 
-/** A deal line, as §12.2 gives it: id · customer · title · stage · due · value. */
+/** An opportunity line, as §12.2 gives it: id · customer · title · stage · due · value. */
 function line(deal, store) {
   const customer = store.getCustomer(deal.customer_id)?.name ?? '—';
   const due = deal.submission_due ? `due ${fmtDate(deal.submission_due)}` : 'no due date';
@@ -89,7 +89,7 @@ export function weeklyReport(store, weekStart) {
     byLine(created),
     '',
     '## Pipeline summary',
-    pipeline.length ? pipeline.join('\n') : '- No open deals',
+    pipeline.length ? pipeline.join('\n') : '- No open opportunities',
     '',
   ].join('\n');
 }

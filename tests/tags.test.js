@@ -36,7 +36,7 @@ describe('tags: pure rules', () => {
     assert.deepEqual(already.tags, ['RFQ'], 'no duplicate when the tag is already there');
   });
 
-  test('validation rejects a deal tag that is not in the config', () => {
+  test('validation rejects an opportunity tag that is not in the config', () => {
     const deal = {
       schema_version: 1, id: 'DL-2026-0001', title: 'x', customer_id: 'CU-0001', sales_owner_id: null,
       presales_owner_id: null, delivery_owner_id: null, support_ids: [], support_requests: [], support_seq: 0,
@@ -128,9 +128,9 @@ describe('tags on opportunities, over HTTP', () => {
     await app.close();
   });
 
-  test('a new tag is created and saved in the same commit as the deal', async () => {
+  test('a new tag is created and saved in the same commit as the opportunity', async () => {
     const before = commits(app.root);
-    const res = await post(app.base, '/deals', dealForm({ tags: 'rfq, Hot lead' }));
+    const res = await post(app.base, '/opportunities', dealForm({ tags: 'rfq, Hot lead' }));
     assert.equal(res.status, 303);
     assert.equal(commits(app.root), before + 1, 'deal and the new tag are one commit');
     const deal = app.store.getDeal(DEAL);
@@ -139,8 +139,8 @@ describe('tags on opportunities, over HTTP', () => {
     assert.match(git(app.root, 'show', 'HEAD', '--stat', '--format='), /config\.json/);
   });
 
-  test('the deal form has no Type field and suggests known tags', async () => {
-    const page = await get(app.base, `/deals/${DEAL}/edit`);
+  test('the opportunity form has no Type field and suggests known tags', async () => {
+    const page = await get(app.base, `/opportunities/${DEAL}/edit`);
     assert.doesNotMatch(page.html, /name="type"/);
     assert.match(page.html, /<datalist id="tag-options">/);
     assert.match(page.html, /<option value="RFQ">/);
@@ -148,7 +148,7 @@ describe('tags on opportunities, over HTTP', () => {
 
   test('editing the tags records a Tags change in the history', async () => {
     const deal = app.store.getDeal(DEAL);
-    await post(app.base, `/deals/${DEAL}`, dealForm({ tags: 'RFQ' }));
+    await post(app.base, `/opportunities/${DEAL}`, dealForm({ tags: 'RFQ' }));
     assert.deepEqual(app.store.getDeal(DEAL).tags, ['RFQ']);
     const entry = app.store.getDeal(DEAL).history.at(-1);
     assert.match(entry.text, /Tags/);
@@ -159,7 +159,7 @@ describe('tags on opportunities, over HTTP', () => {
     const refused = await post(app.base, '/settings', settingsForm({ tags: 'Hot lead\nSustainability' }));
     assert.equal(refused.status, 422, 'RFQ is still used by DL-…-0001');
     const html = await refused.text();
-    assert.match(html, /is used by 1 deal\. Remove it from them first\./);
+    assert.match(html, /is used by 1 opportunity\. Remove it from them first\./);
 
     const kept = await post(app.base, '/settings', settingsForm({ tags: 'RFQ\nHot lead\nMobility' }));
     assert.equal(kept.status, 303);
@@ -173,23 +173,23 @@ describe('tags on opportunities, over HTTP', () => {
   });
 
   test('the export has one Tags column in place of Type, and no second Tags column', async () => {
-    const res = await fetch(`${app.base}/export/deals.xlsx`);
+    const res = await fetch(`${app.base}/export/opportunities.xlsx`);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
-    const sheet = workbook.getWorksheet('Deals');
+    const sheet = workbook.getWorksheet('Opportunities');
     assert.equal(sheet.getRow(1).getCell(3).value, 'Tags');
     assert.equal(sheet.getRow(1).cellCount, 37);
     assert.equal(sheet.getRow(2).getCell(3).value, 'RFQ');
   });
 });
 
-describe('tags: a deal file from before this change', () => {
+describe('tags: an opportunity file from before this change', () => {
   let app;
 
   before(async () => {
     app = await startApp();
     await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
-    await post(app.base, '/deals', dealForm({ title: 'Old one', tags: 'HIL' }));
+    await post(app.base, '/opportunities', dealForm({ title: 'Old one', tags: 'HIL' }));
     // Put a fixed 'type' back in the file, as the old version wrote it, and drop 'HIL' from the config.
     const file = path.join(app.root, 'data', 'deals', `${DEAL}.json`);
     const obj = JSON.parse(await fs.readFile(file, 'utf8'));
@@ -210,12 +210,12 @@ describe('tags: a deal file from before this change', () => {
     assert.equal('type' in app.store.getDeal(DEAL), false);
   });
 
-  test('a tag that is only on a deal is added to the known list', () => {
+  test('a tag that is only on an opportunity is added to the known list', () => {
     assert.ok(app.store.config().tags.includes('HIL'));
   });
 
-  test('the deal page still renders', async () => {
-    const page = await get(app.base, `/deals/${DEAL}`);
+  test('the opportunity page still renders', async () => {
+    const page = await get(app.base, `/opportunities/${DEAL}`);
     assert.equal(page.status, 200);
     assert.match(page.html, /<span class="tag">RFQ<\/span>/);
   });

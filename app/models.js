@@ -63,7 +63,7 @@ const SUPPORT_DEFAULTS = { support_ids: [], support_requests: [], support_seq: 0
 
 /**
  * Older deals had one fixed 'type' (RFQ, RFI, …). It is now a tag, so the type becomes the first tag.
- * Returns the deal without the type key.
+ * Returns the opportunity without the type key.
  */
 export function migrateDealType(deal) {
   if (!('type' in deal)) return deal;
@@ -73,7 +73,7 @@ export function migrateDealType(deal) {
   return { ...rest, tags: merged };
 }
 
-/** Adds the support fields to a deal read from an older file. Returns the same object. */
+/** Adds the support fields to an opportunity read from an older file. Returns the same object. */
 export function withSupportDefaults(deal) {
   for (const [key, value] of Object.entries(SUPPORT_DEFAULTS)) {
     if (!(key in deal)) deal[key] = structuredClone(value);
@@ -245,7 +245,7 @@ function validateDeal(d, cfg) {
     const stage = cfg.stages.find((s) => s.name === d.stage);
     if (!stage && d.stage) errors.push(`Stage: unknown value '${d.stage}'`);
     if (stage && (stage.outcome === 'lost' || stage.outcome === 'dropped') && isBlank(d.outcome_reason)) {
-      errors.push('An outcome reason is required for Lost and Dropped deals');
+      errors.push('An outcome reason is required for Lost and Dropped opportunities');
     }
     const checks = [
       ['source', cfg.sources, 'Source'],

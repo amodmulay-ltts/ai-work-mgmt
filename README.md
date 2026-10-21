@@ -1,6 +1,6 @@
 # Work Tracker
 
-A personal tracker for RFQs, deals and customers. It runs on your computer in the browser (`http://127.0.0.1:8765`). Your data lives in this git repository, in the `data/` folder. Every change is saved as a commit and pushed to the company git remote.
+A personal tracker for RFQs, opportunities and customers. It runs on your computer in the browser (`http://127.0.0.1:8765`). Your data lives in this git repository, in the `data/` folder. Every change is saved as a commit and pushed to the company git remote.
 
 ## What you need
 
@@ -24,15 +24,15 @@ The first start installs the dependencies, asks for your name and email for git 
 2. Work in the browser.
 3. Stop it with **Ctrl+C** in the terminal. It releases the session lock and pushes everything before it exits.
 
-Keyboard shortcuts, when you are not typing in a field: `/` search, `n` new deal, `g d` dashboard, `g l` deals list, `g s` RFQs I support.
+Keyboard shortcuts, when you are not typing in a field: `/` search, `n` new opportunity, `g d` dashboard, `g l` opportunities list, `g s` RFQs I support.
 
 ### Pages
 
 - **Dashboard:** what needs attention, your next actions, pipeline and aging, recent changes.
-- **Tags:** every deal can have tags, such as RFQ or Hot lead. Type a new tag on a deal and it is added to the list. The dashboard and the deals list can be filtered by tags (a deal must have every tag picked). Tags are managed in **Settings**; a tag that deals still use cannot be removed.
-- **Deals:** filter, sort and search. Export the current view to Excel with **Export to Excel**.
-- **Support** and **My asks:** RFQs where you are a supporter (or have an open ask), and the asks other people have given you. Add supporters and asks on a deal's page, under **Support**.
-- **Customers** and **People:** a customer or a person is created automatically when you type a new name on a deal. You can also add them here.
+- **Tags:** every opportunity can have tags, such as RFQ or Hot lead. Type a new tag on an opportunity and it is added to the list. The dashboard and the opportunities list can be filtered by tags (an opportunity must have every tag picked). Tags are managed in **Settings**; a tag that opportunities still use cannot be removed.
+- **Opportunities:** filter, sort and search. Export the current view to Excel with **Export to Excel**.
+- **Support** and **My asks:** RFQs where you are a supporter (or have an open ask), and the asks other people have given you. Add supporters and asks on an opportunity's page, under **Support**.
+- **Customers** and **People:** a customer or a person is created automatically when you type a new name on an opportunity. You can also add them here.
 - **Weekly report:** plain Markdown for the week, with a Copy button for Outlook or Teams.
 - **Settings:** your name and email, the stale threshold, and the lists used in dropdowns.
 

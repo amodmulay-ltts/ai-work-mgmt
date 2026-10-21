@@ -12,7 +12,7 @@
       <a class="brand" href="/">Work Tracker</a>
       <nav class="navlinks" aria-label="Main">
         <a href="/" class="<%= active === 'dashboard' ? 'active' : '' %>">Dashboard</a>
-        <a href="/deals" class="<%= active === 'deals' ? 'active' : '' %>">Deals</a>
+        <a href="/opportunities" class="<%= active === 'deals' ? 'active' : '' %>">Opportunities</a>
         <a href="/support" class="<%= active === 'support' ? 'active' : '' %>">Support</a>
         <a href="/support/asks" class="<%= active === 'asks' ? 'active' : '' %>">My asks</a>
         <a href="/customers" class="<%= active === 'customers' ? 'active' : '' %>">Customers</a>
@@ -20,7 +20,7 @@
         <a href="/settings" class="<%= active === 'settings' ? 'active' : '' %>">Settings</a>
       </nav>
       <div class="topnav-right">
-        <a class="btn btn-primary btn-sm" href="/deals/new">+ New deal</a>
+        <a class="btn btn-primary btn-sm" href="/opportunities/new">+ New opportunity</a>
         <form id="sync-form" method="post" action="/sync"></form>
         <button id="sync-badge" class="sync-badge" type="submit" form="sync-form"
                 data-state="<%= sync.state %>" title="<%= sync.lastError || '' %>">

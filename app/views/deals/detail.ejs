@@ -19,16 +19,16 @@
     <p class="muted meta-line">
       <% if (customer) { %><a href="/customers/<%= customer.id %>"><%= customer.name %></a><% } %>
       <% if (d.c4c_id) { %> · C4C <span class="mono"><%= d.c4c_id %></span> <button type="button" class="btn btn-ghost btn-sm" data-copy="<%= d.c4c_id %>">Copy</button><% } %>
-      <% if (owners.sales) { %> · Sales: <a href="/deals?owner=<%= d.sales_owner_id %>&status=all"><%= owners.sales %></a><% } %>
-      <% if (owners.presales) { %> · Presales: <a href="/deals?owner=<%= d.presales_owner_id %>&status=all"><%= owners.presales %></a><% } %>
+      <% if (owners.sales) { %> · Sales: <a href="/opportunities?owner=<%= d.sales_owner_id %>&status=all"><%= owners.sales %></a><% } %>
+      <% if (owners.presales) { %> · Presales: <a href="/opportunities?owner=<%= d.presales_owner_id %>&status=all"><%= owners.presales %></a><% } %>
     </p>
   </div>
   <div class="page-actions">
-    <form method="post" action="/deals/<%= d.id %>/hold" class="inline">
+    <form method="post" action="/opportunities/<%= d.id %>/hold" class="inline">
       <button class="btn btn-secondary" type="submit"><%= d.on_hold ? 'Resume' : 'Put on hold' %></button>
     </form>
-    <a class="btn btn-secondary" href="/deals/<%= d.id %>/edit">Edit</a>
-    <form method="post" action="/deals/<%= d.id %>/delete" class="inline" data-confirm="Delete <%= d.id %>? This removes the deal file and commits the removal.">
+    <a class="btn btn-secondary" href="/opportunities/<%= d.id %>/edit">Edit</a>
+    <form method="post" action="/opportunities/<%= d.id %>/delete" class="inline" data-confirm="Delete <%= d.id %>? This removes the opportunity file and commits the removal.">
       <button class="btn btn-danger" type="submit">Delete</button>
     </form>
   </div>
@@ -36,7 +36,7 @@
 
 <nav class="stepper" aria-label="Stage">
   <% for (const s of stepper) { %>
-    <form method="post" action="/deals/<%= d.id %>/stage" class="step step-<%= s.state %>">
+    <form method="post" action="/opportunities/<%= d.id %>/stage" class="step step-<%= s.state %>">
       <input type="hidden" name="stage" value="<%= s.name %>">
       <button type="submit" class="step-btn"<%- s.state === 'current' ? ' aria-current="step"' : '' %>><%= s.state === 'past' ? '✓ ' : '' %><%= s.name %></button>
     </form>
@@ -47,14 +47,14 @@
 </nav>
 
 <div class="outcome-bar">
-  <form method="post" action="/deals/<%= d.id %>/stage" class="inline">
+  <form method="post" action="/opportunities/<%= d.id %>/stage" class="inline">
     <input type="hidden" name="stage" value="Won">
     <button class="btn btn-secondary btn-sm" type="submit">Mark Won</button>
   </form>
   <button type="button" class="btn btn-secondary btn-sm" data-reveal="outcome-Lost" aria-expanded="false" aria-controls="outcome-Lost">Mark Lost…</button>
   <button type="button" class="btn btn-secondary btn-sm" data-reveal="outcome-Dropped" aria-expanded="false" aria-controls="outcome-Dropped">Mark Dropped…</button>
   <% for (const outcome of ['Lost', 'Dropped']) { %>
-    <form method="post" action="/deals/<%= d.id %>/stage" class="outcome-form" id="outcome-<%= outcome %>" data-outcome="<%= outcome %>" hidden>
+    <form method="post" action="/opportunities/<%= d.id %>/stage" class="outcome-form" id="outcome-<%= outcome %>" data-outcome="<%= outcome %>" hidden>
       <input type="hidden" name="stage" value="<%= outcome %>">
       <%- ui.selectControl({ name: 'outcome_reason', value: '', placeholder: 'Reason (required)', ariaLabel: 'Outcome reason', options: outcomeOptions }) %>
       <button class="btn btn-danger btn-sm" type="submit">Confirm <%= outcome %></button>
@@ -73,7 +73,7 @@
         <ul class="chips" aria-label="Supporters">
           <% for (const s of supporters) { %>
             <li>
-              <form method="post" action="/deals/<%= d.id %>/support" class="chip">
+              <form method="post" action="/opportunities/<%= d.id %>/support" class="chip">
                 <input type="hidden" name="action" value="remove">
                 <input type="hidden" name="person_id" value="<%= s.id %>">
                 <span><%= s.name %></span>
@@ -84,7 +84,7 @@
         </ul>
       <% } else { %><p class="subtle">No supporters yet.</p><% } %>
       <% if (addablePeople.length) { %>
-        <form method="post" action="/deals/<%= d.id %>/support" class="support-add">
+        <form method="post" action="/opportunities/<%= d.id %>/support" class="support-add">
           <div class="field">
             <label for="add-supporter">Add supporter</label>
             <select id="add-supporter" name="person_id">
@@ -117,7 +117,7 @@
                     <%= a.text %>
                     <details class="ask-edit">
                       <summary>Edit</summary>
-                      <form method="post" action="/deals/<%= d.id %>/asks/<%= a.id %>" class="stack">
+                      <form method="post" action="/opportunities/<%= d.id %>/asks/<%= a.id %>" class="stack">
                         <div class="field">
                           <label for="text-<%= a.id %>">Ask</label>
                           <input type="text" id="text-<%= a.id %>" name="text" value="<%= a.text %>" required>
@@ -140,7 +140,7 @@
                   <td><%= row.assigneeName || '—' %></td>
                   <td><%- row.open ? ui.dueCell(a.due_on, today) : (a.due_on ? fmtDate(a.due_on) : '<span class="subtle">—</span>') %></td>
                   <td>
-                    <form method="post" action="/deals/<%= d.id %>/asks/<%= a.id %>" class="inline">
+                    <form method="post" action="/opportunities/<%= d.id %>/asks/<%= a.id %>" class="inline">
                       <label for="status-<%= a.id %>" class="sr-only">Status for <%= a.id %></label>
                       <select id="status-<%= a.id %>" name="status" data-autosubmit>
                         <% for (const s of askStatuses) { %><option value="<%= s %>"<%- s === a.status ? ' selected' : '' %>><%= s %></option><% } %>
@@ -148,7 +148,7 @@
                     </form>
                   </td>
                   <td class="row-actions">
-                    <form method="post" action="/deals/<%= d.id %>/asks/<%= a.id %>/delete" class="inline" data-confirm="Remove ask <%= a.id %>?">
+                    <form method="post" action="/opportunities/<%= d.id %>/asks/<%= a.id %>/delete" class="inline" data-confirm="Remove ask <%= a.id %>?">
                       <button class="btn btn-ghost btn-sm" type="submit">Remove</button>
                     </form>
                   </td>
@@ -159,7 +159,7 @@
         </div>
       <% } else { %><p class="subtle">No asks yet. Add one when someone needs something from you.</p><% } %>
 
-      <form method="post" action="/deals/<%= d.id %>/asks" class="ask-form">
+      <form method="post" action="/opportunities/<%= d.id %>/asks" class="ask-form">
         <div class="field">
           <label for="new-ask-text">New ask</label>
           <input type="text" id="new-ask-text" name="text" placeholder="e.g. Effort estimate for the Q&amp;A">
@@ -261,7 +261,7 @@
       <% } else { %>
         <p class="subtle">No next action yet.</p>
       <% } %>
-      <form method="post" action="/deals/<%= d.id %>/next-action" class="stack">
+      <form method="post" action="/opportunities/<%= d.id %>/next-action" class="stack">
         <div class="field">
           <label for="next_action">What happens next</label>
           <input type="text" id="next_action" name="next_action" value="<%= d.next_action || '' %>">
@@ -276,7 +276,7 @@
 
     <section class="card">
       <h2>Add note</h2>
-      <form method="post" action="/deals/<%= d.id %>/notes" class="stack">
+      <form method="post" action="/opportunities/<%= d.id %>/notes" class="stack">
         <div class="field">
           <label for="note" class="sr-only">Note</label>
           <textarea id="note" name="note" rows="3" placeholder="Write a note…" required></textarea>

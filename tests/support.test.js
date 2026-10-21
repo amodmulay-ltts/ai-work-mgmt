@@ -12,7 +12,7 @@ import { cleanup, git, makeClone, makeRemote } from './helpers.js';
 const NOW = '2026-10-19T09:00:00+01:00';
 const TODAY = '2026-10-19';
 
-/** A deal in the shape saveDeal writes, with no asks yet. */
+/** An opportunity in the shape saveDeal writes, with no asks yet. */
 const baseDeal = (overrides = {}) => ({
   schema_version: 1,
   id: 'DL-2026-0001',
@@ -116,7 +116,7 @@ describe('supporters and asks: pure model', () => {
     assert.match(again.error, /already a supporter/);
 
     const owner = changeSupporters(deal, { action: 'add', person: { id: 'PE-0002', name: 'Amod M' }, owners, at: NOW, names });
-    assert.match(owner.error, /already owns this deal/);
+    assert.match(owner.error, /already owns this opportunity/);
 
     const removed = changeSupporters(added.deal, { action: 'remove', person: ravi, owners, at: NOW, names });
     assert.deepEqual(removed.deal.support_ids, []);
@@ -177,7 +177,7 @@ describe('supporters and asks: pure model', () => {
     assert.deepEqual(validateRecord('deal', baseDeal({ support_seq: 0 }), DEFAULT_CONFIG), []);
   });
 
-  test('a deal file from before supporters existed gets empty support fields', () => {
+  test('an opportunity file from before supporters existed gets empty support fields', () => {
     const old = baseDeal();
     for (const key of ['support_ids', 'support_requests', 'support_seq']) delete old[key];
     const fixed = withSupportDefaults(old);
@@ -231,14 +231,14 @@ const commits = (root) => Number(git(root, 'rev-list', '--count', 'HEAD'));
 const YEAR = new Date().getFullYear();
 const DEAL = `DL-${YEAR}-0001`;
 
-describe('supporters and asks: deal page', () => {
+describe('supporters and asks: opportunity page', () => {
   let app;
   let ravi;
 
   before(async () => {
     app = await startApp();
     await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
-    await post(app.base, '/deals', {
+    await post(app.base, '/opportunities', {
       title: 'ADAS validation services',
       type: 'RFQ',
       customer: 'Bosch',
@@ -260,7 +260,7 @@ describe('supporters and asks: deal page', () => {
 
   test('adding a supporter saves one commit and a timeline entry', async () => {
     const before = commits(app.root);
-    const res = await post(app.base, `/deals/${DEAL}/support`, { action: 'add', person_id: ravi });
+    const res = await post(app.base, `/opportunities/${DEAL}/support`, { action: 'add', person_id: ravi });
     assert.equal(res.status, 303);
     assert.equal(commits(app.root), before + 1);
     assert.deepEqual(app.store.getDeal(DEAL).support_ids, [ravi]);
@@ -271,21 +271,21 @@ describe('supporters and asks: deal page', () => {
 
   test('an unknown person, a duplicate and an owner are refused with no commit', async () => {
     const before = commits(app.root);
-    const unknown = await post(app.base, `/deals/${DEAL}/support`, { action: 'add', person_id: 'PE-9999' });
+    const unknown = await post(app.base, `/opportunities/${DEAL}/support`, { action: 'add', person_id: 'PE-9999' });
     assert.match(flashOf(unknown), /Choose a person first/);
 
-    const duplicate = await post(app.base, `/deals/${DEAL}/support`, { action: 'add', person_id: ravi });
+    const duplicate = await post(app.base, `/opportunities/${DEAL}/support`, { action: 'add', person_id: ravi });
     assert.match(flashOf(duplicate), /already a supporter/);
 
     const priya = app.store.findPersonByName('Priya S').id;
-    const owner = await post(app.base, `/deals/${DEAL}/support`, { action: 'add', person_id: priya });
-    assert.match(flashOf(owner), /already owns this deal/);
+    const owner = await post(app.base, `/opportunities/${DEAL}/support`, { action: 'add', person_id: priya });
+    assert.match(flashOf(owner), /already owns this opportunity/);
     assert.equal(commits(app.root), before);
   });
 
   test('adding an ask gives it an id, an assignee and a due date', async () => {
     const before = commits(app.root);
-    const res = await post(app.base, `/deals/${DEAL}/asks`, {
+    const res = await post(app.base, `/opportunities/${DEAL}/asks`, {
       text: 'Effort estimate for the Q&A',
       assignee_id: ravi,
       due_on: '2026-10-25',
@@ -301,26 +301,26 @@ describe('supporters and asks: deal page', () => {
 
   test('an ask with no text is refused, with no commit', async () => {
     const before = commits(app.root);
-    const res = await post(app.base, `/deals/${DEAL}/asks`, { text: '   ', assignee_id: '', due_on: '' });
+    const res = await post(app.base, `/opportunities/${DEAL}/asks`, { text: '   ', assignee_id: '', due_on: '' });
     assert.match(flashOf(res), /Write what is being asked/);
     assert.equal(commits(app.root), before);
   });
 
   test('a bad due date is refused', async () => {
-    const res = await post(app.base, `/deals/${DEAL}/asks`, { text: 'x', due_on: '2026-02-30' });
+    const res = await post(app.base, `/opportunities/${DEAL}/asks`, { text: 'x', due_on: '2026-02-30' });
     assert.match(flashOf(res), /real date/);
   });
 
   test('status changes set and clear the done date', async () => {
-    const res = await post(app.base, `/deals/${DEAL}/asks/SR-001`, { status: 'Done' });
+    const res = await post(app.base, `/opportunities/${DEAL}/asks/SR-001`, { status: 'Done' });
     assert.equal(res.status, 303);
     assert.equal(app.store.getDeal(DEAL).support_requests[0].done_on, TODAY_ISO());
-    await post(app.base, `/deals/${DEAL}/asks/SR-001`, { status: 'Open' });
+    await post(app.base, `/opportunities/${DEAL}/asks/SR-001`, { status: 'Open' });
     assert.equal(app.store.getDeal(DEAL).support_requests[0].done_on, null);
   });
 
   test('editing an ask changes only the fields sent', async () => {
-    await post(app.base, `/deals/${DEAL}/asks/SR-001`, { text: 'Effort estimate for Q&A round 2' });
+    await post(app.base, `/opportunities/${DEAL}/asks/SR-001`, { text: 'Effort estimate for Q&A round 2' });
     const ask = app.store.getDeal(DEAL).support_requests[0];
     assert.equal(ask.text, 'Effort estimate for Q&A round 2');
     assert.equal(ask.assignee_id, ravi, 'assignee kept when not sent');
@@ -328,20 +328,20 @@ describe('supporters and asks: deal page', () => {
   });
 
   test('an unknown assignee is refused', async () => {
-    const res = await post(app.base, `/deals/${DEAL}/asks/SR-001`, { assignee_id: 'PE-9999' });
+    const res = await post(app.base, `/opportunities/${DEAL}/asks/SR-001`, { assignee_id: 'PE-9999' });
     assert.match(flashOf(res), /Choose the assignee/);
   });
 
   test('removing an ask keeps the others, and its number is not reused', async () => {
-    await post(app.base, `/deals/${DEAL}/asks`, { text: 'Architecture slide' });
-    await post(app.base, `/deals/${DEAL}/asks`, { text: 'Pricing input' });
-    await post(app.base, `/deals/${DEAL}/asks/SR-003/delete`, {});
+    await post(app.base, `/opportunities/${DEAL}/asks`, { text: 'Architecture slide' });
+    await post(app.base, `/opportunities/${DEAL}/asks`, { text: 'Pricing input' });
+    await post(app.base, `/opportunities/${DEAL}/asks/SR-003/delete`, {});
     assert.deepEqual(app.store.getDeal(DEAL).support_requests.map((a) => a.id), ['SR-001', 'SR-002']);
-    await post(app.base, `/deals/${DEAL}/asks`, { text: 'Last one' });
+    await post(app.base, `/opportunities/${DEAL}/asks`, { text: 'Last one' });
     assert.equal(app.store.getDeal(DEAL).support_requests.at(-1).id, 'SR-004');
   });
 
-  test('editing the deal keeps its supporters and asks', async () => {
+  test('editing the opportunity keeps its supporters and asks', async () => {
     const deal = app.store.getDeal(DEAL);
     const fields = {
       title: 'ADAS validation services – phase 2',
@@ -355,7 +355,7 @@ describe('supporters and asks: deal page', () => {
       priority: 'Medium',
       go_no_go: 'Pending',
     };
-    const res = await post(app.base, `/deals/${DEAL}`, fields);
+    const res = await post(app.base, `/opportunities/${DEAL}`, fields);
     assert.equal(res.status, 303);
     const after = app.store.getDeal(DEAL);
     assert.equal(after.title, 'ADAS validation services – phase 2');
@@ -364,8 +364,8 @@ describe('supporters and asks: deal page', () => {
     assert.equal(after.support_seq, 4);
   });
 
-  test('the deal page shows the support card, the supporter and the asks', async () => {
-    const page = await get(app.base, `/deals/${DEAL}`);
+  test('the opportunity page shows the support card, the supporter and the asks', async () => {
+    const page = await get(app.base, `/opportunities/${DEAL}`);
     assert.equal(page.status, 200);
     assert.match(page.html, /<h2>Support<\/h2>/);
     assert.match(page.html, /aria-label="Remove Ravi K as a supporter"/);
@@ -375,19 +375,19 @@ describe('supporters and asks: deal page', () => {
   });
 
   test('a supporter can be removed', async () => {
-    const res = await post(app.base, `/deals/${DEAL}/support`, { action: 'remove', person_id: ravi });
+    const res = await post(app.base, `/opportunities/${DEAL}/support`, { action: 'remove', person_id: ravi });
     assert.equal(res.status, 303);
     assert.deepEqual(app.store.getDeal(DEAL).support_ids, []);
   });
 });
 
-describe('supporters and asks: a deal saved before this feature', () => {
+describe('supporters and asks: an opportunity saved before this feature', () => {
   let app;
 
   before(async () => {
     app = await startApp();
     await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
-    await post(app.base, '/deals', {
+    await post(app.base, '/opportunities', {
       title: 'Old deal',
       type: 'RFQ',
       customer: 'Bosch',
@@ -414,7 +414,7 @@ describe('supporters and asks: a deal saved before this feature', () => {
   test('the file loads with empty support fields and the page renders', async () => {
     assert.deepEqual(app.store.problems, []);
     assert.deepEqual(app.store.getDeal(DEAL).support_ids, []);
-    const page = await get(app.base, `/deals/${DEAL}`);
+    const page = await get(app.base, `/opportunities/${DEAL}`);
     assert.equal(page.status, 200);
     assert.match(page.html, /No supporters yet/);
   });

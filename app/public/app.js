@@ -114,7 +114,7 @@
     if (open) target.querySelector('input, select, textarea')?.focus();
   });
 
-  // 3b. Keyboard shortcuts, ignored while typing: "/" search, "n" new deal, "g d" dashboard, "g l" deals list, "g s" RFQs I support.
+  // 3b. Keyboard shortcuts, ignored while typing: "/" search, "n" new opportunity, "g d" dashboard, "g l" opportunities list, "g s" RFQs I support.
   let gPending = false;
   let gTimer = null;
   document.addEventListener('keydown', (event) => {
@@ -126,7 +126,7 @@
       gPending = false;
       clearTimeout(gTimer);
       if (key === 'd') window.location.href = '/';
-      if (key === 'l') window.location.href = '/deals';
+      if (key === 'l') window.location.href = '/opportunities';
       if (key === 's') window.location.href = '/support';
       return;
     }
@@ -134,7 +134,7 @@
       const search = document.querySelector('input[type="search"][name="q"]');
       if (search) { event.preventDefault(); search.focus(); }
     } else if (key === 'n') {
-      window.location.href = '/deals/new';
+      window.location.href = '/opportunities/new';
     } else if (key === 'g') {
       gPending = true;
       gTimer = setTimeout(() => { gPending = false; }, 1000);

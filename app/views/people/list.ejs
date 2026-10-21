@@ -14,7 +14,7 @@
   <% if (rows.length === 0) { %>
     <div class="empty-state">
       <h2>No people yet</h2>
-      <p class="muted">People are created when you name an owner or a contact on a deal.</p>
+      <p class="muted">People are created when you name an owner or a contact on an opportunity.</p>
       <a class="btn btn-primary" href="/people/new">+ New person</a>
     </div>
   <% } else { %>
@@ -27,7 +27,7 @@
             <th scope="col">Title</th>
             <th scope="col">Email</th>
             <th scope="col">Customer</th>
-            <th scope="col" class="num">Open deals</th>
+            <th scope="col" class="num">Open opportunities</th>
             <th scope="col">Active</th>
             <th scope="col"><span class="sr-only">Actions</span></th>
           </tr>
@@ -47,7 +47,7 @@
                 <% if (p.active) { %>
                   <form method="post" action="/people/<%= p.id %>/deactivate" class="inline"><button class="btn btn-ghost btn-sm" type="submit">Mark inactive</button></form>
                 <% } %>
-                <form method="post" action="/people/<%= p.id %>/delete" class="inline" data-confirm="Delete <%= p.name %>? People used on a deal cannot be deleted.">
+                <form method="post" action="/people/<%= p.id %>/delete" class="inline" data-confirm="Delete <%= p.name %>? People used on an opportunity cannot be deleted.">
                   <button class="btn btn-danger btn-sm" type="submit">Delete</button>
                 </form>
               </td>

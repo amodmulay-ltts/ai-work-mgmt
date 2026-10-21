@@ -409,7 +409,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
   background: var(--surface); color: var(--text); resize: vertical;
 }
 
-/* supporters and asks on the deal page (PLAN.md §15) */
+/* supporters and asks on the opportunity page (PLAN.md §15) */
 .support-card h3 { margin-top: var(--s4); }
 .chips { list-style: none; margin: 0 0 var(--s3); padding: 0; display: flex; flex-wrap: wrap; gap: var(--s2); }
 .chip {
@@ -433,7 +433,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 .ask-edit summary { cursor: pointer; color: var(--primary); }
 .ask-edit form { margin-top: var(--s2); }
 
-/* tag filter chips on the dashboard and deals list */
+/* tag filter chips on the dashboard and opportunities list */
 .tag-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin: 0 0 var(--s4); }
 .tag-filter-label { font-size: var(--fs-sm); color: var(--text-muted); margin-right: var(--s1); }
 .tag-chip {

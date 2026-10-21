@@ -1,5 +1,5 @@
 /**
- * Turns a change to a deal into history entries and a commit message (PLAN.md §9).
+ * Turns a change to an opportunity into history entries and a commit message (PLAN.md §9).
  */
 import { DATE_FIELDS } from './models.js';
 import { fmtDate } from './lib/format.js';
@@ -81,7 +81,7 @@ function changedFields(oldDeal, newDeal) {
 
 /**
  * Entries for a change, and the commit summary.
- * @param {object | null} oldDeal  null for a new deal
+ * @param {object | null} oldDeal  null for a new opportunity
  * @param {object} newDeal
  * @param {{ people: Map<string, object>, customers: Map<string, object>, at?: string }} lookup
  * @returns {{ entries: object[], summary: string }}
@@ -90,7 +90,7 @@ export function diff(oldDeal, newDeal, lookup) {
   const at = lookup.at ?? newDeal.updated_at;
   if (!oldDeal) {
     return {
-      entries: [{ at, kind: 'created', text: 'Deal created', from_value: null, to_value: null }],
+      entries: [{ at, kind: 'created', text: 'Opportunity created', from_value: null, to_value: null }],
       summary: `created – ${newDeal.title}`,
     };
   }

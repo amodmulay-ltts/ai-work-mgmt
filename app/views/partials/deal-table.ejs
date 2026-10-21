@@ -20,9 +20,9 @@
       </thead>
       <tbody>
         <% for (const r of rows) { const d = r.deal; %>
-          <tr class="clickable" data-href="/deals/<%= d.id %>">
+          <tr class="clickable" data-href="/opportunities/<%= d.id %>">
             <td class="c-health"><%- ui.healthDot(r.health) %></td>
-            <td class="mono"><a href="/deals/<%= d.id %>"><%= d.id %></a></td>
+            <td class="mono"><a href="/opportunities/<%= d.id %>"><%= d.id %></a></td>
             <td class="ellipsis" title="<%= d.title %>"><%= d.title %></td>
             <td><%- ui.stageBadge(d.stage, cfg) %></td>
             <td><%- ui.dueCell(d.submission_due, today, { done: d.submitted_on }) %></td>

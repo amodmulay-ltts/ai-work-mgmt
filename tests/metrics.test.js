@@ -79,7 +79,7 @@ test('stale means open, not on hold, and no update for more than the threshold',
   assert.equal(isStale(deal({ updated_at: at(15), stage: 'Won' }), cfg, TODAY), false, 'closed is never stale');
 });
 
-test('weighted value is value times probability, in the deal currency', () => {
+test('weighted value is value times probability, in the opportunity currency', () => {
   assert.equal(weightedValue(deal({ est_value: 1000, probability: 35 })), 350);
   assert.equal(weightedValue(deal({ est_value: null })), null);
 });
@@ -165,7 +165,7 @@ test('aging counts and win statistics', () => {
     deal({ stage: 'Lost', closed_on: '2026-10-02' }),
     deal({ stage: 'Lost', closed_on: '2026-01-01' }),
   ];
-  assert.deepEqual(agingCounts(deals, cfg, TODAY), { '0–30': 1, '31–60': 1, '61–90': 0, '90+': 0 }, 'closed deals are not aged');
+  assert.deepEqual(agingCounts(deals, cfg, TODAY), { '0–30': 1, '31–60': 1, '61–90': 0, '90+': 0 }, 'closed opportunities are not aged');
   assert.deepEqual(winStats(deals, cfg, TODAY), { won: 1, lost: 1, rate: 0.5 });
   assert.deepEqual(winStats([], cfg, TODAY), { won: 0, lost: 0, rate: null });
 });

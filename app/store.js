@@ -79,7 +79,7 @@ export class Store {
         }
       }
     }
-    // Every tag on a deal is a known tag, even if config.json was edited by hand.
+    // Every tag on an opportunity is a known tag, even if config.json was edited by hand.
     const allTags = [...records.deal.values()].flatMap((d) => d.tags);
     cfg = { ...cfg, tags: [...cfg.tags, ...resolveTags(allTags, cfg.tags).added] };
     this.cfg = cfg;
@@ -149,7 +149,7 @@ export class Store {
   }
 
   /**
-   * Next free id for a kind. Deals are DL-<year>-NNNN with a counter per year.
+   * Next free id for a kind. Opportunities are DL-<year>-NNNN with a counter per year.
    * @param {'deal' | 'customer' | 'person'} kind
    */
   async nextId(kind) {
@@ -250,7 +250,7 @@ export class Store {
     return this.mutex.run(async () => {
       const now = nowIso();
       const prepared = records.map((r) => ({ ...r, updated_at: now }));
-      // Validate against the config this save will write, so a new tag and the deal that uses it go together.
+      // Validate against the config this save will write, so a new tag and the opportunity that uses it go together.
       const cfgNow = config ? { ...structuredClone(DEFAULT_CONFIG), ...config } : this.cfg;
       const errors = prepared.flatMap((r) =>
         validateRecord(kindOf(r.id), r, cfgNow).map((e) => `${r.id}: ${e}`),
@@ -276,7 +276,7 @@ export class Store {
 
   /**
    * Deletes one record and commits the removal. Customers that still have deals, and people
-   * referenced by a deal or a customer, cannot be deleted (PLAN.md §7).
+   * referenced by an opportunity or a customer, cannot be deleted (PLAN.md §7).
    * @param {{ id: string }} record
    * @param {string} message
    */
@@ -285,10 +285,10 @@ export class Store {
       const kind = kindOf(record.id);
       if (kind === 'customer') {
         const count = this.listDeals().filter((d) => d.customer_id === record.id).length;
-        if (count > 0) throw new Error(`Customer has ${count} deal${count === 1 ? '' : 's'}`);
+        if (count > 0) throw new Error(`Customer has ${count} ${count === 1 ? 'opportunity' : 'opportunities'}`);
       }
       if (kind === 'person' && this.personReferenced(record.id)) {
-        throw new Error('This person is used on a deal or customer. Mark them inactive instead.');
+        throw new Error('This person is used on an opportunity or customer. Mark them inactive instead.');
       }
       const file = this.recordPath(kind, record.id);
       await fs.rm(file, { force: true });
