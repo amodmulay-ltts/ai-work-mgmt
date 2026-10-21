@@ -4,6 +4,7 @@ import { DEFAULT_CONFIG } from './config-defaults.js';
 import { PREFIX, ValidationError, kindOf, nowIso, validateRecord, withDefaultType, withSupportDefaults } from './models.js';
 import { resolveTags } from './lib/tags.js';
 import { withConnectDefaults } from './lib/connects.js';
+import { personRefs } from './lib/merge.js';
 
 /** Record kinds loaded from disk, in load order. */
 const KINDS = ['customer', 'person', 'deal', 'activity'];
@@ -299,7 +300,7 @@ export class Store {
         if (count > 0) throw new Error(`Customer has ${count} ${count === 1 ? 'opportunity' : 'opportunities'}`);
       }
       if (kind === 'person' && this.personReferenced(record.id)) {
-        throw new Error('This person is used on an opportunity or customer. Mark them inactive instead.');
+        throw new Error('This person is still used by an opportunity, customer or activity. Mark them inactive, or merge them into another person.');
       }
       const file = this.recordPath(kind, record.id);
       await fs.rm(file, { force: true });
@@ -308,20 +309,35 @@ export class Store {
     });
   }
 
-  personUsedByDeal(deal, personId) {
-    return (
-      deal.sales_owner_id === personId ||
-      deal.presales_owner_id === personId ||
-      deal.delivery_owner_id === personId ||
-      deal.contact_ids.includes(personId)
-    );
+  /** A person is in use when any opportunity, customer or activity refers to them (see lib/merge.js). */
+  /**
+   * Saves changed records and removes one record, as one commit. Used by the merge of two people,
+   * so the references move and the old person disappears together.
+   */
+  saveAndDelete(records, removed, message) {
+    return this.mutex.run(async () => {
+      const now = nowIso();
+      const prepared = records.map((r) => ({ ...(kindOf(r.id) === 'customer' ? withConnectDefaults(r) : r), updated_at: now }));
+      const errors = prepared.flatMap((r) => validateRecord(kindOf(r.id), r, this.cfg).map((e) => `${r.id}: ${e}`));
+      if (errors.length) throw new ValidationError(errors);
+      const paths = [];
+      for (const r of prepared) {
+        const file = this.recordPath(kindOf(r.id), r.id);
+        await writeJsonAtomic(file, r);
+        this.records[kindOf(r.id)].set(r.id, r);
+        paths.push(file);
+      }
+      const kind = kindOf(removed.id);
+      const file = this.recordPath(kind, removed.id);
+      await fs.rm(file, { force: true });
+      this.records[kind].delete(removed.id);
+      paths.push(file);
+      return this.git.commitUnlocked(paths, message);
+    });
   }
 
   personReferenced(personId) {
-    return (
-      this.listDeals().some((d) => this.personUsedByDeal(d, personId)) ||
-      this.listCustomers().some((c) => c.account_manager_id === personId)
-    );
+    return [...this.listDeals(), ...this.listCustomers(), ...this.listActivities()].some((r) => personRefs(r).includes(personId));
   }
 }
 

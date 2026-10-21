@@ -47,6 +47,7 @@
                 <% if (p.active) { %>
                   <form method="post" action="/people/<%= p.id %>/deactivate" class="inline"><button class="btn btn-ghost btn-sm" type="submit">Mark inactive</button></form>
                 <% } %>
+                <a class="btn btn-ghost btn-sm" href="/people/<%= p.id %>/merge">Merge…</a>
                 <%- include('../partials/delete-form', { action: `/people/${p.id}/delete`, expected: p.name, key: p.id, what: 'person' }) %>
               </td>
             </tr>

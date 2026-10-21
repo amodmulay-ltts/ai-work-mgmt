@@ -22,7 +22,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Customer connects (PLAN.md §16) | Done (202 tests pass) | merged to `main` |
 | Type-to-confirm for deletes | Done (208 tests pass) | merged to `main` |
 | Wins by year (dashboard) | Done (213 tests pass) | merged to `main` |
-| Internal activities (PLAN.md §17) | Done (226 tests pass) | `internal-activities` |
+| Internal activities (PLAN.md §17) | Done (226 tests pass) | merged to `main` |
+| Merge people entered by mistake (PLAN.md §18) | Done (235 tests pass) | `merge-people` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -98,3 +99,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — internal activities — Linux
 - Done: a new record kind, activity (AC-0001), for prototypes, concepts and AI solutions that are not opportunities. It has its own pages, a dated updates log and a status, and it is not in the pipeline or win stats. The dashboard has an Internal activities card, and the type-to-confirm delete applies. Spec in PLAN.md §17. 226 tests pass.
 - Next: user review. Export and weekly report are not included yet.
+
+### 2026-10-21 — merge people — Linux
+- Done: Merge… on the People page moves every reference of a wrong person to the right one and removes the wrong person, in one commit. Typed-name challenge as for deletes. Delete now also refuses a person used on an ask, a connect or an activity (it checked only opportunities and account managers). 235 tests pass.
+- Not checked in a browser yet: the merge page layout.
