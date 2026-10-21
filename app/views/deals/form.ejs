@@ -47,7 +47,7 @@
       <%- f('sales_owner', 'Sales owner', { list: 'people-list', help: 'Type a new name to create the person on save.' }) %>
       <%- f('presales_owner', 'Presales owner', { list: 'people-list' }) %>
       <%- f('delivery_owner', 'Delivery owner', { list: 'people-list' }) %>
-      <%- sel('bu', 'BU', ui.optionsOf(cfg.business_units), { placeholder: 'Choose…' }) %>
+      <%- f('bu', 'BU', { list: 'bu-options', help: 'Pick a BU, or type a new one to add it to the list.' }) %>
       <%- f('practice', 'Practice', { help: 'Free text. Reuse earlier values where you can.' }) %>
       <%- sel('region', 'Region', ui.optionsOf(cfg.regions), { placeholder: 'Choose…' }) %>
     </div>
@@ -99,6 +99,7 @@
       <%- f('next_action_due', 'Next action due', { type: 'date' }) %>
       <%- f('tags', 'Tags', { span: true, list: 'tag-options', help: 'Separate tags with commas, e.g. RFQ, HIL. Type a new tag to create it.' }) %>
       <%- ui.datalist('tag-options', cfg.tags) %>
+      <%- ui.datalist('bu-options', cfg.business_units) %>
     </div>
   </section>
 

@@ -9,6 +9,7 @@ import { diff } from './history.js';
 import { nowIso, validateRecord, ValidationError, DATE_FIELDS } from './models.js';
 import { stageInfo } from './metrics.js';
 import { resolveTags } from './lib/tags.js';
+import { resolveBusinessUnit } from './lib/business-units.js';
 
 const TEXT_FIELDS = [
   'title', 'type', 'source', 'description', 'customer', 'contacts', 'c4c_id', 'sales_owner', 'presales_owner',
@@ -24,6 +25,11 @@ const text = (values, key) => (typeof values[key] === 'string' ? values[key].tri
 const unique = (items) => [...new Set(items)];
 const lines = (value) => value.split('\n').map((l) => l.trim()).filter(Boolean);
 const commaList = (value) => unique(value.split(',').map((x) => x.trim()).filter(Boolean));
+/** The config with new tags and business units appended. Returns cfg itself when nothing is new. */
+function withNewValues(cfg, { tags = [], business_units = [] }) {
+  if (!tags.length && !business_units.length) return cfg;
+  return { ...cfg, tags: [...cfg.tags, ...tags], business_units: [...cfg.business_units, ...business_units] };
+}
 
 /** 'Label | URL' per line; a line with only a URL uses the URL as the label. */
 export function parseLinks(value) {
@@ -278,7 +284,10 @@ export async function saveDeal(store, typed, { existing = null, today }) {
   // Tags are free text. Known tags keep their spelling, and new ones are added to config.tags in the same commit.
   const tagged = resolveTags(typed.tags, cfg.tags);
   if (tagged.errors.length) throw new ValidationError(tagged.errors);
-  const cfgNext = tagged.added.length ? { ...cfg, tags: [...cfg.tags, ...tagged.added] } : cfg;
+  // A new BU is added to config.business_units in the same commit, as new tags are.
+  const unit = resolveBusinessUnit(typed.bu, cfg.business_units);
+  if (unit.errors.length) throw new ValidationError(unit.errors);
+  const cfgNext = withNewValues(cfg, { tags: tagged.added, business_units: unit.added ? [unit.added] : [] });
   const refs = await resolveReferences(store, typed);
   const now = nowIso();
   const id = existing ? existing.id : await store.nextId('deal');
@@ -301,7 +310,7 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     support_ids: existing?.support_ids ?? [],
     support_requests: existing?.support_requests ?? [],
     support_seq: existing?.support_seq ?? 0,
-    bu: typed.bu,
+    bu: unit.bu,
     practice: typed.practice,
     region: typed.region,
     stage: typed.stage,
@@ -347,7 +356,7 @@ export async function saveDeal(store, typed, { existing = null, today }) {
   const errors = validateRecord('deal', deal, cfgNext);
   if (errors.length) throw new ValidationError(errors);
 
-  await store.save([...refs.created, deal], `${id}: ${summary}`, { config: tagged.added.length ? cfgNext : undefined });
+  await store.save([...refs.created, deal], `${id}: ${summary}`, { config: cfgNext === cfg ? undefined : cfgNext });
   const warnings = [duplicateC4cWarning(store, deal.c4c_id, id)].filter(Boolean);
   return { deal, createdNames: refs.createdNames, warnings };
 }
@@ -395,6 +404,10 @@ export function customerToValues(customer, store) {
  * @returns {Promise<{ customer: object, createdNames: string[] }>}
  */
 export async function saveCustomer(store, typed, { existing = null }) {
+  const cfg = store.config();
+  const unit = resolveBusinessUnit(typed.bu, cfg.business_units);
+  if (unit.errors.length) throw new ValidationError(unit.errors);
+  const cfgNext = withNewValues(cfg, { business_units: unit.added ? [unit.added] : [] });
   const pending = [];
   const createdNames = [];
   let accountManagerId = null;
@@ -413,7 +426,7 @@ export async function saveCustomer(store, typed, { existing = null }) {
     industry: typed.industry,
     region: typed.region,
     country: typed.country,
-    bu: typed.bu,
+    bu: unit.bu,
     account_manager_id: accountManagerId,
     c4c_account_id: typed.c4c_account_id,
     website: typed.website,
@@ -422,10 +435,10 @@ export async function saveCustomer(store, typed, { existing = null }) {
     created_at: existing ? existing.created_at : now,
     updated_at: now,
   };
-  const errors = validateRecord('customer', customer, store.config());
+  const errors = validateRecord('customer', customer, cfgNext);
   if (errors.length) throw new ValidationError(errors);
   const message = existing ? `${id}: updated` : `${id}: created – ${typed.name}`;
-  await store.save([...pending, customer], message);
+  await store.save([...pending, customer], message, { config: cfgNext === cfg ? undefined : cfgNext });
   return { customer, createdNames };
 }
 
