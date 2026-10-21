@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 import {
   agingCounts, ageDays, askOverdue, asksFor, byBusinessUnit, daysInStage, daysToSubmission, hasAllTags, health, healthMix, isOpen, isOpenAsk, isSupportedBy,
-  moneyTotals, submissionsByMonth, winsByYear, openAsks, pipelineByStage, stageInfo, status, weightedValue, winStats,
+  moneyTotals, submissionsByMonth, winsByYear, openAsks, pipelineByStage, stageInfo, status, weightedValue,
 } from './metrics.js';
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
@@ -89,8 +89,6 @@ function dashboardView(store, cfg, today, me, tags) {
   const deals = store.listDeals().filter((d) => hasAllTags(d, tags));
   const rows = deals.map((d) => dealRow(d, store, cfg, today));
   const open = rows.filter((r) => r.open);
-  const dueSoon = open.filter((r) => r.toSubmit !== null && r.toSubmit >= 0 && r.toSubmit <= 7);
-  const overdue = open.filter((r) => r.toSubmit !== null && r.toSubmit < 0);
   const rank = { red: 0, amber: 1 };
   const attention = open
     .filter((r) => r.health.level === 'red' || r.health.level === 'amber')
@@ -127,9 +125,6 @@ function dashboardView(store, cfg, today, me, tags) {
       open: open.length,
       onHold: open.filter((r) => r.deal.on_hold).length,
       weighted: moneyTotals(open.map((r) => [r.deal.currency, r.weighted]), cfg),
-      dueSoon: dueSoon.length,
-      overdue: overdue.length,
-      win: winStats(deals, cfg, today, 90),
     },
     // Asks for me: the 5 earliest open asks, and how many are due within a week (overdue included).
     myAsks: {

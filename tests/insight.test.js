@@ -87,9 +87,8 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
 
     const page = await get(app.base, '/');
     assert.equal(kpi(page.html, 'Open opportunities'), '2');
-    assert.equal(kpi(page.html, 'Due in 7 days'), '1');
-    assert.match(page.html, /1 overdue/);
-    assert.equal(kpi(page.html, 'Win rate \\(90 days\\)'), '100%');
+    assert.doesNotMatch(page.html, /Due in 7 days/, 'the due-date card is gone from the dashboard');
+    assert.doesNotMatch(page.html, /Win rate/, 'the win rate card is gone from the dashboard');
     assert.match(page.html, /Needs attention/);
     assert.match(page.html, /Overdue one/);
   });
