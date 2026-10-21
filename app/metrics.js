@@ -169,6 +169,9 @@ export function winStats(deals, cfg, today, days = 90) {
 
 // ---------------------------------------------------------------- supporters and asks (PLAN.md §15.2)
 
+/** True when the deal has every tag in `tags`. An empty list matches every deal. */
+export const hasAllTags = (deal, tags) => tags.every((t) => (deal.tags ?? []).includes(t));
+
 /** Open asks are still to do. Done and Cancelled asks do not count. */
 export const isOpenAsk = (ask) => ask.status === 'Open' || ask.status === 'In progress';
 

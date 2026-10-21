@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  agingCounts, ageDays, askOverdue, asksFor, daysInStage, daysToSubmission, health, isOpen, isOpenAsk, isSupportedBy,
+  agingCounts, ageDays, askOverdue, asksFor, daysInStage, daysToSubmission, hasAllTags, health, isOpen, isOpenAsk, isSupportedBy,
   moneyTotals, openAsks, pipelineByStage, stageInfo, status, weightedValue, winStats,
 } from './metrics.js';
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, todayIso, ROLES } from './models.js';
@@ -25,6 +25,21 @@ const clean = (value) => (typeof value === 'string' ? value.trim() : '');
 
 /** Removes the record id that validation messages start with, e.g. 'DL-2026-0001: '. */
 const plain = (message) => message.replace(/^(DL|CU|PE)-\d{4}(-\d{4})?: /, '');
+
+/** Tags chosen in a filter, from ?tag=…&tag=…. Unknown tags are dropped. */
+function tagsFrom(query, cfg) {
+  const picked = [...new Set([query.tag ?? []].flat().map(clean))];
+  return picked.filter((t) => cfg.tags.includes(t));
+}
+
+/** The query string without the tag filter, so tag links can keep the other filters. */
+function otherQuery(query) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (key !== 'tag' && typeof value === 'string') params.set(key, value);
+  }
+  return params.toString();
+}
 
 /** Local path from the Referer header, so redirects cannot leave this site. */
 function safeBackPath(req, fallback = '/') {
@@ -63,8 +78,8 @@ function greeting(now = new Date()) {
 }
 
 /** Numbers, lists and bars for the dashboard (PLAN.md §11.5). */
-function dashboardView(store, cfg, today, me) {
-  const deals = store.listDeals();
+function dashboardView(store, cfg, today, me, tags) {
+  const deals = store.listDeals().filter((d) => hasAllTags(d, tags));
   const rows = deals.map((d) => dealRow(d, store, cfg, today));
   const open = rows.filter((r) => r.open);
   const dueSoon = open.filter((r) => r.toSubmit !== null && r.toSubmit >= 0 && r.toSubmit <= 7);
@@ -218,6 +233,7 @@ const SORTS = {
  */
 function listDeals(store, cfg, today, query) {
   const q = clean(query.q).toLowerCase();
+  const tags = tagsFrom(query, cfg);
   const filter = {
     status: query.status || 'open',
     stage: query.stage || '',
@@ -241,6 +257,7 @@ function listDeals(store, cfg, today, query) {
   // support=me means the current user; any other value is a person id (used by /support?who=).
   const supporterId = filter.support === 'me' ? cfg.me_person_id : filter.support;
   if (supporterId) rows = rows.filter((r) => isSupportedBy(r.deal, supporterId));
+  if (tags.length) rows = rows.filter((r) => hasAllTags(r.deal, tags));
   if (filter.bu) rows = rows.filter((r) => r.deal.bu === filter.bu);
   if (filter.priority) rows = rows.filter((r) => r.deal.priority === filter.priority);
   if (filter.health) rows = rows.filter((r) => r.health.level === filter.health);
@@ -252,7 +269,7 @@ function listDeals(store, cfg, today, query) {
     });
   }
   rows.sort(SORTS[sortKey](dir));
-  return { rows, filter: { ...filter, q: query.q || '' }, sort: sortKey, dir: dir === 1 ? 'asc' : 'desc' };
+  return { rows, filter: { ...filter, q: query.q || '' }, tags, sort: sortKey, dir: dir === 1 ? 'asc' : 'desc' };
 }
 
 /** Values for the new-deal form, pre-filled with the defaults from §4.3. */
@@ -472,8 +489,15 @@ export function createRouter() {
     const cfg = store.config();
     const today = todayIso();
     const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
-    const view = me ? dashboardView(store, cfg, today, me) : null;
-    await renderPage(req, res, 'dashboard', dashboardData(store, { view, greeting: greeting(), firstName: me ? me.name.split(' ')[0] : '' }));
+    const tags = tagsFrom(req.query, cfg);
+    const view = me ? dashboardView(store, cfg, today, me, tags) : null;
+    await renderPage(req, res, 'dashboard', dashboardData(store, {
+      view,
+      greeting: greeting(),
+      firstName: me ? me.name.split(' ')[0] : '',
+      tags,
+      tagQuery: otherQuery(req.query),
+    }));
   });
 
   // First-run form: who is using this tracker. Creates a Presales person and sets me_person_id.
@@ -546,6 +570,7 @@ export function createRouter() {
       title: 'Deals',
       active: 'deals',
       ...listing,
+      tagQuery: otherQuery(req.query),
       today,
       customers: store.listCustomers(),
       people: store.listPeople(),

@@ -1,5 +1,6 @@
 <%
   const q = new URLSearchParams(Object.entries(filter).filter(([k, v]) => v && !(k === 'status' && v === 'open')));
+  for (const t of tags) q.append('tag', t);
   const filtering = [...q.keys()].some((k) => k !== 'q') || filter.q;
   const sortLink = (key, label) => {
     const nextDir = sort === key && dir === 'asc' ? 'desc' : 'asc';
@@ -19,6 +20,8 @@
   </div>
 </div>
 
+<%- include('../partials/tag-filter', { all: cfg.tags, tags, base: '/deals', query: tagQuery }) %>
+
 <form method="get" action="/deals" class="filters" role="search">
   <input type="search" name="q" value="<%= filter.q %>" placeholder="Search deals…" aria-label="Search deals" class="search">
   <%- ui.selectControl({ name: 'status', value: filter.status, options: statusOptions, ariaLabel: 'Status' }) %>
@@ -31,6 +34,7 @@
   <%- ui.selectControl({ name: 'health', value: filter.health, placeholder: 'Any health', ariaLabel: 'Health', options: [['red', 'Red'], ['amber', 'Amber'], ['green', 'Green'], ['hold', 'On hold'], ['closed', 'Closed']] }) %>
   <input type="hidden" name="sort" value="<%= sort %>">
   <input type="hidden" name="dir" value="<%= dir %>">
+  <% for (const t of tags) { %><input type="hidden" name="tag" value="<%= t %>"><% } %>
   <noscript><button class="btn btn-secondary" type="submit">Apply</button></noscript>
   <% if (filtering) { %><a href="/deals" class="btn btn-ghost">Clear</a><% } %>
 </form>

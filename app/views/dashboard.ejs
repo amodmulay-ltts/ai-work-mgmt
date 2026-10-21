@@ -31,6 +31,7 @@
   const maxAge = Math.max(1, ...Object.values(view.aging));
   const win = k.win.rate === null ? '—' : Math.round(k.win.rate * 100) + '%';
 %>
+<%- include('partials/tag-filter', { all: cfg.tags, tags, base: '/', query: tagQuery }) %>
 <div class="page-header dash-head">
   <h1><%= greeting %>, <%= firstName %></h1>
   <div class="page-actions">
