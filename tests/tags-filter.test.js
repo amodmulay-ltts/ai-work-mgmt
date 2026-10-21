@@ -44,6 +44,7 @@ const YEAR = new Date().getFullYear();
 const id = (n) => `DL-${YEAR}-${String(n).padStart(4, '0')}`;
 
 const dealForm = (title, tags) => ({
+  type: 'Lead',
   title,
   customer: 'Bosch',
   sales_owner: 'Priya S',
@@ -79,7 +80,7 @@ describe('filter by tag', () => {
     assert.equal(kpi(page.html, 'Open opportunities'), '3');
   });
 
-  test('one tag narrows the dashboard to the opportunitys with that tag', async () => {
+  test('one tag narrows the dashboard to the opportunities with that tag', async () => {
     const page = await get(app.base, '/?tag=RFQ');
     assert.equal(kpi(page.html, 'Open opportunities'), '2', 'Alpha and Gamma');
     assert.match(page.html, /class="tag-chip active"[^>]*>RFQ</);

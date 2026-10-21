@@ -278,6 +278,7 @@ function newDealValues(store, cfg, customerId) {
   const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
   return typedToValues({
     title: '',
+    type: 'Lead',
     source: null,
     description: '',
     customer: customer?.name ?? '',
