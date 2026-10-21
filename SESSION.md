@@ -18,7 +18,9 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Opportunity types drive the form and detail page | Done (169 tests pass); browser check pending | merged to `main` |
 | Table headers and look and feel (UI analysis TODO) | Done (175 tests pass); checked in headless Chrome | merged to `main` |
 | New BU added from the opportunity and customer forms | Done (185 tests pass) | merged to `main` |
-| Dashboard charts: health, submissions by month, BU | Done (189 tests pass) | `dashboard-charts` |
+| Dashboard charts: health, submissions by month, BU | Done (189 tests pass) | merged to `main` |
+| Customer connects (PLAN.md §16) | Done (202 tests pass) | merged to `main` |
+| Type-to-confirm for deletes | Done (208 tests pass) | merged to `main` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -82,3 +84,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — customer connects — Linux
 - Done: Teams meetings and visits are logged on each customer, with first and last connected shown on the customer page and list. Customers with no connect in `connect_after_days` (default 30, set in Settings) are flagged on the list and on the dashboard, for those with open opportunities. Spec in PLAN.md §16. 202 tests pass.
 - Next: user review in the browser. Connects are not in the export yet.
+
+### 2026-10-21 — type to confirm deletes — Linux
+- Done: deleting an opportunity, customer or person needs its ID (opportunity) or exact name (customer, person) typed in a collapsed Delete box. The server checks the same text. Ask and connect removals still use a plain confirm. 208 tests pass.
+- Next: decide whether ask and connect removals need the same challenge.

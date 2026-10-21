@@ -1,0 +1,17 @@
+<%
+  // Type-to-confirm delete (the user's rule: no record is deleted by mistake). Collapsed until opened.
+  // The server checks the typed text too, so this still holds when JavaScript is off.
+  // Params: action, expected (the text to type), what (the kind of record), key (the record id, for element ids).
+%>
+<details class="delete-box">
+  <summary class="btn btn-danger">Delete…</summary>
+  <form method="post" action="<%= action %>" class="delete-form" data-type-to-confirm="<%= expected %>">
+    <label for="confirm-<%= key %>">
+      To delete this <%= what %>, type <strong><%= expected %></strong> below. Nothing is deleted until it matches exactly.
+    </label>
+    <div class="delete-row">
+      <input type="text" id="confirm-<%= key %>" name="confirm" autocomplete="off">
+      <button class="btn btn-danger" type="submit" disabled>Delete <%= what %></button>
+    </div>
+  </form>
+</details>

@@ -11,9 +11,7 @@
   <div class="page-actions">
     <a class="btn btn-primary" href="/opportunities/new?customer=<%= customer.id %>">+ New opportunity for this customer</a>
     <a class="btn btn-secondary" href="/customers/<%= customer.id %>/edit">Edit</a>
-    <form method="post" action="/customers/<%= customer.id %>/delete" class="inline" data-confirm="Delete <%= customer.name %>? A customer with deals cannot be deleted.">
-      <button class="btn btn-danger" type="submit">Delete</button>
-    </form>
+    <%- include('../partials/delete-form', { action: `/customers/${customer.id}/delete`, expected: customer.name, key: customer.id, what: 'customer' }) %>
   </div>
 </div>
 

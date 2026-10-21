@@ -479,3 +479,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 
 /* connections on the customer page */
 .field-wide { flex: 1 1 240px; }
+
+/* type-to-confirm delete (partials/delete-form.ejs) */
+.delete-box { display: inline-block; }
+.delete-box > summary { list-style: none; cursor: pointer; }
+.delete-box > summary::-webkit-details-marker { display: none; }
+.delete-box[open] > summary { opacity: 0.6; }
+.delete-form { margin-top: var(--s2); padding: var(--s3); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); max-width: 480px; }
+.delete-form label { display: block; font-size: var(--fs-sm); margin-bottom: var(--s2); }
+.delete-row { display: flex; gap: var(--s2); align-items: center; }
+.delete-row input[type="text"] { flex: 1; min-width: 0; height: 32px; padding: 0 var(--s2); border: 1px solid var(--border-strong); border-radius: var(--radius); font: inherit; }
+.delete-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+

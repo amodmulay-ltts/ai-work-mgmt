@@ -59,6 +59,15 @@
     true,
   );
 
+  // 5b. Type to confirm: a delete form keeps its button disabled until the typed text matches the record (partials/delete-form.ejs).
+  document.querySelectorAll('form[data-type-to-confirm]').forEach((form) => {
+    const input = form.querySelector('input[name="confirm"]');
+    const button = form.querySelector('button[type="submit"]');
+    const sync = () => { button.disabled = input.value.trim() !== form.dataset.typeToConfirm; };
+    input.addEventListener('input', sync);
+    sync();
+  });
+
   // 6. Toasts: success messages hide after 4 s. Every toast can be closed.
   document.querySelectorAll('.toast-success').forEach((toast) => {
     setTimeout(() => toast.remove(), 4000);

@@ -26,6 +26,9 @@ const ID_RE = { deal: /^DL-\d{4}-\d{4}$/, customer: /^CU-\d{4}$/, person: /^PE-\
 const clean = (value) => (typeof value === 'string' ? value.trim() : '');
 
 /** Removes the record id that validation messages start with, e.g. 'DL-2026-0001: '. */
+/** The delete challenge: the typed text must equal the record's ID or name exactly. Nothing is deleted otherwise. */
+const typedRight = (req, expected) => String(req.body.confirm ?? '').trim() === expected;
+
 const plain = (message) => message.replace(/^(DL|CU|PE)-\d{4}(-\d{4})?: /, '');
 
 /** Tags chosen in a filter, from ?tag=…&tag=…. Unknown tags are dropped. */
@@ -730,6 +733,10 @@ export function createRouter() {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
     if (!deal) return notFound(req, res, 'This opportunity');
+    if (!typedRight(req, deal.id)) {
+      flash(res, 'error', `Nothing was deleted. Type ${deal.id} exactly to delete it.`);
+      return res.redirect(303, `/opportunities/${deal.id}`);
+    }
     await store.delete(deal, `${deal.id}: deleted`);
     flash(res, 'success', `Deleted ${deal.id}.`);
     return res.redirect(303, '/opportunities');
@@ -962,6 +969,10 @@ export function createRouter() {
     const { store } = req.app.locals;
     const customer = store.getCustomer(req.params.id);
     if (!customer) return notFound(req, res, 'This customer');
+    if (!typedRight(req, customer.name)) {
+      flash(res, 'error', `Nothing was deleted. Type ${customer.name} exactly to delete it.`);
+      return res.redirect(303, `/customers/${customer.id}`);
+    }
     try {
       await store.delete(customer, `${customer.id}: deleted`);
       flash(res, 'success', `Deleted ${customer.name}.`);
@@ -1162,6 +1173,10 @@ export function createRouter() {
     const { store } = req.app.locals;
     const person = store.getPerson(req.params.id);
     if (!person) return notFound(req, res, 'This person');
+    if (!typedRight(req, person.name)) {
+      flash(res, 'error', `Nothing was deleted. Type ${person.name} exactly to delete it.`);
+      return res.redirect(303, '/people');
+    }
     try {
       await store.delete(person, `${person.id}: deleted`);
       flash(res, 'success', `Deleted ${person.name}.`);

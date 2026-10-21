@@ -175,7 +175,7 @@ describe('app routes', () => {
 
   test('a customer with deals is kept, and the refusal is shown', async () => {
     const customer = app.store.findCustomerByName('Bosch');
-    const res = await post(app.base, `/customers/${customer.id}/delete`, {});
+    const res = await post(app.base, `/customers/${customer.id}/delete`, { confirm: customer.name });
     assert.equal(res.status, 303);
     assert.match(flashOf(res).text, /Customer has 2 opportunities/);
     assert.ok(app.store.getCustomer(customer.id));
@@ -183,7 +183,7 @@ describe('app routes', () => {
 
   test('a person used on an opportunity can be marked inactive but not deleted', async () => {
     const priya = app.store.findPersonByName('Priya S');
-    await post(app.base, `/people/${priya.id}/delete`, {});
+    await post(app.base, `/people/${priya.id}/delete`, { confirm: priya.name });
     assert.ok(app.store.getPerson(priya.id), 'still there');
     await post(app.base, `/people/${priya.id}/deactivate`, {});
     assert.equal(app.store.getPerson(priya.id).active, false);
