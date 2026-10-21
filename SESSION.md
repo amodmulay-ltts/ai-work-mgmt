@@ -112,3 +112,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-21 — won to date — Linux
 - Done: the Win rate card is replaced by Won to date: the count of won opportunities and their estimated value per currency. The KPI row now has three cards. 237 tests pass.
+
+### 2026-10-21 — customer chart — Linux
+- Done: Open opportunities by customer, in the chart row beside Health and BU. Top 8 by count, each with its value per currency. 240 tests pass.
