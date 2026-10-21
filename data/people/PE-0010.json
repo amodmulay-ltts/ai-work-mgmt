@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "PE-0010",
+  "name": "Darius Jin (E0S) - darius.jin@volkswagen.de",
+  "role": "Customer",
+  "title": null,
+  "email": null,
+  "phone": null,
+  "customer_id": "CU-0004",
+  "notes": "",
+  "active": true,
+  "created_at": "2026-10-21T16:01:48+02:00",
+  "updated_at": "2026-10-21T16:01:48+02:00"
+}
