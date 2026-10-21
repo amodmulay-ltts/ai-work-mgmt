@@ -14,7 +14,7 @@
       <%- f('industry', 'Industry') %>
       <%- ui.field({ name: 'region', label: 'Region', type: 'select', value: values.region, options: ui.optionsOf(cfg.regions), placeholder: 'Choose…', error: errors.region || '' }) %>
       <%- f('country', 'Country') %>
-      <%- ui.field({ name: 'bu', label: 'BU', type: 'select', value: values.bu, options: ui.optionsOf(cfg.business_units), placeholder: 'Choose…', error: errors.bu || '' }) %>
+      <%- f('bu', 'BU', { list: 'bu-options', help: 'Pick a BU, or type a new one to add it to the list.' }) %>
       <%- f('account_manager', 'Account manager', { list: 'people-list', help: 'A Sales person. A new name creates the person on save.' }) %>
       <%- f('c4c_account_id', 'C4C account ID', { help: 'Plain text.' }) %>
       <%- f('website', 'Website', { type: 'text', placeholder: 'https://…' }) %>
@@ -28,3 +28,4 @@
   </div>
 </form>
 <%- ui.datalist('people-list', personNames) %>
+<%- ui.datalist('bu-options', cfg.business_units) %>

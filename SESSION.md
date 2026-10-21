@@ -16,7 +16,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Feature: RFQs I support (PLAN.md §15, phases S1–S3) | Done | merged to `main` |
 | Tags replace deal type; dashboard and list tag filter; Deal renamed Opportunity | Done (149 tests pass); implementation review complete | merged to `main` |
 | Opportunity types drive the form and detail page | Done (169 tests pass); browser check pending | merged to `main` |
-| Table headers and look and feel (UI analysis TODO) | Done (175 tests pass); checked in headless Chrome | `ui-table-headers`, merged to `main` |
+| Table headers and look and feel (UI analysis TODO) | Done (175 tests pass); checked in headless Chrome | merged to `main` |
+| New BU added from the opportunity and customer forms | Done (185 tests pass) | `bu-list`, merged to `main` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -68,3 +69,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 - Done: resolved the UI TODO list. Sticky table headers removed (they never worked: `.table-wrap` scrolls sideways, which made it the scroll container). Column headings darker (`--text-header`, AA contrast). Stray monospace on the Asks heading removed. Needs attention and Asks tables now sit edge to edge in their cards, like the other lists. Wide tables and the `:has()` fallback left as they are (see NOTES §2).
 - Verified in headless Chrome: header top stays in place when scrolled (before: scrolled away) and the asks header is in the sans font. 175 tests pass (new file `tests/table-headers.test.js`).
 - Next: user review in the browser.
+
+### 2026-10-21 — add BU from the forms — Linux
+- Done: BU on the opportunity and customer forms is a text field with the BU list as suggestions. A new BU is added to `config.business_units` in the same save, as new tags are. Settings still edits the list. 185 tests pass (new file `tests/bu-free-text.test.js`).
+- Next: user review. Removing a BU in Settings does not yet check whether opportunities use it (tags do).
