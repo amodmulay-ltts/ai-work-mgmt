@@ -65,9 +65,10 @@
       "outcome": "dropped"
     }
   ],
-  "deal_types": [
-    "RFI",
+  "tags": [
     "RFQ",
+    "Solution",
+    "RFI",
     "RFP",
     "Proactive Proposal",
     "Change Request",
@@ -118,5 +119,13 @@
     "Scope changed",
     "No-Go decision",
     "Other"
+  ],
+  "deal_types": [
+    "RFI",
+    "RFQ",
+    "RFP",
+    "Proactive Proposal",
+    "Change Request",
+    "Renewal / Extension"
   ]
 }
