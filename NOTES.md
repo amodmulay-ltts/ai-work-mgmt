@@ -92,6 +92,9 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding won to date (2026-10-21)
+- **Won to date uses the estimated value** (est_value), per currency, not a sum across currencies. It counts opportunities in a won stage, so it follows the tag filter like the other figures.
+
 ### Made while changing the dashboard layout (2026-10-21)
 - **The dashboard is for open work.** Win rate and the due-in-7-days figure left it. Win rate is on the Wins page by year, and due dates show in Needs attention and on each opportunity.
 - **Layout order:** KPIs, Health and BU, Internal activities, Recently updated, Needs attention and My next actions, Asks, Pipeline, Aging, Customers to connect, then Submissions due last.

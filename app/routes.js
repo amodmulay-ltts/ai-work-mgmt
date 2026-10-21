@@ -125,6 +125,8 @@ function dashboardView(store, cfg, today, me, tags) {
       open: open.length,
       onHold: open.filter((r) => r.deal.on_hold).length,
       weighted: moneyTotals(open.map((r) => [r.deal.currency, r.weighted]), cfg),
+      // Won to date: every opportunity in a won stage, counted and valued by its own currency.
+      won: wonToDate(deals, cfg),
     },
     // Asks for me: the 5 earliest open asks, and how many are due within a week (overdue included).
     myAsks: {
@@ -142,6 +144,12 @@ function dashboardView(store, cfg, today, me, tags) {
     byBu: byBusinessUnit(open.map((r) => r.deal), cfg),
     today,
   };
+}
+
+/** Won opportunities: how many, and their estimated value per currency. */
+function wonToDate(deals, cfg) {
+  const won = deals.filter((d) => stageInfo(cfg, d.stage)?.outcome === 'won');
+  return { count: won.length, totals: moneyTotals(won.map((d) => [d.currency, d.est_value]), cfg) };
 }
 
 /** Nulls last when sorting by a number of days. */

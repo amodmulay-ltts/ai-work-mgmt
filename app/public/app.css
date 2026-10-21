@@ -504,4 +504,5 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 @media (max-width: 1100px) {
   .chart-grid-two { grid-template-columns: minmax(0, 1fr); }
 }
+.kpi-grid.kpi-grid-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 

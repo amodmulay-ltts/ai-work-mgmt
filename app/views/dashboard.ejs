@@ -40,7 +40,7 @@
   </div>
 </div>
 
-<div class="kpi-grid kpi-grid-two">
+<div class="kpi-grid kpi-grid-three">
   <div class="card kpi">
     <div class="kpi-label">Open opportunities</div>
     <div class="kpi-value"><%= k.open %></div>
@@ -54,6 +54,15 @@
       <% if (wt.length > 4) { %><div class="kpi-sub">+<%= wt.length - 4 %> more</div><% } %>
     </div>
     <div class="kpi-sub">weighted · open opportunities</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Won to date</div>
+    <div class="kpi-value kpi-money">
+      <% if (k.won.count === 0) { %>—<% } %>
+      <% for (const [currency, amount] of Object.entries(k.won.totals).slice(0, 4)) { %><div><%= moneyCompact(amount, currency) %></div><% } %>
+    </div>
+    <div class="kpi-sub"><%= k.won.count %> won</div>
+  </div>
   </div>
 </div>
 
