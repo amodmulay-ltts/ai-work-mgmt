@@ -300,6 +300,8 @@ Owner fields and the customer field on the deal form are text inputs backed by a
 
 ### 5.1 `app/models.js`
 
+**Changed 2026-10-21:** the deal `type` field is gone. Its job is done by `tags`: free text the user creates, kept as known tags in `config.tags` (default list: RFQ, RFI, RFP, Proactive Proposal, Change Request, Renewal / Extension). Files with a `type` load with it as the first tag (`migrateDealType`). The UI calls deals **opportunities** from this change on. The code names, the `DL-` ids and the `data/deals/` folder keep the word deal, so no data files moved.
+
 Plain JavaScript with JSDoc typedefs. There are no runtime classes. A record is a plain object whose keys are written in the order below, which keeps the JSON files stable.
 
 **Important:** dates are stored as `YYYY-MM-DD` **strings**, never as `Date` objects. Timestamps are ISO-8601 strings with the local offset (see `nowIso()` below).
