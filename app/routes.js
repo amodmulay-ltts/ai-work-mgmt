@@ -10,6 +10,7 @@ import { resolveTags } from './lib/tags.js';
 import { connectState, connectSummary, newConnect } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { noteEntry } from './history.js';
+import { moveReferences, personUsage } from './lib/merge.js';
 import {
   customerToValues, dealToTyped, parseCustomerValues, parseDealValues, parsePersonValues,
   personToValues, saveActivity, saveCustomer, saveDeal, savePerson, typedToValues,
@@ -1355,6 +1356,53 @@ export function createRouter() {
     await store.delete(activity, `${activity.id}: deleted`);
     flash(res, 'success', `Deleted ${activity.id}.`);
     return res.redirect(303, '/activities');
+  });
+
+  // ------------------------------------------------ merge two people (lib/merge.js)
+  // Used for a person entered by mistake, or entered twice. Their references move to the right person,
+  // and the wrong one is removed, in one commit.
+  router.get('/people/:id/merge', async (req, res) => {
+    const { store } = req.app.locals;
+    const person = store.getPerson(req.params.id);
+    if (!person) return notFound(req, res, 'This person');
+    const usage = personUsage({ deals: store.listDeals(), customers: store.listCustomers(), activities: store.listActivities() }, person.id);
+    await renderPage(req, res, 'people/merge', {
+      title: `Merge ${person.name}`,
+      active: 'people',
+      person,
+      usage,
+      people: store.listPeople().filter((p) => p.active && p.id !== person.id),
+    });
+  });
+
+  router.post('/people/:id/merge', async (req, res) => {
+    const { store } = req.app.locals;
+    const person = store.getPerson(req.params.id);
+    if (!person) return notFound(req, res, 'This person');
+    const target = store.getPerson(String(req.body.target_id ?? ''));
+    if (!target || !target.active || target.id === person.id) {
+      flash(res, 'error', 'Pick an active person to merge into.');
+      return res.redirect(303, `/people/${person.id}/merge`);
+    }
+    if (!typedRight(req, person.name)) {
+      flash(res, 'error', `Nothing was merged. Type ${person.name} exactly to merge and remove this person.`);
+      return res.redirect(303, `/people/${person.id}/merge`);
+    }
+    const at = nowIso();
+    const moved = [];
+    for (const record of [...store.listDeals(), ...store.listCustomers(), ...store.listActivities()]) {
+      const next = moveReferences(record, person.id, target.id, at);
+      if (next !== record) moved.push(next);
+    }
+    try {
+      await store.saveAndDelete(moved, person, `${person.id}: merged into ${target.id}`);
+      flash(res, 'success', `Merged ${person.name} into ${target.name}. ${moved.length} ${moved.length === 1 ? 'record' : 'records'} updated.`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      flash(res, 'error', err.errors.map(plain).join('; '));
+      return res.redirect(303, `/people/${person.id}/merge`);
+    }
+    return res.redirect(303, '/people');
   });
 
   return router;

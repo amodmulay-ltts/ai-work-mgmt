@@ -1,0 +1,49 @@
+<div class="page-header">
+  <h1>Merge <%= person.name %></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="/people">Back to people</a>
+  </div>
+</div>
+
+<section class="card form-section">
+  <h3>What moves</h3>
+  <p class="muted">
+    Every reference to <strong><%= person.name %></strong> moves to the person you pick. Then <strong><%= person.name %></strong> is removed. This is one change, and it can be undone from git.
+  </p>
+  <ul class="plain-list">
+    <li><%= usage.opportunities %> <%= usage.opportunities === 1 ? 'opportunity' : 'opportunities' %> (owners, contacts, supporters, asks)</li>
+    <li><%= usage.customers %> <%= usage.customers === 1 ? 'customer' : 'customers' %> (account manager, connect owners)</li>
+    <li><%= usage.activities %> <%= usage.activities === 1 ? 'activity' : 'activities' %> (owner)</li>
+  </ul>
+  <% if (usage.opportunities + usage.customers + usage.activities === 0) { %>
+    <p class="subtle">Nothing refers to them, so merging only removes the entry. Deleting does the same.</p>
+  <% } %>
+</section>
+
+<% if (people.length === 0) { %>
+  <section class="card form-section">
+    <p class="subtle">There is no other active person to merge into. Add the right person first.</p>
+  </section>
+<% } else { %>
+  <form method="post" action="/people/<%= person.id %>/merge" class="deal-form" data-type-to-confirm="<%= person.name %>" novalidate>
+    <section class="card form-section">
+      <h3>Merge into</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label for="target_id">Correct person <span class="req" aria-hidden="true">*</span></label>
+          <select id="target_id" name="target_id" required>
+            <% for (const p of people) { %><option value="<%= p.id %>"><%= p.name %><% if (p.role) { %> · <%= p.role %><% } %></option><% } %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="confirm">To confirm, type <strong><%= person.name %></strong></label>
+          <input type="text" id="confirm" name="confirm" autocomplete="off" required>
+        </div>
+      </div>
+    </section>
+    <div class="form-footer">
+      <a class="btn btn-ghost" href="/people">Cancel</a>
+      <button class="btn btn-danger" type="submit">Merge and remove <%= person.name %></button>
+    </div>
+  </form>
+<% } %>

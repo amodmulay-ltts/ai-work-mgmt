@@ -1285,3 +1285,15 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 **Not in scope yet.** Export to Excel, the weekly report, linking an activity to a customer or an opportunity, and filtering the dashboard card by tag.
 
+## 18. Merging people entered by mistake
+
+**Purpose.** A person entered by mistake, or twice (for example "Priya Sharma" and "Priya S"), can be merged into the right person. Every reference moves, and the wrong person is removed.
+
+**What counts as a reference.** Opportunities: sales, presales and delivery owners, contacts, supporters, and the assignee and requester of each ask. Customers: the account manager and the owner of each connect. Activities: the owner.
+
+**Rules.** The target must be an active person and not the same person. The person to remove is confirmed by typing their exact name (the same challenge as deletes). Each opportunity that moves gets a history note. The change is one commit, so it can be undone from git.
+
+**Delete guard.** A person who is still referenced anywhere in the list above cannot be deleted. Before this section, asks, connects and activities were not checked, which could leave a dangling id.
+
+**Where.** A Merge… link on each row of the People page, which opens the merge page with the counts of what will move.
+
