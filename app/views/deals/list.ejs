@@ -8,22 +8,22 @@
     params.set('sort', key);
     params.set('dir', nextDir);
     const mark = sort === key ? (dir === 'asc' ? ' ▲' : ' ▼') : '';
-    return `<a href="/deals?${params.toString()}" class="sort">${label}${mark}</a>`;
+    return `<a href="/opportunities?${params.toString()}" class="sort">${label}${mark}</a>`;
   };
   const statusOptions = [['open', 'Open'], ['hold', 'On hold'], ['won', 'Won'], ['lost', 'Lost'], ['dropped', 'Dropped'], ['closed', 'Closed (all outcomes)'], ['all', 'All']];
 %>
 <div class="page-header">
-  <h1>Deals <span class="count"><%= rows.length %></span></h1>
+  <h1>Opportunities <span class="count"><%= rows.length %></span></h1>
   <div class="page-actions">
-    <a class="btn btn-secondary" href="/export/deals.xlsx<%= q.toString() ? '?' + q.toString() : '' %>">Export to Excel</a>
-    <a class="btn btn-primary" href="/deals/new">+ New deal</a>
+    <a class="btn btn-secondary" href="/export/opportunities.xlsx<%= q.toString() ? '?' + q.toString() : '' %>">Export to Excel</a>
+    <a class="btn btn-primary" href="/opportunities/new">+ New opportunity</a>
   </div>
 </div>
 
-<%- include('../partials/tag-filter', { all: cfg.tags, tags, base: '/deals', query: tagQuery }) %>
+<%- include('../partials/tag-filter', { all: cfg.tags, tags, base: '/opportunities', query: tagQuery }) %>
 
-<form method="get" action="/deals" class="filters" role="search">
-  <input type="search" name="q" value="<%= filter.q %>" placeholder="Search deals…" aria-label="Search deals" class="search">
+<form method="get" action="/opportunities" class="filters" role="search">
+  <input type="search" name="q" value="<%= filter.q %>" placeholder="Search opportunities…" aria-label="Search opportunities" class="search">
   <%- ui.selectControl({ name: 'status', value: filter.status, options: statusOptions, ariaLabel: 'Status' }) %>
   <%- ui.selectControl({ name: 'stage', value: filter.stage, placeholder: 'All stages', ariaLabel: 'Stage', options: cfg.stages.map((s) => [s.name, s.name]) }) %>
   <%- ui.selectControl({ name: 'customer', value: filter.customer, placeholder: 'All customers', ariaLabel: 'Customer', options: customers.map((c) => [c.id, c.name]) }) %>
@@ -36,20 +36,20 @@
   <input type="hidden" name="dir" value="<%= dir %>">
   <% for (const t of tags) { %><input type="hidden" name="tag" value="<%= t %>"><% } %>
   <noscript><button class="btn btn-secondary" type="submit">Apply</button></noscript>
-  <% if (filtering) { %><a href="/deals" class="btn btn-ghost">Clear</a><% } %>
+  <% if (filtering) { %><a href="/opportunities" class="btn btn-ghost">Clear</a><% } %>
 </form>
 
 <section class="card table-card">
   <% if (rows.length === 0) { %>
     <div class="empty-state">
       <% if (filtering) { %>
-        <h2>No deals match these filters</h2>
+        <h2>No opportunities match these filters</h2>
         <p class="muted">Try a different filter, or clear them to see everything open.</p>
-        <a class="btn btn-secondary" href="/deals">Clear filters</a>
+        <a class="btn btn-secondary" href="/opportunities">Clear filters</a>
       <% } else { %>
-        <h2>No deals yet</h2>
+        <h2>No opportunities yet</h2>
         <p class="muted">Track your first RFQ or opportunity.</p>
-        <a class="btn btn-primary" href="/deals/new">+ New deal</a>
+        <a class="btn btn-primary" href="/opportunities/new">+ New opportunity</a>
       <% } %>
     </div>
   <% } else { %>
@@ -72,10 +72,10 @@
         </thead>
         <tbody>
           <% for (const r of rows) { const d = r.deal; %>
-            <tr class="clickable" data-href="/deals/<%= d.id %>">
+            <tr class="clickable" data-href="/opportunities/<%= d.id %>">
               <td class="c-health"><%- ui.healthDot(r.health) %></td>
-              <td class="mono"><a href="/deals/<%= d.id %>"><%= d.id %></a></td>
-              <td class="ellipsis" title="<%= d.title %>"><a href="/deals/<%= d.id %>"><%= d.title %></a></td>
+              <td class="mono"><a href="/opportunities/<%= d.id %>"><%= d.id %></a></td>
+              <td class="ellipsis" title="<%= d.title %>"><a href="/opportunities/<%= d.id %>"><%= d.title %></a></td>
               <td class="ellipsis" title="<%= r.customerName %>"><%= r.customerName %></td>
               <td><%- ui.stageBadge(d.stage, cfg) %><% if (d.on_hold) { %> <span class="badge hold">⏸</span><% } %></td>
               <td class="ellipsis" title="<%= r.salesName %>"><%= r.salesName %></td>

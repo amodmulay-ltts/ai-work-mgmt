@@ -63,11 +63,11 @@ describe('filter by tag', () => {
   before(async () => {
     app = await startApp();
     await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
-    await post(app.base, '/deals', dealForm('Alpha', 'RFQ'));                   // 0001, open
-    await post(app.base, '/deals', dealForm('Beta', 'Mobility'));               // 0002, open
-    await post(app.base, '/deals', dealForm('Gamma', 'RFQ, Mobility'));         // 0003, open
-    await post(app.base, '/deals', dealForm('Delta', 'RFQ'));                   // 0004, won
-    await post(app.base, `/deals/${id(4)}/stage`, { stage: 'Won' });
+    await post(app.base, '/opportunities', dealForm('Alpha', 'RFQ'));                   // 0001, open
+    await post(app.base, '/opportunities', dealForm('Beta', 'Mobility'));               // 0002, open
+    await post(app.base, '/opportunities', dealForm('Gamma', 'RFQ, Mobility'));         // 0003, open
+    await post(app.base, '/opportunities', dealForm('Delta', 'RFQ'));                   // 0004, won
+    await post(app.base, `/opportunities/${id(4)}/stage`, { stage: 'Won' });
   });
 
   after(async () => {
@@ -76,23 +76,23 @@ describe('filter by tag', () => {
 
   test('the dashboard counts everything when no tag is picked', async () => {
     const page = await get(app.base, '/');
-    assert.equal(kpi(page.html, 'Open deals'), '3');
+    assert.equal(kpi(page.html, 'Open opportunities'), '3');
   });
 
-  test('one tag narrows the dashboard to the deals with that tag', async () => {
+  test('one tag narrows the dashboard to the opportunitys with that tag', async () => {
     const page = await get(app.base, '/?tag=RFQ');
-    assert.equal(kpi(page.html, 'Open deals'), '2', 'Alpha and Gamma');
+    assert.equal(kpi(page.html, 'Open opportunities'), '2', 'Alpha and Gamma');
     assert.match(page.html, /class="tag-chip active"[^>]*>RFQ</);
   });
 
-  test('two tags must both be on a deal', async () => {
+  test('two tags must both be on an opportunity', async () => {
     const page = await get(app.base, '/?tag=RFQ&tag=Mobility');
-    assert.equal(kpi(page.html, 'Open deals'), '1', 'only Gamma has both');
+    assert.equal(kpi(page.html, 'Open opportunities'), '1', 'only Gamma has both');
   });
 
   test('an unknown tag in the link is ignored, not an empty dashboard', async () => {
     const page = await get(app.base, '/?tag=Nonsense');
-    assert.equal(kpi(page.html, 'Open deals'), '3');
+    assert.equal(kpi(page.html, 'Open opportunities'), '3');
   });
 
   test('the chips add and remove one tag each and keep the others', async () => {
@@ -103,24 +103,24 @@ describe('filter by tag', () => {
     assert.match(both.html, /href="\/\?tag=Mobility"/, 'removing RFQ leaves Mobility');
   });
 
-  test('the deals list filters by tag and keeps the tag through sorting', async () => {
-    const page = await get(app.base, '/deals?tag=RFQ&status=all');
+  test('the opportunities list filters by tag and keeps the tag through sorting', async () => {
+    const page = await get(app.base, '/opportunities?tag=RFQ&status=all');
     assert.match(page.html, new RegExp(id(1)));
     assert.match(page.html, new RegExp(id(4)), 'the won deal is there with status=all');
     assert.doesNotMatch(page.html, new RegExp(id(2)));
-    assert.match(page.html, /href="\/deals\?[^"]*tag=RFQ[^"]*" class="sort"/, 'sort links keep the tag');
+    assert.match(page.html, /href="\/opportunities\?[^"]*tag=RFQ[^"]*" class="sort"/, 'sort links keep the tag');
     assert.match(page.html, /name="tag" value="RFQ"/, 'the search form keeps the tag');
   });
 
   test('the export follows the same tag filter', async () => {
-    const res = await fetch(`${app.base}/export/deals.xlsx?tag=Mobility`);
+    const res = await fetch(`${app.base}/export/opportunities.xlsx?tag=Mobility`);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
-    assert.equal(workbook.getWorksheet('Deals').rowCount, 3, 'header, Beta and Gamma');
+    assert.equal(workbook.getWorksheet('Opportunities').rowCount, 3, 'header, Beta and Gamma');
   });
 
-  test('a clear link appears on the deals list when a tag is picked', async () => {
-    const page = await get(app.base, '/deals?tag=RFQ');
+  test('a clear link appears on the opportunities list when a tag is picked', async () => {
+    const page = await get(app.base, '/opportunities?tag=RFQ');
     assert.match(page.html, /class="btn btn-ghost">Clear</);
   });
 });

@@ -1,5 +1,5 @@
 /**
- * Excel export of the deals list (PLAN.md §12.1). Uses exceljs.
+ * Excel export of the opportunities list (PLAN.md §12.1). Uses exceljs.
  */
 import ExcelJS from 'exceljs';
 import { openAsks } from './metrics.js';
@@ -101,15 +101,15 @@ function rowValues(r, store) {
 }
 
 /**
- * Builds the workbook: one 'Deals' sheet, bold header, frozen top row, autofilter.
- * @param {Array<object>} rows rows from the deals list (see routes.js dealRow)
+ * Builds the workbook: one 'Opportunities' sheet, bold header, frozen top row, autofilter.
+ * @param {Array<object>} rows rows from the opportunities list (see routes.js dealRow)
  * @param {import('./store.js').Store} store
  * @returns {Promise<Buffer>}
  */
 export async function dealsWorkbook(rows, store) {
   const workbook = new ExcelJS.Workbook();
   workbook.created = new Date();
-  const sheet = workbook.addWorksheet('Deals');
+  const sheet = workbook.addWorksheet('Opportunities');
   sheet.columns = COLUMNS.map((c) => ({ header: c.header, key: c.key }));
 
   const header = sheet.getRow(1);

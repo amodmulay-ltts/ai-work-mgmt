@@ -8,7 +8,7 @@ import { cleanup, git, makeClone, makeRemote, writeFile } from './helpers.js';
 
 /** Long push delay so the background timer never fires during a test. */
 const syncFor = (folder) => new GitSync({ root: folder, mutex: new Mutex(), pushDelaySeconds: 3600 });
-const DEAL = 'data/deals/DL-2026-0001.json';
+const DEAL = 'data/opportunities/DL-2026-0001.json';
 const deal = (text) => `${JSON.stringify({ id: 'DL-2026-0001', title: text }, null, 2)}\n`;
 
 test('commit then push delivers the change to the remote', async () => {

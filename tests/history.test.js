@@ -60,11 +60,11 @@ function deal(overrides = {}) {
   };
 }
 
-test('a new deal gets one created entry and the create summary', () => {
+test('a new opportunity gets one created entry and the create summary', () => {
   const { entries, summary } = diff(null, deal(), lookup);
   assert.equal(entries.length, 1);
   assert.equal(entries[0].kind, 'created');
-  assert.equal(entries[0].text, 'Deal created');
+  assert.equal(entries[0].text, 'Opportunity created');
   assert.equal(summary, 'created – ADAS validation services');
 });
 

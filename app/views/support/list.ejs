@@ -5,7 +5,7 @@
   const extra = [
     {
       header: 'My open asks',
-      cell: (r) => (r.myOpenAsks ? `<a href="/deals/${r.deal.id}#support">${r.myOpenAsks}</a>` : '<span class="subtle">0</span>'),
+      cell: (r) => (r.myOpenAsks ? `<a href="/opportunities/${r.deal.id}#support">${r.myOpenAsks}</a>` : '<span class="subtle">0</span>'),
     },
     {
       header: 'Next ask due',
@@ -42,10 +42,10 @@
         <p class="muted">Try a different filter, or clear them to see everything open.</p>
       <% } else if (isMe) { %>
         <h2>You are not supporting any open RFQs</h2>
-        <p class="muted">Add yourself as a supporter on a deal to see it here.</p>
+        <p class="muted">Add yourself as a supporter on an opportunity to see it here.</p>
       <% } else { %>
         <h2><%= who.name %> is not supporting any open RFQs</h2>
-        <p class="muted">Supporters are added on each deal's page.</p>
+        <p class="muted">Supporters are added on each opportunity's page.</p>
       <% } %>
     </div>
   <% } else { %>

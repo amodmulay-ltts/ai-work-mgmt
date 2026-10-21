@@ -42,7 +42,7 @@ function dayOffset(offset) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// Presales owner is Meera, not me: a new deal defaults its presales owner to me, and an owner
+// Presales owner is Meera, not me: a new opportunity defaults its presales owner to me, and an owner
 // cannot also be added as a supporter. Supporting someone else's bid is the case this feature is for.
 const dealForm = (title) => ({
   title,
@@ -81,21 +81,21 @@ describe('RFQs I support: pages, filters and dashboard', () => {
     await post(app.base, '/people', { name: 'Tom B', role: 'Presales', active: 'on' });
     ravi = app.store.findPersonByName('Ravi K').id;
 
-    await post(app.base, '/deals', dealForm('Mine supported'));   // 0001
-    await post(app.base, '/deals', dealForm('Ravi supports'));    // 0002
-    await post(app.base, '/deals', dealForm('Not mine'));         // 0003
-    await post(app.base, '/deals', dealForm('Won one'));          // 0004
-    await post(app.base, `/deals/${id(4)}/stage`, { stage: 'Won' });
+    await post(app.base, '/opportunities', dealForm('Mine supported'));   // 0001
+    await post(app.base, '/opportunities', dealForm('Ravi supports'));    // 0002
+    await post(app.base, '/opportunities', dealForm('Not mine'));         // 0003
+    await post(app.base, '/opportunities', dealForm('Won one'));          // 0004
+    await post(app.base, `/opportunities/${id(4)}/stage`, { stage: 'Won' });
 
-    await post(app.base, `/deals/${id(1)}/support`, { action: 'add', person_id: me });
-    await post(app.base, `/deals/${id(2)}/support`, { action: 'add', person_id: ravi });
-    await post(app.base, `/deals/${id(4)}/support`, { action: 'add', person_id: me });
+    await post(app.base, `/opportunities/${id(1)}/support`, { action: 'add', person_id: me });
+    await post(app.base, `/opportunities/${id(2)}/support`, { action: 'add', person_id: ravi });
+    await post(app.base, `/opportunities/${id(4)}/support`, { action: 'add', person_id: me });
 
     // My asks: one overdue and open (D1), one due soon (D2), one done (D1, must not show).
-    await post(app.base, `/deals/${id(1)}/asks`, { text: 'Overdue ask', assignee_id: me, due_on: dayOffset(-3) });
-    await post(app.base, `/deals/${id(2)}/asks`, { text: 'Soon ask', assignee_id: me, due_on: dayOffset(5) });
-    await post(app.base, `/deals/${id(1)}/asks`, { text: 'Finished ask', assignee_id: me, due_on: dayOffset(1) });
-    await post(app.base, `/deals/${id(1)}/asks/SR-002`, { status: 'Done' });
+    await post(app.base, `/opportunities/${id(1)}/asks`, { text: 'Overdue ask', assignee_id: me, due_on: dayOffset(-3) });
+    await post(app.base, `/opportunities/${id(2)}/asks`, { text: 'Soon ask', assignee_id: me, due_on: dayOffset(5) });
+    await post(app.base, `/opportunities/${id(1)}/asks`, { text: 'Finished ask', assignee_id: me, due_on: dayOffset(1) });
+    await post(app.base, `/opportunities/${id(1)}/asks/SR-002`, { status: 'Done' });
   });
 
   after(async () => {
@@ -156,7 +156,7 @@ describe('RFQs I support: pages, filters and dashboard', () => {
     assert.ok(overdue > 0 && soon > 0, 'both open asks are listed');
     assert.ok(overdue < soon, 'the overdue ask comes first');
     assert.doesNotMatch(page.html, /Finished ask/);
-    assert.match(page.html, new RegExp(`href="/deals/${id(1)}#support"`));
+    assert.match(page.html, new RegExp(`href="/opportunities/${id(1)}#support"`));
   });
 
   test('the dashboard shows asks for me, with the count due this week', async () => {
@@ -173,8 +173,8 @@ describe('RFQs I support: pages, filters and dashboard', () => {
     assert.match(page.html, /href="\/support\/asks"/);
   });
 
-  test('the deals list can filter to RFQs I support and shows the supporters', async () => {
-    const page = await get(app.base, '/deals?support=me');
+  test('the opportunities list can filter to RFQs I support and shows the supporters', async () => {
+    const page = await get(app.base, '/opportunities?support=me');
     assert.match(page.html, new RegExp(id(1)));
     assert.match(page.html, new RegExp(id(2)));
     assert.doesNotMatch(page.html, new RegExp(id(3)));
@@ -183,16 +183,16 @@ describe('RFQs I support: pages, filters and dashboard', () => {
 
   test('the supporters column shows two names and a count for the rest', async () => {
     const tom = app.store.findPersonByName('Tom B').id;
-    await post(app.base, `/deals/${id(2)}/support`, { action: 'add', person_id: tom });
+    await post(app.base, `/opportunities/${id(2)}/support`, { action: 'add', person_id: tom });
     const me = app.store.config().me_person_id;
-    await post(app.base, `/deals/${id(2)}/support`, { action: 'add', person_id: me });
-    const page = await get(app.base, '/deals');
+    await post(app.base, `/opportunities/${id(2)}/support`, { action: 'add', person_id: me });
+    const page = await get(app.base, '/opportunities');
     assert.match(rowWith(page.html, id(2)), / \+1</, 'three supporters: two names and +1');
   });
 
   test('every support page has an empty state when nothing matches', async () => {
-    const page = await get(app.base, '/deals?support=nobody-at-all');
-    assert.match(page.html, /No deals match these filters/);
+    const page = await get(app.base, '/opportunities?support=nobody-at-all');
+    assert.match(page.html, /No opportunities match these filters/);
   });
 });
 

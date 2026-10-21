@@ -71,26 +71,26 @@ describe('support export and weekly report', () => {
     const meera = app.store.findPersonByName('Meera T').id;
     const me = app.store.config().me_person_id;
 
-    await post(app.base, '/deals', dealForm('Alpha'));    // 0001
-    await post(app.base, '/deals', dealForm('Beta'));     // 0002
-    await post(app.base, '/deals', dealForm('Gamma'));    // 0003
-    await post(app.base, '/deals', dealForm('Delta'));    // 0004, won
-    await post(app.base, `/deals/${id(4)}/stage`, { stage: 'Won' });
+    await post(app.base, '/opportunities', dealForm('Alpha'));    // 0001
+    await post(app.base, '/opportunities', dealForm('Beta'));     // 0002
+    await post(app.base, '/opportunities', dealForm('Gamma'));    // 0003
+    await post(app.base, '/opportunities', dealForm('Delta'));    // 0004, won
+    await post(app.base, `/opportunities/${id(4)}/stage`, { stage: 'Won' });
 
-    await post(app.base, `/deals/${id(1)}/support`, { action: 'add', person_id: ravi });
-    await post(app.base, `/deals/${id(1)}/support`, { action: 'add', person_id: me });
+    await post(app.base, `/opportunities/${id(1)}/support`, { action: 'add', person_id: ravi });
+    await post(app.base, `/opportunities/${id(1)}/support`, { action: 'add', person_id: me });
 
     // Alpha: one ask due next week (assigned to Ravi), one due in two weeks, one done.
-    await post(app.base, `/deals/${id(1)}/asks`, { text: 'Effort estimate', assignee_id: ravi, due_on: dates.nextWeek });
-    await post(app.base, `/deals/${id(1)}/asks`, { text: 'Later ask', assignee_id: ravi, due_on: dates.twoWeeks });
-    await post(app.base, `/deals/${id(1)}/asks`, { text: 'Finished', assignee_id: ravi, due_on: dates.nextWeek });
-    await post(app.base, `/deals/${id(1)}/asks/SR-003`, { status: 'Done' });
+    await post(app.base, `/opportunities/${id(1)}/asks`, { text: 'Effort estimate', assignee_id: ravi, due_on: dates.nextWeek });
+    await post(app.base, `/opportunities/${id(1)}/asks`, { text: 'Later ask', assignee_id: ravi, due_on: dates.twoWeeks });
+    await post(app.base, `/opportunities/${id(1)}/asks`, { text: 'Finished', assignee_id: ravi, due_on: dates.nextWeek });
+    await post(app.base, `/opportunities/${id(1)}/asks/SR-003`, { status: 'Done' });
 
     // Beta: an overdue ask with no assignee.
-    await post(app.base, `/deals/${id(2)}/asks`, { text: 'Pricing sheet', due_on: dates.overdue });
+    await post(app.base, `/opportunities/${id(2)}/asks`, { text: 'Pricing sheet', due_on: dates.overdue });
 
-    // Gamma: nothing to list. Delta (won): an ask due next week, but the deal is closed.
-    await post(app.base, `/deals/${id(4)}/asks`, { text: 'Closed deal ask', assignee_id: meera, due_on: dates.nextWeek });
+    // Gamma: nothing to list. Delta (won): an ask due next week, but the opportunity is closed.
+    await post(app.base, `/opportunities/${id(4)}/asks`, { text: 'Closed deal ask', assignee_id: meera, due_on: dates.nextWeek });
   });
 
   after(async () => {
@@ -99,10 +99,10 @@ describe('support export and weekly report', () => {
 
   describe('Excel export', () => {
     test('two support columns follow Delivery owner, and the values are right', async () => {
-      const res = await fetch(`${app.base}/export/deals.xlsx`);
+      const res = await fetch(`${app.base}/export/opportunities.xlsx`);
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
-      const sheet = workbook.getWorksheet('Deals');
+      const sheet = workbook.getWorksheet('Opportunities');
       assert.equal(sheet.getRow(1).getCell(13).value, 'Supporters');
       assert.equal(sheet.getRow(1).getCell(14).value, 'Open asks');
       assert.equal(sheet.getRow(1).getCell(18).value, 'Received');
@@ -131,7 +131,7 @@ describe('support export and weekly report', () => {
       assert.doesNotMatch(lines[1], /overdue/);
       assert.doesNotMatch(md, /Later ask/, 'due after next week');
       assert.doesNotMatch(md, /Finished/, 'done asks are not listed');
-      assert.doesNotMatch(md, /Closed deal ask/, 'asks on closed deals are not listed');
+      assert.doesNotMatch(md, /Closed deal ask/, 'asks on closed opportunities are not listed');
     });
 
     test('the report page shows the section', async () => {
@@ -149,7 +149,7 @@ describe('weekly report with no asks due', () => {
   before(async () => {
     app = await startApp();
     await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
-    await post(app.base, '/deals', dealForm('Lonely'));
+    await post(app.base, '/opportunities', dealForm('Lonely'));
   });
 
   after(async () => {

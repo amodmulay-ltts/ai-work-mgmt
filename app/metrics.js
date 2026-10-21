@@ -38,7 +38,7 @@ export function ageDays(deal, today) {
   return daysBetween(deal.received_on, deal.closed_on ?? today);
 }
 
-/** Days since the last stage change, or since creation when the deal has none. */
+/** Days since the last stage change, or since creation when the opportunity has none. */
 export function daysInStage(deal, today) {
   const stages = deal.history.filter((h) => h.kind === 'stage');
   const since = stages.length ? stages[stages.length - 1].at.slice(0, 10) : deal.created_at.slice(0, 10);
@@ -57,7 +57,7 @@ export function isStale(deal, cfg, today) {
   return daysBetween(deal.updated_at.slice(0, 10), today) > cfg.stale_after_days;
 }
 
-/** est_value × probability, in the deal's own currency. Null when there is no value. */
+/** est_value × probability, in the opportunity's own currency. Null when there is no value. */
 export function weightedValue(deal) {
   if (deal.est_value == null) return null;
   return (deal.est_value * deal.probability) / 100;
@@ -126,7 +126,7 @@ export function moneyTotals(pairs, cfg) {
 }
 
 /**
- * Open deals per non-terminal stage, with the count and the totals per currency.
+ * Open opportunities per non-terminal stage, with the count and the totals per currency.
  * @returns {Array<{ stage: string, count: number, totals: Record<string, number> }>}
  */
 export function pipelineByStage(deals, cfg) {
@@ -142,7 +142,7 @@ export function pipelineByStage(deals, cfg) {
     });
 }
 
-/** Open deals per aging bucket. */
+/** Open opportunities per aging bucket. */
 export function agingCounts(deals, cfg, today) {
   const counts = { '0–30': 0, '31–60': 0, '61–90': 0, '90+': 0 };
   for (const d of deals) {
@@ -169,7 +169,7 @@ export function winStats(deals, cfg, today, days = 90) {
 
 // ---------------------------------------------------------------- supporters and asks (PLAN.md §15.2)
 
-/** True when the deal has every tag in `tags`. An empty list matches every deal. */
+/** True when the opportunity has every tag in `tags`. An empty list matches every deal. */
 export const hasAllTags = (deal, tags) => tags.every((t) => (deal.tags ?? []).includes(t));
 
 /** Open asks are still to do. Done and Cancelled asks do not count. */
@@ -189,7 +189,7 @@ const dueCompare = (a, b) => {
 };
 
 /**
- * Open asks assigned to one person, across the deals: [{ deal, ask }], earliest due first.
+ * Open asks assigned to one person, across the opportunitys: [{ deal, ask }], earliest due first.
  * Overdue asks therefore come first.
  */
 export function asksFor(deals, personId) {
@@ -202,7 +202,7 @@ export function asksFor(deals, personId) {
   return rows.sort((x, y) => dueCompare(x.ask.due_on ?? null, y.ask.due_on ?? null) || x.deal.id.localeCompare(y.deal.id));
 }
 
-/** True when the person is a supporter, or has an open ask on the deal. */
+/** True when the person is a supporter, or has an open ask on the opportunity. */
 export function isSupportedBy(deal, personId) {
   return (deal.support_ids ?? []).includes(personId) || openAsks(deal).some((a) => a.assignee_id === personId);
 }

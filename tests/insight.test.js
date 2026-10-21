@@ -79,14 +79,14 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
     await app.close();
   });
 
-  test('the dashboard counts open deals, overdue, due soon and win rate', async () => {
-    await post(app.base, '/deals', dealForm({ title: 'Overdue one', submission_due: dayOffset(-2), est_value: '1000' }));
-    await post(app.base, '/deals', dealForm({ title: 'Due soon', submission_due: dayOffset(2), est_value: '2000', presales_owner: 'Amod Mulay' }));
-    await post(app.base, '/deals', dealForm({ title: 'Will win', submission_due: dayOffset(30), est_value: '3000' }));
-    await post(app.base, '/deals/DL-' + new Date().getFullYear() + '-0003/stage', { stage: 'Won' });
+  test('the dashboard counts open opportunities, overdue, due soon and win rate', async () => {
+    await post(app.base, '/opportunities', dealForm({ title: 'Overdue one', submission_due: dayOffset(-2), est_value: '1000' }));
+    await post(app.base, '/opportunities', dealForm({ title: 'Due soon', submission_due: dayOffset(2), est_value: '2000', presales_owner: 'Amod Mulay' }));
+    await post(app.base, '/opportunities', dealForm({ title: 'Will win', submission_due: dayOffset(30), est_value: '3000' }));
+    await post(app.base, '/opportunities/DL-' + new Date().getFullYear() + '-0003/stage', { stage: 'Won' });
 
     const page = await get(app.base, '/');
-    assert.equal(kpi(page.html, 'Open deals'), '2');
+    assert.equal(kpi(page.html, 'Open opportunities'), '2');
     assert.equal(kpi(page.html, 'Due in 7 days'), '1');
     assert.match(page.html, /1 overdue/);
     assert.equal(kpi(page.html, 'Win rate \\(90 days\\)'), '100%');
@@ -97,7 +97,7 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
   test('the dashboard inline next action saves and returns to the dashboard', async () => {
     const res = await post(
       app.base,
-      '/deals/DL-' + new Date().getFullYear() + '-0002/next-action',
+      '/opportunities/DL-' + new Date().getFullYear() + '-0002/next-action',
       { next_action: 'Send the estimate', next_action_due: dayOffset(1) },
       { referer: app.base + '/' },
     );
@@ -150,26 +150,26 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
   });
 
   test('the Excel export has the spec columns, one row per deal and real dates', async () => {
-    const res = await fetch(`${app.base}/export/deals.xlsx`);
+    const res = await fetch(`${app.base}/export/opportunities.xlsx`);
     assert.equal(res.status, 200);
     assert.match(res.headers.get('content-type'), /spreadsheetml/);
-    assert.match(res.headers.get('content-disposition'), /attachment; filename="deals-\d{8}\.xlsx"/);
+    assert.match(res.headers.get('content-disposition'), /attachment; filename="opportunities-\d{8}\.xlsx"/);
 
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
-    const sheet = workbook.getWorksheet('Deals');
+    const sheet = workbook.getWorksheet('Opportunities');
     assert.equal(sheet.getRow(1).getCell(1).value, 'ID');
     assert.equal(sheet.getRow(1).cellCount, 37, 'Type became Tags, and the duplicate Tags column went');
-    assert.equal(sheet.rowCount, 1 + app.store.listDeals().filter((d) => d.stage !== 'Won' && d.stage !== 'Lost').length, 'default filter is open deals');
+    assert.equal(sheet.rowCount, 1 + app.store.listDeals().filter((d) => d.stage !== 'Won' && d.stage !== 'Lost').length, 'default filter is open opportunities');
     const dateCell = sheet.getRow(2).getCell(18).value;
     assert.ok(dateCell instanceof Date, 'Received is a real date');
   });
 
-  test('the export honours the same filters as the deals list', async () => {
-    const res = await fetch(`${app.base}/export/deals.xlsx?status=won`);
+  test('the export honours the same filters as the opportunities list', async () => {
+    const res = await fetch(`${app.base}/export/opportunities.xlsx?status=won`);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
-    assert.equal(workbook.getWorksheet('Deals').rowCount, 2, 'header plus the one won deal');
+    assert.equal(workbook.getWorksheet('Opportunities').rowCount, 2, 'header plus the one won deal');
   });
 
   test('a conflict copy can be resolved by using the other version', async () => {

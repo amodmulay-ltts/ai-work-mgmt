@@ -169,7 +169,7 @@ async function renderSettings(req, res, { values, errors = {}, formErrors = [], 
 
 // ---------------------------------------------------------------- deals
 
-/** One row of the deals list, with every value the views need. */
+/** One row of the opportunities list, with every value the views need. */
 function dealRow(deal, store, cfg, today) {
   return {
     deal,
@@ -228,7 +228,7 @@ const SORTS = {
 };
 
 /**
- * Filters and sorts the deals list from the query string (PLAN.md §10).
+ * Filters and sorts the opportunities list from the query string (PLAN.md §10).
  * @returns {{ rows: object[], query: Record<string, string> }}
  */
 function listDeals(store, cfg, today, query) {
@@ -320,19 +320,19 @@ function newDealValues(store, cfg, customerId) {
 async function renderDealForm(req, res, { existing, values, errors = {}, formErrors = [], status: code = 200 }) {
   const { store } = req.app.locals;
   await renderPage(req, res, 'deals/form', {
-    title: existing ? `Edit ${existing.id}` : 'New deal',
+    title: existing ? `Edit ${existing.id}` : 'New opportunity',
     active: 'deals',
     existing,
     values,
     errors,
     formErrors,
-    action: existing ? `/deals/${existing.id}` : '/deals',
+    action: existing ? `/opportunities/${existing.id}` : '/opportunities',
     customerNames: store.listCustomers().map((c) => c.name),
     personNames: store.listPeople().filter((p) => p.active).map((p) => p.name),
   }, code);
 }
 
-/** Shared by create and update: parse, pull (on create), save, then redirect to the deal. */
+/** Shared by create and update: parse, pull (on create), save, then redirect to the opportunity. */
 async function saveDealFromForm(req, res, { existing }) {
   const { store } = req.app.locals;
   const values = req.body;
@@ -345,7 +345,7 @@ async function saveDealFromForm(req, res, { existing }) {
     const parts = [existing ? 'Saved' : 'Created'];
     if (createdNames.length) parts.push(`created ${createdNames.join(', ')}`);
     flash(res, warnings.length ? 'warning' : 'success', [parts.join(' · '), ...warnings].join(' · '));
-    return res.redirect(303, `/deals/${deal.id}`);
+    return res.redirect(303, `/opportunities/${deal.id}`);
   } catch (err) {
     if (!(err instanceof ValidationError)) throw err;
     return renderDealForm(req, res, { existing, values, formErrors: err.errors.map(plain), status: 422 });
@@ -381,7 +381,7 @@ function askFields(store, body) {
   return { values };
 }
 
-/** Saves a supporter or ask change made on the deal page: one commit, then back to the deal. */
+/** Saves a supporter or ask change made on the opportunity page: one commit, then back to the opportunity. */
 async function saveSupportChange(req, res, deal, next, { entries, message, success }) {
   const { store } = req.app.locals;
   const updated = { ...next, history: [...deal.history, ...entries] };
@@ -392,20 +392,20 @@ async function saveSupportChange(req, res, deal, next, { entries, message, succe
     if (!(err instanceof ValidationError)) throw err;
     flash(res, 'error', err.errors.map(plain).join('; '));
   }
-  return res.redirect(303, `/deals/${deal.id}`);
+  return res.redirect(303, `/opportunities/${deal.id}`);
 }
 
-/** Shows a message on the deal page and changes nothing. */
+/** Shows a message on the opportunity page and changes nothing. */
 function supportError(res, deal, text) {
   flash(res, 'error', text);
-  return res.redirect(303, `/deals/${deal.id}`);
+  return res.redirect(303, `/opportunities/${deal.id}`);
 }
 
 /** Applies a single change to an existing deal (stage, hold, next action) through the normal save path. */
 async function changeDeal(req, res, id, change, successText) {
   const { store } = req.app.locals;
   const existing = store.getDeal(id);
-  if (!existing) return notFound(req, res, 'This deal');
+  if (!existing) return notFound(req, res, 'This opportunity');
   const typed = { ...dealToTyped(existing, store), ...change };
   try {
     await saveDeal(store, typed, { existing, today: todayIso() });
@@ -414,7 +414,7 @@ async function changeDeal(req, res, id, change, successText) {
     if (!(err instanceof ValidationError)) throw err;
     flash(res, 'error', err.errors.map(plain).join('; '));
   }
-  return res.redirect(303, safeBackPath(req, `/deals/${id}`));
+  return res.redirect(303, safeBackPath(req, `/opportunities/${id}`));
 }
 
 // ---------------------------------------------------------------- customers and people
@@ -482,6 +482,10 @@ async function renderPersonForm(req, res, { existing, values, errors = {}, statu
 
 export function createRouter() {
   const router = Router();
+
+  // Old links and bookmarks: /deals… is now /opportunities….
+  router.use('/deals', (req, res) => res.redirect(308, req.originalUrl.replace(/^\/deals/, '/opportunities')));
+  router.get('/export/deals.xlsx', (req, res) => res.redirect(308, req.originalUrl.replace('/export/deals.xlsx', '/export/opportunities.xlsx')));
 
   // ------------------------------------------------ dashboard, first run, sync
   router.get('/', async (req, res) => {
@@ -561,13 +565,13 @@ export function createRouter() {
   });
 
   // ------------------------------------------------ deals
-  router.get('/deals', async (req, res) => {
+  router.get('/opportunities', async (req, res) => {
     const { store } = req.app.locals;
     const cfg = store.config();
     const today = todayIso();
     const listing = listDeals(store, cfg, today, req.query);
     await renderPage(req, res, 'deals/list', {
-      title: 'Deals',
+      title: 'Opportunities',
       active: 'deals',
       ...listing,
       tagQuery: otherQuery(req.query),
@@ -578,19 +582,19 @@ export function createRouter() {
     });
   });
 
-  router.get('/deals/new', async (req, res) => {
+  router.get('/opportunities/new', async (req, res) => {
     const { store } = req.app.locals;
     const cfg = store.config();
     const values = newDealValues(store, cfg, clean(req.query.customer));
     await renderDealForm(req, res, { existing: null, values });
   });
 
-  router.post('/deals', (req, res) => saveDealFromForm(req, res, { existing: null }));
+  router.post('/opportunities', (req, res) => saveDealFromForm(req, res, { existing: null }));
 
-  router.get('/deals/:id', async (req, res) => {
+  router.get('/opportunities/:id', async (req, res) => {
     const { store } = req.app.locals;
     const deal = ID_RE.deal.test(req.params.id) ? store.getDeal(req.params.id) : null;
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     const cfg = store.config();
     const today = todayIso();
     const openStages = cfg.stages.filter((s) => !s.terminal);
@@ -633,45 +637,45 @@ export function createRouter() {
     });
   });
 
-  router.get('/deals/:id/edit', async (req, res) => {
+  router.get('/opportunities/:id/edit', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     await renderDealForm(req, res, { existing: deal, values: typedToValues(dealToTyped(deal, store)) });
   });
 
-  router.post('/deals/:id', async (req, res) => {
+  router.post('/opportunities/:id', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     return saveDealFromForm(req, res, { existing: deal });
   });
 
-  router.post('/deals/:id/stage', async (req, res) => {
+  router.post('/opportunities/:id/stage', async (req, res) => {
     const { store } = req.app.locals;
     const stage = clean(req.body.stage);
     const info = stageInfo(store.config(), stage);
     if (!info) {
       flash(res, 'error', 'Unknown stage.');
-      return res.redirect(303, `/deals/${req.params.id}`);
+      return res.redirect(303, `/opportunities/${req.params.id}`);
     }
     const reason = clean(req.body.outcome_reason) || null;
     const outcome = info.outcome;
     if ((outcome === 'lost' || outcome === 'dropped') && !reason) {
-      flash(res, 'error', `Choose a reason before marking the deal ${info.name}.`);
-      return res.redirect(303, `/deals/${req.params.id}`);
+      flash(res, 'error', `Choose a reason before marking the opportunity ${info.name}.`);
+      return res.redirect(303, `/opportunities/${req.params.id}`);
     }
     return changeDeal(req, res, req.params.id, { stage, outcome_reason: reason ?? null }, `Stage: ${stage}`);
   });
 
-  router.post('/deals/:id/hold', async (req, res) => {
+  router.post('/opportunities/:id/hold', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     return changeDeal(req, res, req.params.id, { on_hold: !deal.on_hold }, deal.on_hold ? 'Resumed' : 'Put on hold');
   });
 
-  router.post('/deals/:id/next-action', async (req, res) => {
+  router.post('/opportunities/:id/next-action', async (req, res) => {
     const change = {
       next_action: clean(req.body.next_action) || null,
       next_action_due: clean(req.body.next_action_due) || null,
@@ -679,14 +683,14 @@ export function createRouter() {
     return changeDeal(req, res, req.params.id, change, 'Next action updated');
   });
 
-  router.post('/deals/:id/notes', async (req, res) => {
+  router.post('/opportunities/:id/notes', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     const text = clean(req.body.note);
     if (!text) {
       flash(res, 'error', 'Write a note first.');
-      return res.redirect(303, `/deals/${deal.id}`);
+      return res.redirect(303, `/opportunities/${deal.id}`);
     }
     const now = nowIso();
     const updated = { ...deal, history: [...deal.history, noteEntry(text, now)] };
@@ -697,16 +701,16 @@ export function createRouter() {
       if (!(err instanceof ValidationError)) throw err;
       flash(res, 'error', err.errors.map(plain).join('; '));
     }
-    return res.redirect(303, `/deals/${deal.id}`);
+    return res.redirect(303, `/opportunities/${deal.id}`);
   });
 
-  router.post('/deals/:id/delete', async (req, res) => {
+  router.post('/opportunities/:id/delete', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     await store.delete(deal, `${deal.id}: deleted`);
     flash(res, 'success', `Deleted ${deal.id}.`);
-    return res.redirect(303, '/deals');
+    return res.redirect(303, '/opportunities');
   });
 
   // ------------------------------------------------ RFQs I support and my asks (PLAN.md §15.3)
@@ -754,10 +758,10 @@ export function createRouter() {
 
   // ------------------------------------------------ supporters and asks (PLAN.md §15)
   // Supporters: action 'add' or 'remove' with person_id.
-  router.post('/deals/:id/support', async (req, res) => {
+  router.post('/opportunities/:id/support', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     const person = store.getPerson(clean(req.body.person_id));
     if (!person) return supportError(res, deal, 'Choose a person first.');
     const owners = [deal.sales_owner_id, deal.presales_owner_id, deal.delivery_owner_id];
@@ -774,10 +778,10 @@ export function createRouter() {
     return saveSupportChange(req, res, deal, result.deal, { entries: [result.entry], message: 'supporters updated', success });
   });
 
-  router.post('/deals/:id/asks', async (req, res) => {
+  router.post('/opportunities/:id/asks', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     const form = askFields(store, { assignee_id: '', due_on: '', ...req.body, text: req.body.text ?? '' });
     if (form.error) return supportError(res, deal, form.error);
     const now = nowIso();
@@ -789,10 +793,10 @@ export function createRouter() {
     });
   });
 
-  router.post('/deals/:id/asks/:askId', async (req, res) => {
+  router.post('/opportunities/:id/asks/:askId', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     const before = deal.support_requests.find((a) => a.id === req.params.askId);
     if (!before) return supportError(res, deal, 'That ask no longer exists.');
     const form = askFields(store, req.body);
@@ -808,10 +812,10 @@ export function createRouter() {
     });
   });
 
-  router.post('/deals/:id/asks/:askId/delete', async (req, res) => {
+  router.post('/opportunities/:id/asks/:askId/delete', async (req, res) => {
     const { store } = req.app.locals;
     const deal = store.getDeal(req.params.id);
-    if (!deal) return notFound(req, res, 'This deal');
+    if (!deal) return notFound(req, res, 'This opportunity');
     const before = deal.support_requests.find((a) => a.id === req.params.askId);
     if (!before) return supportError(res, deal, 'That ask no longer exists.');
     return saveSupportChange(req, res, deal, removeAsk(deal, before.id), {
@@ -907,13 +911,13 @@ export function createRouter() {
   });
 
   // ------------------------------------------------ export
-  router.get('/export/deals.xlsx', async (req, res) => {
+  router.get('/export/opportunities.xlsx', async (req, res) => {
     const { store } = req.app.locals;
     const today = todayIso();
     const { rows } = listDeals(store, store.config(), today, req.query);
     const buffer = await dealsWorkbook(rows, store);
     res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.set('Content-Disposition', `attachment; filename="deals-${today.replaceAll('-', '')}.xlsx"`);
+    res.set('Content-Disposition', `attachment; filename="opportunities-${today.replaceAll('-', '')}.xlsx"`);
     res.send(Buffer.from(buffer));
   });
 
@@ -961,7 +965,7 @@ export function createRouter() {
       for (const tag of cfg.tags.filter((t) => !tags.includes(t))) {
         const used = store.listDeals().filter((d) => d.tags.includes(tag)).length;
         if (used) {
-          errors.tags = `'${tag}' is used by ${used} deal${used === 1 ? '' : 's'}. Remove it from them first.`;
+          errors.tags = `'${tag}' is used by ${used} ${used === 1 ? 'opportunity' : 'opportunities'}. Remove it from them first.`;
           break;
         }
       }

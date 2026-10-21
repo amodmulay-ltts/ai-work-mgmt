@@ -18,7 +18,7 @@
         <thead>
           <tr>
             <th scope="col">Due</th>
-            <th scope="col">Deal</th>
+            <th scope="col">Opportunity</th>
             <th scope="col">Ask</th>
             <th scope="col">Customer</th>
             <th scope="col">Status</th>
@@ -26,9 +26,9 @@
         </thead>
         <tbody>
           <% for (const r of rows) { %>
-            <tr class="clickable" data-href="/deals/<%= r.deal.id %>#support">
+            <tr class="clickable" data-href="/opportunities/<%= r.deal.id %>#support">
               <td><%- ui.dueCell(r.ask.due_on, today) %></td>
-              <td class="ellipsis"><a href="/deals/<%= r.deal.id %>#support" class="mono"><%= r.deal.id %></a> <span class="subtle"><%= r.deal.title %></span></td>
+              <td class="ellipsis"><a href="/opportunities/<%= r.deal.id %>#support" class="mono"><%= r.deal.id %></a> <span class="subtle"><%= r.deal.title %></span></td>
               <td><%= r.ask.text %></td>
               <td class="ellipsis"><%= r.customerName %></td>
               <td><%= r.ask.status %></td>
