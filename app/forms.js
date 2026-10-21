@@ -11,13 +11,13 @@ import { stageInfo } from './metrics.js';
 import { resolveTags } from './lib/tags.js';
 
 const TEXT_FIELDS = [
-  'title', 'source', 'description', 'customer', 'contacts', 'c4c_id', 'sales_owner', 'presales_owner',
+  'title', 'type', 'source', 'description', 'customer', 'contacts', 'c4c_id', 'sales_owner', 'presales_owner',
   'delivery_owner', 'bu', 'practice', 'region', 'stage', 'priority', 'go_no_go', 'currency', 'pricing_model',
   'incumbent', 'competitors', 'outcome_reason', 'next_action', 'tags', 'links', 'probability',
   'est_value', 'effort_person_months', 'duration_months',
 ];
 const NUMBER_FIELDS = ['est_value', 'effort_person_months', 'duration_months'];
-const REQUIRED = { title: 'Title', customer: 'Customer', stage: 'Stage', received_on: 'Received on' };
+const REQUIRED = { title: 'Title', type: 'Type', customer: 'Customer', stage: 'Stage', received_on: 'Received on' };
 
 /** Trimmed text of one form field, '' when missing. */
 const text = (values, key) => (typeof values[key] === 'string' ? values[key].trim() : '');
@@ -102,6 +102,7 @@ export function dealToTyped(deal, store) {
   const name = (id) => store.getPerson(id)?.name ?? '';
   return {
     title: deal.title,
+    type: deal.type,
     source: deal.source,
     description: deal.description,
     customer: store.getCustomer(deal.customer_id)?.name ?? '',
@@ -286,6 +287,7 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     schema_version: 1,
     id,
     title: typed.title,
+    type: typed.type,
     source: typed.source,
     description: typed.description,
     customer_id: refs.customerId,

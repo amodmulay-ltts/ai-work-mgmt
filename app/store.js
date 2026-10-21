@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { DEFAULT_CONFIG } from './config-defaults.js';
-import { PREFIX, ValidationError, kindOf, migrateDealType, nowIso, validateRecord, withSupportDefaults } from './models.js';
+import { PREFIX, ValidationError, kindOf, nowIso, validateRecord, withDefaultType, withSupportDefaults } from './models.js';
 import { resolveTags } from './lib/tags.js';
 
 /** Record kinds loaded from disk, in load order. */
@@ -69,7 +69,7 @@ export class Store {
         const label = `${FOLDER[kind]}/${name}`;
         try {
           let obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
-          if (kind === 'deal') obj = withSupportDefaults(migrateDealType(obj));
+          if (kind === 'deal') obj = withSupportDefaults(withDefaultType(obj));
           // Structural checks only: enum lists are checked when a record is saved.
           const errors = validateRecord(kind, obj, null);
           if (errors.length) problems.push(`${label}: ${errors.join(', ')}`);
@@ -126,7 +126,7 @@ export class Store {
       const conflictPath = path.join(this.dataDir, '_conflicts', file);
       const paths = [conflictPath];
       if (action === 'use_theirs') {
-        const remote = withSupportDefaults(migrateDealType(JSON.parse(await fs.readFile(conflictPath, 'utf8'))));
+        const remote = withSupportDefaults(withDefaultType(JSON.parse(await fs.readFile(conflictPath, 'utf8'))));
         const errors = validateRecord(kind, remote, this.cfg);
         if (errors.length) throw new ValidationError(errors);
         await writeJsonAtomic(this.recordPath(kind, id), remote);

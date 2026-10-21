@@ -46,7 +46,7 @@ function dayOffset(offset) {
 // cannot also be added as a supporter. Supporting someone else's bid is the case this feature is for.
 const dealForm = (title) => ({
   title,
-  type: 'RFQ',
+  type: 'Lead',
   customer: 'Bosch',
   sales_owner: 'Priya S',
   presales_owner: 'Meera T',

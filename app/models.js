@@ -23,7 +23,7 @@
  * }} HistoryEntry
  *
  * @typedef {{
- *   schema_version: number, id: string, title: string, source: string | null,
+ *   schema_version: number, id: string, title: string, type: string, source: string | null,
  *   description: string, customer_id: string, contact_ids: string[], c4c_id: string | null,
  *   sales_owner_id: string | null, presales_owner_id: string | null, delivery_owner_id: string | null,
  *   support_ids: string[], support_requests: SupportRequest[], support_seq: number,
@@ -65,12 +65,35 @@ const SUPPORT_DEFAULTS = { support_ids: [], support_requests: [], support_seq: 0
  * Older deals had one fixed 'type' (RFQ, RFI, …). It is now a tag, so the type becomes the first tag.
  * Returns the opportunity without the type key.
  */
-export function migrateDealType(deal) {
-  if (!('type' in deal)) return deal;
-  const { type, ...rest } = deal;
-  const tags = Array.isArray(rest.tags) ? rest.tags : [];
-  const merged = type && !tags.some((t) => t.toLowerCase() === String(type).toLowerCase()) ? [type, ...tags] : tags;
-  return { ...rest, tags: merged };
+export function withDefaultType(deal) {
+  if (typeof deal.type === 'string' && deal.type !== '') return deal;
+  const tagged = (Array.isArray(deal.tags) ? deal.tags : []).some((t) => t.toLowerCase() === 'rfq');
+  return { ...deal, type: tagged ? 'RFQ' : 'Lead' };
+}
+
+/** The config entry for one opportunity type, or null. */
+export function typeProfile(cfg, name) {
+  return cfg?.opportunity_types?.find((t) => t.name === name) ?? null;
+}
+
+/** True for a field that some type can show. Other fields are always shown. */
+export function isOptionalField(cfg, key) {
+  return (cfg?.opportunity_types ?? []).some((t) => t.fields.includes(key));
+}
+
+/** True when a value is filled in. */
+export function hasValue(value) {
+  if (value === null || value === undefined || value === '') return false;
+  return !(Array.isArray(value) && value.length === 0);
+}
+
+/**
+ * Whether a form or detail view shows a field for this deal: always-shown fields, the fields of its
+ * type, and any optional field that already has a value.
+ */
+export function showField(cfg, deal, key) {
+  if (!isOptionalField(cfg, key)) return true;
+  return typeProfile(cfg, deal.type)?.fields.includes(key) === true || hasValue(deal[key]);
 }
 
 /** Adds the support fields to an opportunity read from an older file. Returns the same object. */
@@ -87,6 +110,7 @@ export const DATE_FIELDS = [
 ];
 
 const PREFIX = { deal: 'DL', customer: 'CU', person: 'PE' };
+const REQUIRED_LABELS = { submission_due: 'Submission due' };
 const EMAIL_RE = /^[^@\s]+@[^@\s]+$/;
 const URL_RE = /^https?:\/\/\S+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -208,6 +232,7 @@ function validateDeal(d, cfg) {
   };
   if (!/^DL-\d{4}-\d{4}$/.test(d.id ?? '')) errors.push('id must look like DL-2026-0001');
   required('title', 'Title');
+  required('type', 'Type');
   required('customer_id', 'Customer');
   required('stage', 'Stage');
   required('received_on', 'Received on');
@@ -240,6 +265,13 @@ function validateDeal(d, cfg) {
   errors.push(...validateSupport(d));
 
   if (cfg) {
+    const profile = typeProfile(cfg, d.type);
+    for (const field of profile?.required ?? []) {
+      if (isBlank(d[field])) errors.push(`${REQUIRED_LABELS[field] ?? field} is required for ${d.type}`);
+    }
+  }
+
+  if (cfg) {
     const unknownTags = (Array.isArray(d.tags) ? d.tags : []).filter((t) => !cfg.tags.includes(t));
     for (const tag of unknownTags) errors.push(`Tag: unknown value '${tag}'`);
     const stage = cfg.stages.find((s) => s.name === d.stage);
@@ -253,6 +285,7 @@ function validateDeal(d, cfg) {
       ['region', cfg.regions, 'Region'],
       ['currency', cfg.currencies, 'Currency'],
       ['pricing_model', cfg.pricing_models, 'Pricing model'],
+      ['type', cfg.opportunity_types.map((t) => t.name), 'Type'],
       ['outcome_reason', cfg.outcome_reasons, 'Outcome reason'],
     ];
     for (const [field, allowed, label] of checks) {

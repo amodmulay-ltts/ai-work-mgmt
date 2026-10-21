@@ -11,7 +11,7 @@ const MONEY = '#,##0';
 const COLUMNS = [
   { header: 'ID', key: 'id' },
   { header: 'Title', key: 'title' },
-  { header: 'Tags', key: 'tags' },
+  { header: 'Type', key: 'type' },
   { header: 'Customer', key: 'customer' },
   { header: 'C4C ID', key: 'c4c_id' },
   { header: 'Stage', key: 'stage' },
@@ -46,6 +46,7 @@ const COLUMNS = [
   { header: 'Next action', key: 'next_action' },
   { header: 'Next action due', key: 'next_action_due', date: true },
   { header: 'Outcome reason', key: 'outcome_reason' },
+  { header: 'Tags', key: 'tags' },
 ];
 
 /** '2026-10-16' → a UTC Date, so Excel shows the same day everywhere. */
@@ -62,6 +63,7 @@ function rowValues(r, store) {
   return {
     id: d.id,
     title: d.title,
+    type: d.type,
     customer: r.customerName,
     c4c_id: d.c4c_id ?? '',
     stage: d.stage,

@@ -17,7 +17,7 @@ const baseDeal = (overrides = {}) => ({
   schema_version: 1,
   id: 'DL-2026-0001',
   title: 'ADAS validation',
-  type: 'RFQ',
+  type: 'Lead',
   customer_id: 'CU-0001',
   contact_ids: [],
   sales_owner_id: 'PE-0001',
@@ -240,7 +240,7 @@ describe('supporters and asks: opportunity page', () => {
     await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
     await post(app.base, '/opportunities', {
       title: 'ADAS validation services',
-      type: 'RFQ',
+      type: 'Lead',
       customer: 'Bosch',
       sales_owner: 'Priya S',
       received_on: '2026-10-01',
@@ -345,7 +345,7 @@ describe('supporters and asks: opportunity page', () => {
     const deal = app.store.getDeal(DEAL);
     const fields = {
       title: 'ADAS validation services – phase 2',
-      type: 'RFQ',
+      type: 'Lead',
       customer: 'Bosch',
       sales_owner: 'Priya S',
       received_on: deal.received_on,
@@ -389,7 +389,7 @@ describe('supporters and asks: an opportunity saved before this feature', () => 
     await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
     await post(app.base, '/opportunities', {
       title: 'Old deal',
-      type: 'RFQ',
+      type: 'Lead',
       customer: 'Bosch',
       sales_owner: 'Priya S',
       received_on: '2026-10-01',

@@ -189,7 +189,7 @@ const dueCompare = (a, b) => {
 };
 
 /**
- * Open asks assigned to one person, across the opportunitys: [{ deal, ask }], earliest due first.
+ * Open asks assigned to one person, across the opportunities: [{ deal, ask }], earliest due first.
  * Overdue asks therefore come first.
  */
 export function asksFor(deals, personId) {

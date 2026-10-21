@@ -4,7 +4,7 @@ import path from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import ExcelJS from 'exceljs';
 import { DEFAULT_CONFIG } from '../app/config-defaults.js';
-import { migrateDealType, validateRecord } from '../app/models.js';
+import { validateRecord, withDefaultType } from '../app/models.js';
 import { resolveTags, TAG_MAX } from '../app/lib/tags.js';
 import { createApp } from '../app/server.js';
 import { cleanup, git, makeClone, makeRemote } from './helpers.js';
@@ -28,17 +28,18 @@ describe('tags: pure rules', () => {
     assert.equal(errors.length, 1);
   });
 
-  test('an old deal type becomes the first tag, once', () => {
-    const migrated = migrateDealType({ id: 'DL-2026-0001', type: 'RFQ', tags: ['HIL'] });
-    assert.deepEqual(migrated.tags, ['RFQ', 'HIL']);
-    assert.equal('type' in migrated, false);
-    const already = migrateDealType({ id: 'DL-2026-0002', type: 'rfq', tags: ['RFQ'] });
-    assert.deepEqual(already.tags, ['RFQ'], 'no duplicate when the tag is already there');
+  test('a deal file with no type gets RFQ when it has the RFQ tag, and Lead otherwise', () => {
+    assert.equal(withDefaultType({ id: 'DL-2026-0001', tags: ['rfq', 'HIL'] }).type, 'RFQ');
+    assert.equal(withDefaultType({ id: 'DL-2026-0002', tags: ['HIL'] }).type, 'Lead');
+  });
+
+  test('a deal file that already has a type keeps it', () => {
+    assert.equal(withDefaultType({ id: 'DL-2026-0003', type: 'RFI', tags: [] }).type, 'RFI');
   });
 
   test('validation rejects an opportunity tag that is not in the config', () => {
     const deal = {
-      schema_version: 1, id: 'DL-2026-0001', title: 'x', customer_id: 'CU-0001', sales_owner_id: null,
+      schema_version: 1, id: 'DL-2026-0001', title: 'x', type: 'Lead', customer_id: 'CU-0001', sales_owner_id: null,
       presales_owner_id: null, delivery_owner_id: null, support_ids: [], support_requests: [], support_seq: 0,
       contact_ids: [], source: null, description: '', c4c_id: null, bu: null, practice: null, region: null,
       stage: 'Lead', on_hold: false, probability: 5, priority: 'Medium', go_no_go: 'Pending', go_no_go_on: null,
@@ -89,6 +90,7 @@ const YEAR = new Date().getFullYear();
 const DEAL = `DL-${YEAR}-0001`;
 
 const dealForm = (overrides = {}) => ({
+  type: 'Lead',
   title: 'ADAS validation',
   customer: 'Bosch',
   sales_owner: 'Priya S',
@@ -139,9 +141,9 @@ describe('tags on opportunities, over HTTP', () => {
     assert.match(git(app.root, 'show', 'HEAD', '--stat', '--format='), /config\.json/);
   });
 
-  test('the opportunity form has no Type field and suggests known tags', async () => {
+  test('the opportunity form has a Type select and suggests known tags', async () => {
     const page = await get(app.base, `/opportunities/${DEAL}/edit`);
-    assert.doesNotMatch(page.html, /name="type"/);
+    assert.match(page.html, /<select id="f-type" name="type"/);
     assert.match(page.html, /<datalist id="tag-options">/);
     assert.match(page.html, /<option value="RFQ">/);
   });
@@ -172,14 +174,15 @@ describe('tags on opportunities, over HTTP', () => {
     assert.deepEqual(app.store.config().tags, ['RFQ', 'Hot lead', 'Mobility']);
   });
 
-  test('the export has one Tags column in place of Type, and no second Tags column', async () => {
+  test('the export has Type at column 3 and Tags at the end', async () => {
     const res = await fetch(`${app.base}/export/opportunities.xlsx`);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
     const sheet = workbook.getWorksheet('Opportunities');
-    assert.equal(sheet.getRow(1).getCell(3).value, 'Tags');
-    assert.equal(sheet.getRow(1).cellCount, 37);
-    assert.equal(sheet.getRow(2).getCell(3).value, 'RFQ');
+    assert.equal(sheet.getRow(1).getCell(3).value, 'Type');
+    assert.equal(sheet.getRow(1).getCell(38).value, 'Tags');
+    assert.equal(sheet.getRow(1).cellCount, 38);
+    assert.equal(sheet.getRow(2).getCell(3).value, 'Lead');
   });
 });
 
@@ -204,10 +207,10 @@ describe('tags: an opportunity file from before this change', () => {
     await app.close();
   });
 
-  test('the type becomes a tag and the file loads without problems', () => {
+  test('the type is kept and the file loads without problems', () => {
     assert.deepEqual(app.store.problems, []);
-    assert.deepEqual(app.store.getDeal(DEAL).tags, ['RFQ', 'HIL']);
-    assert.equal('type' in app.store.getDeal(DEAL), false);
+    assert.equal(app.store.getDeal(DEAL).type, 'RFQ');
+    assert.deepEqual(app.store.getDeal(DEAL).tags, ['HIL']);
   });
 
   test('a tag that is only on an opportunity is added to the known list', () => {
@@ -217,6 +220,6 @@ describe('tags: an opportunity file from before this change', () => {
   test('the opportunity page still renders', async () => {
     const page = await get(app.base, `/opportunities/${DEAL}`);
     assert.equal(page.status, 200);
-    assert.match(page.html, /<span class="tag">RFQ<\/span>/);
+    assert.match(page.html, /<span class="tag">HIL<\/span>/);
   });
 });

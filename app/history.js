@@ -7,6 +7,7 @@ import { fmtDate } from './lib/format.js';
 /** Labels for the timeline, the commit messages and the form fields. */
 export const FIELD_LABELS = {
   title: 'Title',
+  type: 'Type',
   source: 'Source',
   description: 'Description',
   customer_id: 'Customer',

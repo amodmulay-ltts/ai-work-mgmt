@@ -14,9 +14,9 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Phase 2 — Insight and settings | Done (74 tests pass) | `phase-2-insight` |
 | Phase 3 — Quality of life | Done (78 tests pass) | `phase-3-polish` |
 | Feature: RFQs I support (PLAN.md §15, phases S1–S3) | Done | merged to `main` |
-| Tags replace deal type; dashboard and list tag filter; Deal renamed Opportunity | Done (148 tests pass) | merged to `main` |
+| Tags replace deal type; dashboard and list tag filter; Deal renamed Opportunity | Done (149 tests pass); implementation review complete | merged to `main` |
 
-**Push status:** `main` is ahead of `origin/main` and has not been pushed. This environment has no GitHub credentials. The user pushes from their own terminal with `git push origin main`.
+**Push status:** `main` is synced with `origin/main` at `d29e535`.
 
 ---
 
@@ -52,4 +52,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — session
 - Done: deal `type` replaced by tags (creatable, Settings list, old types migrate on load). Dashboard and deals list filter by `?tag=`. Visible "Deal" renamed to "Opportunity", with /deals redirecting to /opportunities. 148 tests pass.
 - Decided by default: code names, DL- ids and data/deals kept, so no records move.
-- Next: the user's review. Push `main` from the user's terminal.
+- Next: evaluate the implementation-review suggestions.
+
+### 2026-10-21 — implementation review
+- Done: reviewed the implementation against `PLAN.md`; follow-up suggestions were delivered in chat.
+- Tests: 149/149 pass with a command-scoped `safe.bareRepository=all` setting. Without it, two git-sync tests are blocked by the machine's `safe.bareRepository=explicit` setting for generated bare test remotes.
