@@ -491,3 +491,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 .delete-row input[type="text"] { flex: 1; min-width: 0; height: 32px; padding: 0 var(--s2); border: 1px solid var(--border-strong); border-radius: var(--radius); font: inherit; }
 .delete-row button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* wins by year on the dashboard */
+.wins-card .col-chart { height: 130px; }
+.wins-card .table-wrap { margin: var(--s4) calc(-1 * var(--s4)) 0; border-top: 1px solid var(--border); }
+.wins-card th:first-child, .wins-card td:first-child { padding-left: var(--s4); }
+.wins-card th:last-child, .wins-card td:last-child { padding-right: var(--s4); }
+

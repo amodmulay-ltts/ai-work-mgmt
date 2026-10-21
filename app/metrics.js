@@ -284,3 +284,42 @@ export function byBusinessUnit(deals, cfg) {
     .sort((a, b) => rank(a) - rank(b) || b.count - a.count || a.bu.localeCompare(b.bu))
     .map((g) => ({ bu: g.bu, count: g.count, totals: moneyTotals(g.pairs, cfg) }));
 }
+
+/**
+ * Won and lost opportunities per closing year, from the first year with a closed deal up to this year,
+ * so a year with no wins still shows. Dropped ones are left out of the win rate, as in winStats.
+ * Terminal opportunities with no closing date are counted apart, not guessed.
+ * @returns {{ years: Array<{ year: number, won: number, lost: number, rate: number | null, wonTotals: Record<string, number> }>, undated: { won: number, lost: number } }}
+ */
+export function winsByYear(deals, cfg, today) {
+  const byYear = new Map();
+  const undated = { won: 0, lost: 0 };
+  for (const d of deals) {
+    const outcome = stageInfo(cfg, d.stage)?.outcome;
+    if (outcome !== 'won' && outcome !== 'lost') continue;
+    if (!d.closed_on) {
+      undated[outcome] += 1;
+      continue;
+    }
+    const year = Number(d.closed_on.slice(0, 4));
+    if (!byYear.has(year)) byYear.set(year, { year, won: 0, lost: 0, pairs: [] });
+    const row = byYear.get(year);
+    row[outcome] += 1;
+    if (outcome === 'won') row.pairs.push([d.currency, d.est_value]);
+  }
+  if (byYear.size === 0) return { years: [], undated };
+  const first = Math.min(...byYear.keys());
+  const last = Math.max(Number(today.slice(0, 4)), ...byYear.keys());
+  const years = [];
+  for (let year = first; year <= last; year += 1) {
+    const row = byYear.get(year) ?? { year, won: 0, lost: 0, pairs: [] };
+    years.push({
+      year,
+      won: row.won,
+      lost: row.lost,
+      rate: row.won + row.lost === 0 ? null : row.won / (row.won + row.lost),
+      wonTotals: moneyTotals(row.pairs, cfg),
+    });
+  }
+  return { years, undated };
+}
