@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "DL-2026-0002",
+  "title": "Enride New Engagement",
+  "source": "Sales lead",
+  "description": "The goal is to engage with the organisation to work with their platform which is a L4 platform",
+  "customer_id": "CU-0002",
+  "contact_ids": [],
+  "c4c_id": null,
+  "sales_owner_id": "PE-0006",
+  "presales_owner_id": "PE-0001",
+  "delivery_owner_id": null,
+  "support_ids": [],
+  "support_requests": [],
+  "support_seq": 0,
+  "bu": "Mobility",
+  "practice": null,
+  "region": null,
+  "stage": "Lead",
+  "on_hold": false,
+  "probability": 5,
+  "priority": "Medium",
+  "go_no_go": "Pending",
+  "go_no_go_on": null,
+  "received_on": "2026-10-20",
+  "qa_due": null,
+  "submission_due": null,
+  "submitted_on": null,
+  "expected_decision_on": null,
+  "expected_start_on": null,
+  "closed_on": null,
+  "currency": "USD",
+  "est_value": null,
+  "effort_person_months": null,
+  "duration_months": null,
+  "pricing_model": "T&M",
+  "incumbent": null,
+  "competitors": [],
+  "outcome_reason": "Relationship / incumbent",
+  "next_action": null,
+  "next_action_due": null,
+  "tags": [
+    "Prospect"
+  ],
+  "links": [
+    {
+      "label": "https://www.einride.tech/",
+      "url": "https://www.einride.tech/"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-10-21T10:40:27+02:00",
+      "kind": "created",
+      "text": "Opportunity created",
+      "from_value": null,
+      "to_value": null
+    }
+  ],
+  "created_at": "2026-10-21T10:40:27+02:00",
+  "updated_at": "2026-10-21T10:40:27+02:00"
+}
