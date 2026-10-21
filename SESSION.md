@@ -78,3 +78,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — dashboard charts — Linux
 - Done: three charts on the dashboard (health status bar, submissions due next 6 months, open opportunities by BU). Server-rendered HTML and CSS, no library. Checked in headless Chrome with seeded data.
 - Found, not fixed: at 800px the top bar overflows sideways (the right-hand group is 45px too wide). It predates these charts.
+
+### 2026-10-21 — customer connects — Linux
+- Done: Teams meetings and visits are logged on each customer, with first and last connected shown on the customer page and list. Customers with no connect in `connect_after_days` (default 30, set in Settings) are flagged on the list and on the dashboard, for those with open opportunities. Spec in PLAN.md §16. 202 tests pass.
+- Next: user review in the browser. Connects are not in the export yet.

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { DEFAULT_CONFIG } from './config-defaults.js';
 import { PREFIX, ValidationError, kindOf, nowIso, validateRecord, withDefaultType, withSupportDefaults } from './models.js';
 import { resolveTags } from './lib/tags.js';
+import { withConnectDefaults } from './lib/connects.js';
 
 /** Record kinds loaded from disk, in load order. */
 const KINDS = ['customer', 'person', 'deal'];
@@ -70,6 +71,7 @@ export class Store {
         try {
           let obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
           if (kind === 'deal') obj = withSupportDefaults(withDefaultType(obj));
+          if (kind === 'customer') obj = withConnectDefaults(obj);
           // Structural checks only: enum lists are checked when a record is saved.
           const errors = validateRecord(kind, obj, null);
           if (errors.length) problems.push(`${label}: ${errors.join(', ')}`);
@@ -249,7 +251,8 @@ export class Store {
   save(records, message, { config } = {}) {
     return this.mutex.run(async () => {
       const now = nowIso();
-      const prepared = records.map((r) => ({ ...r, updated_at: now }));
+      // Customers always carry `connects`, even ones created in this session (see withConnectDefaults).
+      const prepared = records.map((r) => ({ ...(kindOf(r.id) === 'customer' ? withConnectDefaults(r) : r), updated_at: now }));
       // Validate against the config this save will write, so a new tag and the opportunity that uses it go together.
       const cfgNow = config ? { ...structuredClone(DEFAULT_CONFIG), ...config } : this.cfg;
       const errors = prepared.flatMap((r) =>

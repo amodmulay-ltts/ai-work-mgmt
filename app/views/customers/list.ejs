@@ -24,6 +24,8 @@
             <th scope="col" class="num">Open opportunities</th>
             <th scope="col" class="num">Open pipeline</th>
             <th scope="col">Last activity</th>
+            <th scope="col">First connected</th>
+            <th scope="col">Last connected</th>
           </tr>
         </thead>
         <tbody>
@@ -36,6 +38,8 @@
               <td class="num"><%= r.openCount %></td>
               <td class="num"><%= moneyTotalsText(r.openTotals) %></td>
               <td><%= r.lastActivity ? fmtDate(r.lastActivity.slice(0, 10)) : '—' %></td>
+              <td><%= r.connects.first ? fmtDate(r.connects.first) : '—' %></td>
+              <td class="<%= r.connect.flagged ? 'text-red' : '' %>"><%= r.connect.text %></td>
             </tr>
           <% } %>
         </tbody>

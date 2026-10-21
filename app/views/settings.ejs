@@ -26,6 +26,7 @@
     <h3>Tracking</h3>
     <div class="form-grid">
       <%- ui.field({ name: 'stale_after_days', label: 'Stale after (days)', type: 'number', value: values.stale_after_days, error: errors.stale_after_days || '', help: 'An open deal with no update for longer than this is flagged red.' }) %>
+      <%- ui.field({ name: 'connect_after_days', label: 'Connect again after (days)', type: 'number', value: values.connect_after_days, error: errors.connect_after_days || '', help: 'A customer with open opportunities is flagged when the last Teams meeting or visit is older than this, or when there is none.' }) %>
     </div>
   </section>
 
