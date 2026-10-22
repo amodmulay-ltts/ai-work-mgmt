@@ -30,7 +30,7 @@
   "expected_decision_on": null,
   "expected_start_on": null,
   "closed_on": null,
-  "currency": "GBP",
+  "currency": "EUR",
   "est_value": 0,
   "effort_person_months": null,
   "duration_months": null,
@@ -39,7 +39,7 @@
   "competitors": [],
   "outcome_reason": null,
   "next_action": null,
-  "next_action_due": null,
+  "next_action_due": "2026-10-23",
   "tags": [],
   "links": [],
   "history": [
@@ -56,8 +56,15 @@
       "text": "Estimated value: — → 0",
       "from_value": "—",
       "to_value": "0"
+    },
+    {
+      "at": "2026-10-22T16:27:33+02:00",
+      "kind": "field",
+      "text": "Next action due: — → 23 Oct 2026",
+      "from_value": "—",
+      "to_value": "23 Oct 2026"
     }
   ],
   "created_at": "2026-10-21T14:08:29+02:00",
-  "updated_at": "2026-10-22T14:36:09+02:00"
+  "updated_at": "2026-10-22T16:27:33+02:00"
 }
