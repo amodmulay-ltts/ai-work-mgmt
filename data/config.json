@@ -181,7 +181,8 @@
   "business_units": [
     "Mobility",
     "Sustainability",
-    "Hi-Tech"
+    "Hi-Tech",
+    "Med-Tech"
   ],
   "regions": [
     "North America",
@@ -200,11 +201,7 @@
     "Hybrid"
   ],
   "currencies": [
-    "USD",
-    "EUR",
-    "GBP",
-    "INR",
-    "JPY"
+    "EUR"
   ],
   "outcome_reasons": [
     "Price",
