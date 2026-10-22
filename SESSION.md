@@ -123,3 +123,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-22 — pipeline export — Linux
 - Done: Export pipeline (dashboard and opportunities list) makes a Pipeline sheet with the 12 headers asked for, in order. Mapping: Vertical is the customer industry; Sales/ ARM is the sales owner; Close Month is the closed date, or the expected decision date when open; TCV is the estimated value in millions of the opportunity currency (no conversion); Tenure is duration in years; Remarks is the next action. 249 tests pass.
 - Open question: confirm the TCV currency and the Remarks and Vertical choices.
+
+### 2026-10-22 — recently updated: next step and hover summary — Linux
+- Done: Recently updated has a Next step column (with its due date). Hovering a row shows a summary: the ID and title, customer, stage and status, sales and presales owners, value and probability, next step, submission due, health reasons, and the first 200 characters of the description. The summary is a native browser tooltip. 252 tests pass.
+- Not checked in a browser: how the tooltip looks (headless screenshots cannot show it).
