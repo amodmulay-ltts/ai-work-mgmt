@@ -133,3 +133,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-22 — EUR only — Linux
 - Done: every value is EUR. The currency list is EUR only, the currency choice is gone from the opportunity form, and the currency list is gone from Settings. A file that says USD or GBP loads as EUR (the amount is kept) and is written as EUR on its next save. 256 tests pass.
+
+### 2026-10-22 — last updated column — Linux
+- Done: Recently updated has a Last updated column, showing the date the opportunity was last saved. 257 tests pass.
+- Note: the running server must be restarted to show new pages (see the earlier message about a stale process).

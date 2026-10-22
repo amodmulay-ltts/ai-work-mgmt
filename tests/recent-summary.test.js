@@ -71,3 +71,33 @@ describe('Recently updated shows the next step and a summary on hover', () => {
     assert.match(html, /Not set/);
   });
 });
+
+describe('Recently updated shows the date of the last update', () => {
+  test('a Last updated column is in the table, after the value', async () => {
+    const remote = await makeRemote();
+    const root = await makeClone(remote.dir, 'app', null);
+    const created = await createApp({ root, syncEnabled: false });
+    const server = await new Promise((resolve) => {
+      const s = created.app.listen(0, '127.0.0.1', () => resolve(s));
+    });
+    const base = `http://127.0.0.1:${server.address().port}`;
+    try {
+      await fetch(`${base}/setup`, {
+        method: 'POST', redirect: 'manual', headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ name: 'Amod Mulay', email: '' }),
+      });
+      await fetch(`${base}/opportunities`, {
+        method: 'POST', redirect: 'manual', headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ title: 'Dated', type: 'Lead', customer: 'Bosch', sales_owner: 'Priya S', received_on: '2026-10-01', stage: 'Lead', probability: '5', currency: 'EUR', priority: 'Medium', go_no_go: 'Pending' }),
+      });
+      const html = await (await fetch(`${base}/`)).text();
+      const deal = created.store.listDeals()[0];
+      const day = new Date(deal.updated_at.slice(0, 10) + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+      assert.match(html, /<th scope="col">Last updated<\/th>\s*<th scope="col">Next step<\/th>/);
+      assert.ok(html.includes(day), `the update date ${day} is shown`);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+      await cleanup(remote.dir);
+    }
+  });
+});
