@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "DL-2026-0007",
+  "title": "BMW: AI solutions for EP BMW",
+  "type": "Lead",
+  "source": "Account mining",
+  "description": "",
+  "customer_id": "CU-0005",
+  "contact_ids": [
+    "PE-0013"
+  ],
+  "c4c_id": null,
+  "sales_owner_id": "PE-0012",
+  "presales_owner_id": "PE-0001",
+  "delivery_owner_id": "PE-0011",
+  "support_ids": [],
+  "support_requests": [],
+  "support_seq": 0,
+  "bu": "Mobility",
+  "practice": null,
+  "region": "Europe",
+  "stage": "Lead",
+  "on_hold": false,
+  "probability": 5,
+  "priority": "Medium",
+  "go_no_go": "Pending",
+  "go_no_go_on": null,
+  "received_on": "2026-10-06",
+  "qa_due": null,
+  "submission_due": null,
+  "submitted_on": null,
+  "expected_decision_on": null,
+  "expected_start_on": null,
+  "closed_on": null,
+  "currency": "EUR",
+  "est_value": 500000,
+  "effort_person_months": null,
+  "duration_months": null,
+  "pricing_model": null,
+  "incumbent": null,
+  "competitors": [],
+  "outcome_reason": null,
+  "next_action": "Holzinger Thomas, EP-23",
+  "next_action_due": "2026-10-23",
+  "tags": [
+    "AI",
+    "Software"
+  ],
+  "links": [],
+  "history": [
+    {
+      "at": "2026-10-22T10:49:06+02:00",
+      "kind": "created",
+      "text": "Opportunity created",
+      "from_value": null,
+      "to_value": null
+    }
+  ],
+  "created_at": "2026-10-22T10:49:06+02:00",
+  "updated_at": "2026-10-22T10:49:06+02:00"
+}

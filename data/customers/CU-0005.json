@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "CU-0005",
+  "name": "BMW",
+  "short_name": null,
+  "industry": null,
+  "region": null,
+  "country": null,
+  "bu": null,
+  "account_manager_id": null,
+  "c4c_account_id": null,
+  "website": null,
+  "tags": [],
+  "notes": "",
+  "created_at": "2026-10-22T10:49:06+02:00",
+  "updated_at": "2026-10-22T10:49:06+02:00",
+  "connects": []
+}
