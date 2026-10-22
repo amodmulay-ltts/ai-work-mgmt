@@ -38,7 +38,7 @@
   "incumbent": null,
   "competitors": [],
   "outcome_reason": "Technical fit",
-  "next_action": null,
+  "next_action": "Talk to UDE Team for feedback",
   "next_action_due": "2026-10-26",
   "tags": [
     "Meetin with Henrike for feedback"
@@ -58,8 +58,15 @@
       "text": "Estimated value: 12 → 12000000",
       "from_value": "12",
       "to_value": "12000000"
+    },
+    {
+      "at": "2026-10-22T14:35:18+02:00",
+      "kind": "field",
+      "text": "Next action: — → Talk to UDE Team for feedback",
+      "from_value": "—",
+      "to_value": "Talk to UDE Team for feedback"
     }
   ],
   "created_at": "2026-10-21T14:53:56+02:00",
-  "updated_at": "2026-10-21T14:54:23+02:00"
+  "updated_at": "2026-10-22T14:35:18+02:00"
 }
