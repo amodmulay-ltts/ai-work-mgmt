@@ -61,6 +61,7 @@ describe('the app can be installed as a PWA', () => {
     assert.match(await res.text(), /<rect[^>]*rx="96"[^>]*fill="#1D4ED8"/);
     const html = await (await fetch(`${base}/`)).text();
     assert.match(html, /<link rel="icon" href="\/static\/icon\.svg" type="image\/svg\+xml">/);
+    assert.match(html, /<a class="brand" href="\/"><img class="brand-icon" src="\/static\/icon\.svg" alt="" width="24" height="24">Work Tracker<\/a>/, 'the icon sits next to the name in the header');
   });
 
   test('the service worker is served from the root, so it controls every page', async () => {

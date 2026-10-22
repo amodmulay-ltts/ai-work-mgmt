@@ -144,3 +144,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-22 — app icon — Linux
 - Done: new icon, a white W on a rounded blue square. The source is app/public/icon.svg (flat vector), and the PNGs for the install are generated from the same drawing by scripts/make-icons.mjs. The SVG is the browser tab icon.
+
+### 2026-10-22 — header icon — Linux
+- Done: the icon sits next to Work Tracker at the top left, and is the favicon. Checked in headless Chrome.
