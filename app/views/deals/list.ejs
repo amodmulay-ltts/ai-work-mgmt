@@ -16,6 +16,7 @@
   <h1>Opportunities <span class="count"><%= rows.length %></span></h1>
   <div class="page-actions">
     <a class="btn btn-secondary" href="/export/opportunities.xlsx<%= q.toString() ? '?' + q.toString() : '' %>">Export to Excel</a>
+    <a class="btn btn-secondary" href="/export/pipeline.xlsx<%= q.toString() ? '?' + q.toString() : '' %>">Export pipeline</a>
     <a class="btn btn-primary" href="/opportunities/new">+ New opportunity</a>
   </div>
 </div>
