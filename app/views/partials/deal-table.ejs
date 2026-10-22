@@ -20,7 +20,7 @@
       </thead>
       <tbody>
         <% for (const r of rows) { const d = r.deal; %>
-          <tr class="clickable" data-href="/opportunities/<%= d.id %>">
+          <tr class="clickable" data-href="/opportunities/<%= d.id %>"<% if (r.summary) { %> title="<%= r.summary %>"<% } %>>
             <td class="c-health"><%- ui.healthDot(r.health) %></td>
             <td class="mono"><a href="/opportunities/<%= d.id %>"><%= d.id %></a></td>
             <td class="ellipsis" title="<%= d.title %>"><%= d.title %></td>

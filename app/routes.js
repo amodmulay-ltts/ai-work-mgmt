@@ -17,6 +17,7 @@ import {
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
+import { fmtDate, moneyCompact } from './lib/format.js';
 import { dealsWorkbook, pipelineWorkbook } from './export.js';
 import { weeklyReport } from './report.js';
 import { addDays, mondayOf } from './lib/dates.js';
@@ -136,7 +137,10 @@ function dashboardView(store, cfg, today, me, tags) {
     },
     attention,
     actions,
-    recent: [...rows].sort((a, b) => b.deal.updated_at.localeCompare(a.deal.updated_at)).slice(0, 8),
+    recent: [...rows]
+      .sort((a, b) => b.deal.updated_at.localeCompare(a.deal.updated_at))
+      .slice(0, 8)
+      .map((r) => ({ ...r, summary: dealSummary(r, store, cfg) })),
     pipeline: pipelineByStage(deals, cfg),
     aging: agingCounts(deals, cfg, today),
     health: healthMix(open),
@@ -151,6 +155,25 @@ function dashboardView(store, cfg, today, me, tags) {
 function wonToDate(deals, cfg) {
   const won = deals.filter((d) => stageInfo(cfg, d.stage)?.outcome === 'won');
   return { count: won.length, totals: moneyTotals(won.map((d) => [d.currency, d.est_value]), cfg) };
+}
+
+/**
+ * The hover text for an opportunity on the dashboard: what it is, who owns it, where it stands, and the next step.
+ * Lines are separated by newlines, which browsers show in a tooltip.
+ */
+function dealSummary(r, store, cfg) {
+  const d = r.deal;
+  const lines = [`${d.id} · ${d.title}`, `${r.customerName} · ${d.stage} (${r.status})`];
+  const sales = store.getPerson(d.sales_owner_id)?.name;
+  const presales = store.getPerson(d.presales_owner_id)?.name;
+  if (sales) lines.push(`Sales: ${sales}`);
+  if (presales) lines.push(`Presales: ${presales}`);
+  lines.push(`Value: ${moneyCompact(d.est_value, d.currency)} · probability ${d.probability}%`);
+  lines.push(`Next step: ${d.next_action || 'not set'}${d.next_action_due ? ` (due ${fmtDate(d.next_action_due)})` : ''}`);
+  if (d.submission_due && !d.submitted_on) lines.push(`Submission due: ${fmtDate(d.submission_due)}`);
+  if (r.health.reasons.length) lines.push(`Health: ${r.health.reasons.join('; ')}`);
+  if (d.description) lines.push(d.description.length > 200 ? `${d.description.slice(0, 200)}…` : d.description);
+  return lines.join('\n');
 }
 
 /** Nulls last when sorting by a number of days. */
