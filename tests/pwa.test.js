@@ -54,6 +54,15 @@ describe('the app can be installed as a PWA', () => {
     }
   });
 
+  test('the vector icon is served as an SVG, and the pages use it as the tab icon', async () => {
+    const res = await fetch(`${base}/static/icon.svg`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /svg/);
+    assert.match(await res.text(), /<rect[^>]*rx="96"[^>]*fill="#1D4ED8"/);
+    const html = await (await fetch(`${base}/`)).text();
+    assert.match(html, /<link rel="icon" href="\/static\/icon\.svg" type="image\/svg\+xml">/);
+  });
+
   test('the service worker is served from the root, so it controls every page', async () => {
     const res = await fetch(`${base}/sw.js`);
     assert.equal(res.status, 200);
