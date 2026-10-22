@@ -28,7 +28,7 @@ describe('the dashboard shows the value won to date', () => {
     const base = { customer: 'Bosch', sales_owner: 'Priya S', received_on: '2026-10-01', type: 'Lead', probability: '100', priority: 'Medium', go_no_go: 'Go' };
     await post('/setup', { name: 'Amod Mulay', email: '' });
     await post('/opportunities', { ...base, title: 'Won in euro', stage: 'Won', currency: 'EUR', est_value: '5000' });
-    await post('/opportunities', { ...base, title: 'Won in dollars', stage: 'Won', currency: 'USD', est_value: '2000' });
+    await post('/opportunities', { ...base, title: 'Won again', stage: 'Won', est_value: '2000' });
     await post('/opportunities', { ...base, title: 'Still open', stage: 'Lead', currency: 'EUR', est_value: '9000', probability: '5' });
   });
 
@@ -40,8 +40,7 @@ describe('the dashboard shows the value won to date', () => {
     const html = await (await fetch(`${app.base}/`)).text();
     assert.match(html, /Won to date<\/div>/);
     const card = html.slice(html.indexOf('Won to date'), html.indexOf('2 won'));
-    assert.match(card, /EUR 5K/);
-    assert.match(card, /USD 2K/);
+    assert.match(card, /EUR 7K/, 'every value is EUR, so the two wins add up');
     assert.doesNotMatch(html, /Win rate/, 'the win rate card is replaced');
   });
 });

@@ -70,8 +70,7 @@
   <section class="card form-section">
     <h3>Commercials</h3>
     <div class="form-grid">
-      <%- sel('currency', 'Currency', ui.optionsOf(cfg.currencies)) %>
-      <%- f('est_value', 'Estimated value', { type: 'number', help: 'Total contract value, in the currency above.' }) %>
+      <%- f('est_value', 'Estimated value (EUR)', { type: 'number', help: 'Total contract value in EUR.' }) %>
       <%- f('probability', 'Probability (%)', { type: 'number', required: true, help: 'Set from the stage when the stage changes.' }) %>
       <%- f('effort_person_months', 'Effort (person-months)', { type: 'number' }) %>
       <%- f('duration_months', 'Duration (months)', { type: 'number' }) %>

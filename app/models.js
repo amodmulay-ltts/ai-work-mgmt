@@ -101,6 +101,14 @@ export function showField(cfg, deal, key) {
 }
 
 /** Adds the support fields to an opportunity read from an older file. Returns the same object. */
+/**
+ * Defaults for an opportunity loaded from a file. Every value is in EUR, so the currency is EUR whatever the
+ * file says. The amounts are not changed, and the next save writes EUR.
+ */
+export function withDealDefaults(deal) {
+  return { ...withSupportDefaults(withDefaultType(deal)), currency: 'EUR' };
+}
+
 export function withSupportDefaults(deal) {
   for (const [key, value] of Object.entries(SUPPORT_DEFAULTS)) {
     if (!(key in deal)) deal[key] = structuredClone(value);

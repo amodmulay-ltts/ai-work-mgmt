@@ -130,3 +130,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-22 — pipeline as JSON — Linux
 - Done: Export pipeline (dashboard and list) opens a page with the pipeline as JSON, keyed by the twelve headers in order, with a Copy button as on the weekly report. Download Excel stays on that page. 253 tests pass.
+
+### 2026-10-22 — EUR only — Linux
+- Done: every value is EUR. The currency list is EUR only, the currency choice is gone from the opportunity form, and the currency list is gone from Settings. A file that says USD or GBP loads as EUR (the amount is kept) and is written as EUR on its next save. 256 tests pass.

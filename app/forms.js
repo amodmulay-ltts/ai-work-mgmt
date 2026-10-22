@@ -82,7 +82,8 @@ export function parseDealValues(values) {
   }
   typed.priority = typed.priority || 'Medium';
   typed.go_no_go = typed.go_no_go || 'Pending';
-  typed.currency = typed.currency || 'USD';
+  // Every value is in EUR.
+  typed.currency = 'EUR';
   return { typed, errors };
 }
 
