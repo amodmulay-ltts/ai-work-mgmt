@@ -119,3 +119,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-21 — chart links — Linux
 - Done: dashboard health, BU, customer and submission-month charts, and the wins page, link to the opportunities list. New list filters: submit_month (YYYY-MM), closed_year (YYYY), and bu=none (no BU). A dashboard tag-balance bug (an extra closing div left by the KPI edit) is fixed. 246 tests pass.
 - Not checked in a browser yet: the look of the chart links.
+
+### 2026-10-22 — pipeline export — Linux
+- Done: Export pipeline (dashboard and opportunities list) makes a Pipeline sheet with the 12 headers asked for, in order. Mapping: Vertical is the customer industry; Sales/ ARM is the sales owner; Close Month is the closed date, or the expected decision date when open; TCV is the estimated value in millions of the opportunity currency (no conversion); Tenure is duration in years; Remarks is the next action. 249 tests pass.
+- Open question: confirm the TCV currency and the Remarks and Vertical choices.

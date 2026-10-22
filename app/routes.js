@@ -17,7 +17,7 @@ import {
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
-import { dealsWorkbook } from './export.js';
+import { dealsWorkbook, pipelineWorkbook } from './export.js';
 import { weeklyReport } from './report.js';
 import { addDays, mondayOf } from './lib/dates.js';
 
@@ -1039,6 +1039,17 @@ export function createRouter() {
     const buffer = await dealsWorkbook(rows, store);
     res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.set('Content-Disposition', `attachment; filename="opportunities-${today.replaceAll('-', '')}.xlsx"`);
+    res.send(Buffer.from(buffer));
+  });
+
+  // The pipeline share sheet: the same list filters as the opportunities list (open by default).
+  router.get('/export/pipeline.xlsx', async (req, res) => {
+    const { store } = req.app.locals;
+    const today = todayIso();
+    const { rows } = listDeals(store, store.config(), today, req.query);
+    const buffer = await pipelineWorkbook(rows, store);
+    res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.set('Content-Disposition', `attachment; filename="pipeline-${today.replaceAll('-', '')}.xlsx"`);
     res.send(Buffer.from(buffer));
   });
 

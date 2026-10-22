@@ -138,3 +138,76 @@ export async function dealsWorkbook(rows, store) {
 
   return workbook.xlsx.writeBuffer();
 }
+
+/** The pipeline share sheet, with the headers the sales team asked for, in that order. */
+const PIPELINE_COLUMNS = [
+  { header: 'Region', key: 'region' },
+  { header: 'Vertical', key: 'vertical' },
+  { header: 'Sales/ ARM', key: 'sales' },
+  { header: 'Account', key: 'account' },
+  { header: 'Opportunity Name (schedule)', key: 'title' },
+  { header: 'C4C Id', key: 'c4c_id' },
+  { header: 'Sales Phase', key: 'stage' },
+  { header: 'Close Month', key: 'close_month', month: true },
+  { header: 'TCV ($Mn)', key: 'tcv', decimal: '0.00' },
+  { header: 'Tenure (Y)', key: 'tenure', decimal: '0.0' },
+  { header: 'Status', key: 'status' },
+  { header: 'Remarks', key: 'remarks' },
+];
+
+/** One pipeline row. TCV is the estimated value in millions of the opportunity's currency (no conversion). */
+function pipelineValues(r, store) {
+  const d = r.deal;
+  const customer = store.getCustomer(d.customer_id);
+  const closeDate = d.closed_on ?? d.expected_decision_on;
+  return {
+    region: d.region ?? '',
+    vertical: customer?.industry ?? '',
+    sales: store.getPerson(d.sales_owner_id)?.name ?? '',
+    account: r.customerName,
+    title: d.title,
+    c4c_id: d.c4c_id ?? '',
+    stage: d.stage,
+    close_month: toDate(closeDate),
+    tcv: d.est_value == null ? null : d.est_value / 1_000_000,
+    tenure: d.duration_months == null ? null : d.duration_months / 12,
+    status: r.status,
+    remarks: d.next_action ?? '',
+  };
+}
+
+/**
+ * The pipeline sheet for sharing: one 'Pipeline' sheet, with the columns in PIPELINE_COLUMNS order.
+ * @param {Array<object>} rows rows from the opportunities list (see routes.js dealRow)
+ * @returns {Promise<Buffer>}
+ */
+export async function pipelineWorkbook(rows, store) {
+  const workbook = new ExcelJS.Workbook();
+  workbook.created = new Date();
+  const sheet = workbook.addWorksheet('Pipeline');
+  sheet.columns = PIPELINE_COLUMNS.map((c) => ({ header: c.header, key: c.key }));
+
+  const header = sheet.getRow(1);
+  header.font = { bold: true };
+  header.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+  sheet.views = [{ state: 'frozen', ySplit: 1 }];
+  sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: PIPELINE_COLUMNS.length } };
+
+  for (const r of rows) sheet.addRow(pipelineValues(r, store));
+
+  PIPELINE_COLUMNS.forEach((col, index) => {
+    const colNumber = index + 1;
+    if (col.month || col.decimal) {
+      for (let rowNumber = 2; rowNumber <= sheet.rowCount; rowNumber += 1) {
+        sheet.getCell(rowNumber, colNumber).numFmt = col.month ? 'mmm-yyyy' : col.decimal;
+      }
+    }
+    const longest = sheet.getColumn(colNumber).values.reduce((max, v) => {
+      const text = v instanceof Date ? DATE : String(v ?? '');
+      return Math.max(max, text.length);
+    }, 0);
+    sheet.getColumn(colNumber).width = Math.min(Math.max(longest, col.header.length) + 2, 50);
+  });
+
+  return workbook.xlsx.writeBuffer();
+}
