@@ -211,3 +211,21 @@ export async function pipelineWorkbook(rows, store) {
 
   return workbook.xlsx.writeBuffer();
 }
+
+/**
+ * The pipeline as plain records for JSON, keyed by the sales team headers in order. Close Month is
+ * 'YYYY-MM', TCV is a number in millions (or null), Tenure is a number of years (or null).
+ * @returns {Array<Record<string, string | number | null>>}
+ */
+export function pipelineRecords(rows, store) {
+  return rows.map((r) => {
+    const v = pipelineValues(r, store);
+    const record = {};
+    for (const col of PIPELINE_COLUMNS) {
+      const value = v[col.key];
+      if (col.month) record[col.header] = value ? value.toISOString().slice(0, 7) : null;
+      else record[col.header] = value ?? null;
+    }
+    return record;
+  });
+}
