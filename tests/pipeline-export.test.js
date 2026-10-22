@@ -82,4 +82,19 @@ describe('pipeline export for sharing', () => {
     await workbook.xlsx.load(Buffer.from(await res.arrayBuffer()));
     assert.equal(workbook.getWorksheet('Pipeline').rowCount, 2, 'header and one open row');
   });
+  test('Export pipeline opens the rows as JSON with a copy button, and the JSON has the headers in order', async () => {
+    const res = await fetch(`${app.base}/export/pipeline`);
+    assert.equal(res.status, 200);
+    const html = await res.text();
+    assert.match(html, /data-copy-from="pipeline-json"/);
+    const raw = html.match(/<textarea id="pipeline-json"[^>]*>([\s\S]*?)<\/textarea>/)[1];
+    const json = raw.replaceAll('&#34;', '"').replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&amp;', '&');
+    const records = JSON.parse(json);
+    assert.equal(records.length, 1);
+    assert.deepEqual(Object.keys(records[0]), HEADERS);
+    assert.equal(records[0]['Account'], 'Bosch');
+    assert.equal(records[0]['Close Month'], '2026-12');
+    assert.equal(records[0]['TCV ($Mn)'], 2.5);
+    assert.equal(records[0]['Tenure (Y)'], 2);
+  });
 });

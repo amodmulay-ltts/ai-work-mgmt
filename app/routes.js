@@ -18,7 +18,7 @@ import {
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
 import { fmtDate, moneyCompact } from './lib/format.js';
-import { dealsWorkbook, pipelineWorkbook } from './export.js';
+import { dealsWorkbook, pipelineRecords, pipelineWorkbook } from './export.js';
 import { weeklyReport } from './report.js';
 import { addDays, mondayOf } from './lib/dates.js';
 
@@ -1063,6 +1063,22 @@ export function createRouter() {
     res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.set('Content-Disposition', `attachment; filename="opportunities-${today.replaceAll('-', '')}.xlsx"`);
     res.send(Buffer.from(buffer));
+  });
+
+  // The pipeline as JSON, on a page with a Copy button (like the weekly report). Same list filters.
+  router.get('/export/pipeline', async (req, res) => {
+    const { store } = req.app.locals;
+    const today = todayIso();
+    const { rows } = listDeals(store, store.config(), today, req.query);
+    const records = pipelineRecords(rows, store);
+    const query = new URLSearchParams(req.query).toString();
+    await renderPage(req, res, 'export-pipeline', {
+      title: 'Pipeline export',
+      active: 'deals',
+      json: JSON.stringify(records, null, 2),
+      count: records.length,
+      excelHref: `/export/pipeline.xlsx${query ? '?' + query : ''}`,
+    });
   });
 
   // The pipeline share sheet: the same list filters as the opportunities list (open by default).

@@ -1,0 +1,15 @@
+<div class="page-header">
+  <h1>Pipeline export</h1>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="<%= excelHref %>">Download Excel</a>
+  </div>
+</div>
+
+<section class="card">
+  <div class="report-head">
+    <p class="muted"><%= count %> <%= count === 1 ? 'opportunity' : 'opportunities' %> · JSON with the sales team headers. Copy it into your tool of choice.</p>
+    <button type="button" class="btn btn-primary" data-copy-from="pipeline-json">Copy</button>
+  </div>
+  <label for="pipeline-json" class="sr-only">Pipeline as JSON</label>
+  <textarea id="pipeline-json" class="report-text" readonly rows="30"><%= json %></textarea>
+</section>

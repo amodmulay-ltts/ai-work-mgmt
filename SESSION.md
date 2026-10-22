@@ -127,3 +127,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-22 — recently updated: next step and hover summary — Linux
 - Done: Recently updated has a Next step column (with its due date). Hovering a row shows a summary: the ID and title, customer, stage and status, sales and presales owners, value and probability, next step, submission due, health reasons, and the first 200 characters of the description. The summary is a native browser tooltip. 252 tests pass.
 - Not checked in a browser: how the tooltip looks (headless screenshots cannot show it).
+
+### 2026-10-22 — pipeline as JSON — Linux
+- Done: Export pipeline (dashboard and list) opens a page with the pipeline as JSON, keyed by the twelve headers in order, with a Copy button as on the weekly report. Download Excel stays on that page. 253 tests pass.
