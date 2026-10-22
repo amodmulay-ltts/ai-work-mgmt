@@ -96,6 +96,11 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **All values are EUR**, as the user confirmed. USD and GBP are removed from the config, the forms and Settings. The helpers still accept any code, so no other code needed to change.
 - **Older files are read as EUR in memory, with their amounts kept.** The file changes only when it is next saved. Git keeps the old code.
 
+### Made while making the app installable (2026-10-22)
+- **PWA, not a native app.** The app is already a local web page, so a manifest and service worker are enough for Chrome to install it. No Electron, no new dependency.
+- **The service worker caches only /static files.** Pages and data always come from the server, so the app never shows stale data. Offline use is not supported, because the data lives in the running server.
+- **Icons are generated solid blue** and can be replaced by a logo with the same names and sizes.
+
 ### Made while showing the pipeline as JSON (2026-10-22)
 - **Export pipeline is a page first**, like the weekly report: JSON in a read-only box with Copy, and the Excel file one click away. The same JSON structure backs both the page and the test.
 

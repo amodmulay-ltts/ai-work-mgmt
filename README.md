@@ -44,6 +44,18 @@ Keyboard shortcuts, when you are not typing in a field: `/` search, `n` new oppo
 - **Conflicts:** if the same record was changed on two computers, the version on this computer is kept in the file. The other version is saved in `data/_conflicts/`. A banner links to **Sync conflicts**, where you choose which version to keep.
 - **Session lock:** `data/_lock.json` records which computer has the app open. If another computer has it open, a warning appears in the terminal and on the page. The app still works. A crash leaves the lock in place, so the warning shows until the app is stopped cleanly.
 
+## Install as an app (Ubuntu)
+
+Work Tracker can be installed as a desktop app with its own window and launcher icon. Use Chrome or Chromium (Edge also works). Firefox does not install web apps.
+
+1. Start the app with `./start.sh` and keep the terminal open.
+2. In Chrome, open the address bar menu (the install icon on the right of the address bar), or the three-dot menu, and choose **Install Work Tracker**.
+3. It opens in its own window and appears in the Activities launcher.
+
+The installed app opens the address it was installed from (`http://127.0.0.1:8765` by default). Start the app on the same port each time. If that port is busy, the launcher moves to the next free port and the installed app will not open until you install it again from the new address.
+
+The app still needs the terminal running, because the data and pages come from it. Only the static files (styles, scripts and icons) are cached in the browser.
+
 ## Settings file
 
 `data/config.json` holds the settings. You can edit most of them on the **Settings** page. The stages are fixed by the spec. To change them, edit `data/config.json` by hand and commit the change.
