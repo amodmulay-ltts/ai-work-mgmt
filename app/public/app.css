@@ -81,7 +81,8 @@ a:hover { text-decoration: underline; }
   max-width: var(--content-max); height: 100%; margin: 0 auto;
   display: flex; align-items: center; gap: var(--s5); padding: 0 var(--s5);
 }
-.brand { font-size: var(--fs-md); font-weight: 600; color: var(--text); }
+.brand { display: inline-flex; align-items: center; gap: var(--s2); font-size: var(--fs-md); font-weight: 600; color: var(--text); }
+.brand-icon { width: 24px; height: 24px; flex: none; }
 .brand:hover { text-decoration: none; }
 .navlinks { display: flex; gap: var(--s4); height: 100%; }
 .navlinks a {
