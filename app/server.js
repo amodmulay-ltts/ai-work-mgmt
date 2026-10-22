@@ -59,6 +59,12 @@ export async function createApp({ root, syncEnabled = true, startupPull = false 
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use('/static', express.static(path.join(HERE, 'public')));
+  // The service worker is served from the site root so its scope covers every page (see public/sw.js).
+  app.get('/sw.js', (req, res) => {
+    res.set('Cache-Control', 'no-cache');
+    res.type('application/javascript');
+    res.sendFile(path.join(HERE, 'public', 'sw.js'));
+  });
 
   // Reads the flash cookie for page requests only. Static files were answered above.
   app.use((req, res, next) => {

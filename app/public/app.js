@@ -161,5 +161,8 @@
     }
   });
 
+  // 10. Install: the service worker caches the static files so the installed app loads fast.
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
   // 9. Outcome reason: "Mark Lost…" and "Mark Dropped…" use the reveal above (data-reveal="outcome-Lost").
 })();
