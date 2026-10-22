@@ -92,6 +92,10 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while making EUR the only currency (2026-10-22)
+- **All values are EUR**, as the user confirmed. USD and GBP are removed from the config, the forms and Settings. The helpers still accept any code, so no other code needed to change.
+- **Older files are read as EUR in memory, with their amounts kept.** The file changes only when it is next saved. Git keeps the old code.
+
 ### Made while showing the pipeline as JSON (2026-10-22)
 - **Export pipeline is a page first**, like the weekly report: JSON in a read-only box with Copy, and the Excel file one click away. The same JSON structure backs both the page and the test.
 

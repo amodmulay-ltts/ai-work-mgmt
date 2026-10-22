@@ -189,7 +189,7 @@ const dueText = (iso) => iso ?? '\uffff';
 
 // ---------------------------------------------------------------- settings
 
-const LIST_KEYS = ['business_units', 'regions', 'currencies', 'pricing_models', 'sources', 'outcome_reasons', 'tags'];
+const LIST_KEYS = ['business_units', 'regions', 'pricing_models', 'sources', 'outcome_reasons', 'tags'];
 
 /** Non-empty lines, trimmed. */
 const lines = (value) => String(value ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
@@ -369,7 +369,7 @@ function newDealValues(store, cfg, customerId) {
     expected_decision_on: null,
     expected_start_on: null,
     closed_on: null,
-    currency: cfg.currencies[0],
+    currency: 'EUR',
     est_value: null,
     effort_person_months: null,
     duration_months: null,
@@ -1145,8 +1145,6 @@ export function createRouter() {
         }
       }
     }
-    const currencies = list('currencies');
-    if (currencies.some((c) => !/^[A-Za-z]{3}$/.test(c))) errors.currencies = 'Use three-letter codes, such as EUR or USD.';
 
     if (Object.keys(errors).length) return renderSettings(req, res, { values, errors, status: 422 });
 
@@ -1156,7 +1154,6 @@ export function createRouter() {
       connect_after_days: connectAfter,
       business_units: list('business_units'),
       regions: list('regions'),
-      currencies: currencies.map((c) => c.toUpperCase()),
       pricing_models: list('pricing_models'),
       sources: list('sources'),
       outcome_reasons: list('outcome_reasons'),

@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { DEFAULT_CONFIG } from './config-defaults.js';
-import { PREFIX, ValidationError, kindOf, nowIso, validateRecord, withDefaultType, withSupportDefaults } from './models.js';
+import { PREFIX, ValidationError, kindOf, nowIso, validateRecord, withDealDefaults } from './models.js';
 import { resolveTags } from './lib/tags.js';
 import { withConnectDefaults } from './lib/connects.js';
 import { personRefs } from './lib/merge.js';
@@ -63,6 +63,9 @@ export class Store {
       if (err.code !== 'ENOENT') problems.push(`config.json: ${err.message}`);
     }
 
+    // Every value is in EUR: the only currency in the list, whatever an older config.json says.
+    cfg.currencies = ['EUR'];
+
     for (const kind of KINDS) {
       const dir = path.join(this.dataDir, FOLDER[kind]);
       const names = await fs.readdir(dir).catch(() => []);
@@ -71,7 +74,7 @@ export class Store {
         const label = `${FOLDER[kind]}/${name}`;
         try {
           let obj = JSON.parse(await fs.readFile(path.join(dir, name), 'utf8'));
-          if (kind === 'deal') obj = withSupportDefaults(withDefaultType(obj));
+          if (kind === 'deal') obj = withDealDefaults(obj);
           if (kind === 'customer') obj = withConnectDefaults(obj);
           // Structural checks only: enum lists are checked when a record is saved.
           const errors = validateRecord(kind, obj, null);
@@ -129,7 +132,7 @@ export class Store {
       const conflictPath = path.join(this.dataDir, '_conflicts', file);
       const paths = [conflictPath];
       if (action === 'use_theirs') {
-        const remote = withSupportDefaults(withDefaultType(JSON.parse(await fs.readFile(conflictPath, 'utf8'))));
+        const remote = withDealDefaults(JSON.parse(await fs.readFile(conflictPath, 'utf8')));
         const errors = validateRecord(kind, remote, this.cfg);
         if (errors.length) throw new ValidationError(errors);
         await writeJsonAtomic(this.recordPath(kind, id), remote);

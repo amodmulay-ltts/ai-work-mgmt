@@ -45,7 +45,8 @@ export const DEFAULT_CONFIG = {
   business_units: ['Mobility', 'Sustainability', 'Hi-Tech'],
   regions: ['North America', 'Europe', 'UK', 'India', 'APAC', 'Japan', 'Middle East'],
   pricing_models: ['T&M', 'Fixed Price', 'Managed Capacity', 'ODC', 'Hybrid'],
-  currencies: ['USD', 'EUR', 'GBP', 'INR', 'JPY'],
+  // Every value is in EUR. Other currency codes in older files are read as EUR (see loadAll and models.js).
+  currencies: ['EUR'],
   outcome_reasons: [
     'Price',
     'Technical fit',

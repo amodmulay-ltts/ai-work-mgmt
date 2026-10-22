@@ -115,7 +115,6 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
       stale_after_days: '21',
       business_units: 'Mobility\nSustainability\nHi-Tech\nAerospace',
       regions: 'Europe\nIndia',
-      currencies: 'EUR\nusd',
       pricing_models: 'T&M\nFixed Price',
       sources: 'Customer RFQ\nOther',
       outcome_reasons: 'Price\nOther',
@@ -124,20 +123,19 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
     const cfg = app.store.config();
     assert.equal(cfg.stale_after_days, 21);
     assert.deepEqual(cfg.business_units, ['Mobility', 'Sustainability', 'Hi-Tech', 'Aerospace']);
-    assert.deepEqual(cfg.currencies, ['EUR', 'USD'], 'currencies are upper-cased');
+    assert.deepEqual(cfg.currencies, ['EUR'], 'every value is EUR, so the list is EUR only');
     assert.equal(app.store.getPerson('PE-0001').name, 'Amod M.');
     assert.equal(Number(git(app.root, 'rev-list', '--count', 'HEAD')), before + 1);
     assert.equal(git(app.root, 'log', '-1', '--format=%s'), 'PE-0001: updated');
   });
 
-  test('settings reject an empty list and a bad currency code', async () => {
+  test('settings reject an empty list', async () => {
     const res = await post(app.base, '/settings', {
       name: 'Amod M.',
       email: '',
       stale_after_days: '14',
       business_units: '',
       regions: 'Europe',
-      currencies: 'EURO',
       pricing_models: 'T&M',
       sources: 'Other',
       outcome_reasons: 'Other',
@@ -145,7 +143,7 @@ describe('phase 2: dashboard, settings, export, conflicts', () => {
     assert.equal(res.status, 422);
     const html = await res.text();
     assert.match(html, /Keep at least one item\./);
-    assert.match(html, /Use three-letter codes/);
+    assert.doesNotMatch(html, /Currencies/, 'the currency list is gone from settings');
   });
 
   test('the Excel export has the spec columns, one row per deal and real dates', async () => {

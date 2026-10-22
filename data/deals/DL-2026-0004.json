@@ -30,7 +30,7 @@
   "expected_decision_on": "2026-03-01",
   "expected_start_on": null,
   "closed_on": "2026-03-26",
-  "currency": "EUR",
+  "currency": "USD",
   "est_value": 12000000,
   "effort_person_months": null,
   "duration_months": null,
@@ -41,7 +41,7 @@
   "next_action": "Talk to UDE Team for feedback",
   "next_action_due": "2026-10-26",
   "tags": [
-    "Meetin with Henrike for feedback"
+    "Software"
   ],
   "links": [],
   "history": [
@@ -65,8 +65,22 @@
       "text": "Next action: — → Talk to UDE Team for feedback",
       "from_value": "—",
       "to_value": "Talk to UDE Team for feedback"
+    },
+    {
+      "at": "2026-10-22T14:41:13+02:00",
+      "kind": "field",
+      "text": "Currency: EUR → USD",
+      "from_value": "EUR",
+      "to_value": "USD"
+    },
+    {
+      "at": "2026-10-22T14:41:13+02:00",
+      "kind": "field",
+      "text": "Tags: Meetin with Henrike for feedback → Software",
+      "from_value": "Meetin with Henrike for feedback",
+      "to_value": "Software"
     }
   ],
   "created_at": "2026-10-21T14:53:56+02:00",
-  "updated_at": "2026-10-22T14:35:18+02:00"
+  "updated_at": "2026-10-22T14:41:13+02:00"
 }

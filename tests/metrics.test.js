@@ -136,7 +136,8 @@ test('money totals are kept per currency, never converted', () => {
 });
 
 test('money totals order follows the config list, unknown currencies last', () => {
-  const totals = moneyTotals([['ZAR', 1], ['JPY', 2], ['USD', 3], ['AUD', 4]], cfg);
+  const listed = { currencies: ['USD', 'EUR', 'GBP', 'INR', 'JPY'] };
+  const totals = moneyTotals([['ZAR', 1], ['JPY', 2], ['USD', 3], ['AUD', 4]], listed);
   assert.deepEqual(Object.keys(totals), ['USD', 'JPY', 'AUD', 'ZAR']);
 });
 
