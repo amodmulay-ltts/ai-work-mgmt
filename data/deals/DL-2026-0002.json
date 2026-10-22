@@ -30,7 +30,7 @@
   "expected_start_on": null,
   "closed_on": null,
   "currency": "USD",
-  "est_value": null,
+  "est_value": 0,
   "effort_person_months": null,
   "duration_months": null,
   "pricing_model": "T&M",
@@ -62,9 +62,16 @@
       "text": "Title: Enride New Engagement → Enride: New Engagement",
       "from_value": "Enride New Engagement",
       "to_value": "Enride: New Engagement"
+    },
+    {
+      "at": "2026-10-22T14:35:48+02:00",
+      "kind": "field",
+      "text": "Estimated value: — → 0",
+      "from_value": "—",
+      "to_value": "0"
     }
   ],
   "created_at": "2026-10-21T10:40:27+02:00",
-  "updated_at": "2026-10-21T16:07:52+02:00",
+  "updated_at": "2026-10-22T14:35:49+02:00",
   "type": "Lead"
 }
