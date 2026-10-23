@@ -166,7 +166,7 @@
 
 <section class="card table-card">
   <h2 class="card-pad">Recently updated</h2>
-  <%- include('partials/deal-table', { rows: view.recent, cfg, today, empty: 'No opportunities yet.', extra: [{ header: 'Last updated', cell: (r) => fmtDate(r.deal.updated_at.slice(0, 10)) }, { header: 'Next step', cell: (r) => r.deal.next_action ? `<div class="ellipsis">${ui.esc(r.deal.next_action)}</div>${r.deal.next_action_due ? `<span class="rel">${fmtDate(r.deal.next_action_due)}</span>` : ''}` : '<span class="subtle">Not set</span>' }] }) %>
+  <%- include('partials/deal-table', { rows: view.recent, cfg, today, withCustomer: true, empty: 'No opportunities yet.', extra: [{ header: 'Last updated', cell: (r) => fmtDate(r.deal.updated_at.slice(0, 10)) }, { header: 'Next step', cell: (r) => r.deal.next_action ? `<div class="ellipsis">${ui.esc(r.deal.next_action)}</div>${r.deal.next_action_due ? `<span class="rel">${fmtDate(r.deal.next_action_due)}</span>` : ''}` : '<span class="subtle">Not set</span>' }] }) %>
 </section>
 
 <div class="dash-grid">

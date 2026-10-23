@@ -1,6 +1,8 @@
 <%
   // Optional extra columns: [{ header, cell(row) }]. cell returns HTML. Only the support page uses them.
   const extraCols = typeof extra === 'undefined' ? [] : extra;
+  // Customer column: on the dashboard only. The customer page already knows the customer.
+  const showCustomer = typeof withCustomer === 'undefined' ? false : withCustomer;
 %>
 <% if (rows.length === 0) { %>
   <p class="subtle"><%= empty %></p>
@@ -12,6 +14,7 @@
           <th scope="col" class="c-health"><span class="sr-only">Health</span></th>
           <th scope="col">ID</th>
           <th scope="col">Title</th>
+          <% if (showCustomer) { %><th scope="col">Customer</th><% } %>
           <th scope="col">Stage</th>
           <th scope="col">Submission due</th>
           <th scope="col" class="num">Value</th>
@@ -24,6 +27,7 @@
             <td class="c-health"><%- ui.healthDot(r.health) %></td>
             <td class="mono"><a href="/opportunities/<%= d.id %>"><%= d.id %></a></td>
             <td class="ellipsis" title="<%= d.title %>"><%= d.title %></td>
+            <% if (showCustomer) { %><td class="ellipsis"><%= r.customerName %></td><% } %>
             <td><%- ui.stageBadge(d.stage, cfg) %></td>
             <td><%- ui.dueCell(d.submission_due, today, { done: d.submitted_on }) %></td>
             <td class="num"><%= moneyCompact(d.est_value, d.currency) %></td>
