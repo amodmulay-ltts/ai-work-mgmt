@@ -61,8 +61,15 @@
       "text": "Estimated value: 500000 → 1000000",
       "from_value": "500000",
       "to_value": "1000000"
+    },
+    {
+      "at": "2026-10-23T16:30:46+02:00",
+      "kind": "note",
+      "text": "Amod and I had a very interesting and successful meeting with Thomas and his team today. They walked us through their current flow and their biggest pain points.\r\n\r\nThe flow they want to improve in the short term:\r\n1. A designer creates a (car) design in their current tools. With the help of AI, these drawings are converted into models.\r\n2. The models are converted into \"point clouds\" by existing solutions (images to real 3D model).\r\n3. Another team takes these models into their \"Greenhouse\". This is where the designer meets the engineer, who tries to make the design feasible given the constraints. There are a lot of dependencies here. For example, if the A-pillar changes, the whole windscreen needs to change as well.\r\n\r\nWhere they need help:\r\nThey already have MCPs and similar tools to interconnect their systems, but the following is missing:\r\n- A feedback loop from step 3 back to step 1 (engineer to designer)\r\n- A feedback loop within step 1 (if a generated design was not good, that feedback is missing for the next designs)\r\n- Dependency management: Make use of the parametric models e.g. the predictive solution from the Augsburg team (I make the A Pillar, bigger -> windscreen will get smaller)\r\n- Knowledge management: why did the designer place the A-pillar that way? The designer's intent needs to be preserved throughout all steps.\r\n\r\nSo they do not really need \"THE solution\" to create 3D models or to solve one specific problem. What they lack is an understanding of knowledge bases, and of what AI can and cannot do, in order to apply it across the whole flow.\r\n\r\nWhere we can help most: knowledge management\r\nKnowledge management is the biggest opportunity for us. This includes:\r\n- Shared knowledge bases across all steps\r\n- Individual knowledge bases for each step\r\n- How to connect these knowledge bases with each other and with the existing systems\r\n\r\nOverall it was a really interesting meeting with a lot of opportunities for us to help them out.\r\n\r\nNext steps:\r\nWe agreed to build a PoC on our side to visualize our ideas. Thomas then plans to take this PoC to his management to secure funding and turn it into a full project.",
+      "from_value": null,
+      "to_value": null
     }
   ],
   "created_at": "2026-10-22T10:49:06+02:00",
-  "updated_at": "2026-10-22T10:50:06+02:00"
+  "updated_at": "2026-10-23T16:30:46+02:00"
 }
