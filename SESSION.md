@@ -147,3 +147,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-22 — header icon — Linux
 - Done: the icon sits next to Work Tracker at the top left, and is the favicon. Checked in headless Chrome.
+
+### 2026-10-23 — customer in recently updated — Linux
+- Done: Recently updated shows the customer name after the title. The column is switched on for the dashboard only, so the customer page is unchanged. 264 tests pass.
