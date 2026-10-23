@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "AC-0003",
+  "title": "Hands Off Test AI",
+  "kind": "Concept",
+  "status": "In progress",
+  "owner_id": "PE-0001",
+  "start_on": "2026-10-22",
+  "target_on": "2026-11-16",
+  "description": "Cariad has asked for an AI solution which is totally hands off for end to end testing of IVI. They have asked us to show the concept",
+  "links": [],
+  "tags": [
+    "AI"
+  ],
+  "updates": [],
+  "created_at": "2026-10-23T08:18:27+02:00",
+  "updated_at": "2026-10-23T08:18:27+02:00"
+}
