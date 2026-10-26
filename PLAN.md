@@ -1250,6 +1250,8 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 - **Answered by default (2026-10-19):** the **Support** and **My asks** nav items sit beside **Deals**, not in place of it.
 - **Status:** S1, S2 and S3 are built and merged to `main`, with 123 tests passing.
 
+- **Mark next action done (opportunity page).** The next action has a Mark done button. The text and due date move to `done_actions` (kept, shown under "Done (n)"), and the live next action clears. One commit, one timeline entry. If there is no next action, nothing changes.
+
 ## 16. Customer connects
 
 **Purpose.** Track the time spent with a customer on Teams meetings and visits, the first time we connected and the most recent time. Calls and emails are not connects.

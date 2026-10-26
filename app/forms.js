@@ -307,10 +307,11 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     sales_owner_id: refs.refs.sales_owner_id,
     presales_owner_id: refs.refs.presales_owner_id,
     delivery_owner_id: refs.refs.delivery_owner_id,
-    // Supporters and asks are changed on the opportunity page, not in this form, so they carry over.
+    // Supporters, asks and done next actions are changed on the opportunity page, not in this form, so they carry over.
     support_ids: existing?.support_ids ?? [],
     support_requests: existing?.support_requests ?? [],
     support_seq: existing?.support_seq ?? 0,
+    done_actions: existing?.done_actions ?? [],
     bu: unit.bu,
     practice: typed.practice,
     region: typed.region,

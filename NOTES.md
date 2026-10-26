@@ -288,3 +288,9 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - Done: tags replace the fixed deal type (`app/lib/tags.js` new; models, store, forms, export, settings changed). Dashboard and deals list filter by tag (`partials/tag-filter.ejs` new). Visible names and /deals URLs now say opportunity (35 files, phrase-level, identifiers untouched).
 - Tests: 148 of 148 pass on Node 22. New: `tests/tags.test.js` (17), `tests/tags-filter.test.js` (8), `tests/rename.test.js` (3). Existing export expectations updated (37 columns; sheet "Opportunities"; file "opportunities-…").
 - Not checked: a visual browser check of the tag chips; Windows.
+
+### Made while adding mark-done for next actions (2026-10-26)
+- **"Mark done" is on the opportunity's next action** (the internal next step). Activities are not linked to opportunities, so they are not meant here.
+- **Done next actions go to `done_actions`** (text, due, done_on), newest last. Nothing entered is dropped. Older files get `[]` on load (`withSupportDefaults`).
+- **Marking done clears the live next action and writes a timeline entry.** It is one commit, with no confirm prompt, because no data is lost.
+- **The opportunity form carries `done_actions` over**, as it does for supporters and asks.

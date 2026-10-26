@@ -63,7 +63,7 @@ export const PRIORITIES = ['High', 'Medium', 'Low'];
 export const GO_NO_GO = ['Pending', 'Go', 'No-Go'];
 export const ASK_STATUSES = ['Open', 'In progress', 'Done', 'Cancelled'];
 /** Deal fields added for "RFQs I support" (PLAN.md §15.1). Files written before them get these. */
-const SUPPORT_DEFAULTS = { support_ids: [], support_requests: [], support_seq: 0 };
+const SUPPORT_DEFAULTS = { support_ids: [], support_requests: [], support_seq: 0, done_actions: [] };
 
 /**
  * Older deals had one fixed 'type' (RFQ, RFI, …). It is now a tag, so the type becomes the first tag.

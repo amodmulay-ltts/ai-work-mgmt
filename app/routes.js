@@ -10,6 +10,7 @@ import { resolveTags } from './lib/tags.js';
 import { connectState, connectSummary, isDone, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { noteEntry } from './history.js';
+import { markNextActionDone } from './lib/next-action.js';
 import { moveReferences, personUsage } from './lib/merge.js';
 import {
   customerToValues, dealToTyped, ensureCustomer, ensurePerson, parseCustomerValues, parseDealValues, parsePersonValues,
@@ -819,6 +820,15 @@ export function createRouter() {
       next_action_due: clean(req.body.next_action_due) || null,
     };
     return changeDeal(req, res, req.params.id, change, 'Next action updated');
+  });
+
+  router.post('/opportunities/:id/next-action/done', async (req, res) => {
+    const { store } = req.app.locals;
+    const deal = store.getDeal(req.params.id);
+    if (!deal) return notFound(req, res, 'This opportunity');
+    const done = markNextActionDone(deal, { today: todayIso(), at: nowIso() });
+    if (!done) return supportError(res, deal, 'There is no next action to mark done.');
+    return saveSupportChange(req, res, deal, done.deal, { entries: [done.entry], message: 'next action done', success: 'Next action marked done.' });
   });
 
   router.post('/opportunities/:id/notes', async (req, res) => {
