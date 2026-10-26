@@ -1325,7 +1325,7 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 **Sales lead (added 2026-10-26).** The person on a visit is the sales lead, typed as a name. A name that is not a person yet creates a Sales person, in the same commit as the visit. A refused visit creates nothing.
 
-## 21. Board (kanban)
+## 21. Board (kanban) — removed 2026-10-26
 
 **Purpose.** See the open opportunities as cards in lanes by stage, and move a card to another stage by dragging it.
 

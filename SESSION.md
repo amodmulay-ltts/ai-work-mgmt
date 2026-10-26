@@ -173,3 +173,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-26 — board closed lanes — Linux
 - Done: Won, Lost and Dropped are the last lanes. Won takes a drop; Lost and Dropped open the opportunity to choose the reason. 302 tests pass.
+
+### 2026-10-26 — board removed — Linux
+- Done: the board (/board), its route, nav link, drag-and-drop script, styles and test are removed. The stage-change route stays, since the opportunity page uses it. PLAN.md section 21 is marked removed.
