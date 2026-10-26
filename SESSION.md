@@ -160,3 +160,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-26 — visit creates customer — Linux
 - Done: the Visits form takes the customer by name, like the opportunity form. A new name creates the customer in the same commit as the visit. A refused visit creates nothing. 283 tests pass.
+
+### 2026-10-26 — sales lead on visits — Linux
+- Done: on the Visits page, "Our person" is now Sales lead, typed as a name. A new name creates a Sales person in the same commit as the visit. 286 tests pass. The customer page still says "Our person".
