@@ -709,17 +709,23 @@ export function createRouter() {
     const tags = tagsFrom(req.query, cfg);
     const rows = store
       .listDeals()
-      .filter((d) => hasAllTags(d, tags) && isOpen(d, cfg))
+      .filter((d) => hasAllTags(d, tags))
       .map((d) => dealRow(d, store, cfg, today));
-    const lanes = cfg.stages
-      .filter((s) => !s.terminal)
-      .map((s) => {
-        const inLane = rows
-          .filter((r) => r.deal.stage === s.name)
-          .sort((a, b) => (a.deal.submission_due ?? '\uffff').localeCompare(b.deal.submission_due ?? '\uffff'));
-        const totals = moneyTotals(inLane.map((r) => [r.deal.currency, r.deal.est_value]), cfg);
-        return { name: s.name, rows: inLane, totalText: moneyTotalsText(totals) };
-      });
+    const lanes = cfg.stages.map((s) => {
+      const inLane = rows.filter((r) => r.deal.stage === s.name);
+      // Open lanes: by submission date. Won, Lost and Dropped: most recently closed first, 30 shown.
+      const sorted = s.terminal
+        ? inLane.sort((a, b) => (b.deal.closed_on ?? '').localeCompare(a.deal.closed_on ?? ''))
+        : inLane.sort((a, b) => (a.deal.submission_due ?? '\uffff').localeCompare(b.deal.submission_due ?? '\uffff'));
+      const totals = moneyTotals(inLane.map((r) => [r.deal.currency, r.deal.est_value]), cfg);
+      return {
+        name: s.name,
+        outcome: s.terminal ? s.outcome : '',
+        count: inLane.length,
+        rows: sorted.slice(0, s.terminal ? 30 : sorted.length),
+        totalText: moneyTotalsText(totals),
+      };
+    });
     await renderPage(req, res, 'board', { title: 'Board', active: 'board', lanes, tags, tagQuery: otherQuery(req.query), cfg });
   });
 

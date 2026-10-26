@@ -1331,5 +1331,5 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 **Page.** /board, in the navigation. One lane per open stage, in the configured order. Each lane shows its count and the EUR total. A lean card shows the ID, title, customer, value, health, and the submission date while not yet submitted. On hold shows as a tag.
 
-**Rules.** Only open stages are lanes. Won, Lost and Dropped are not on the board, because Lost and Dropped need a reason, and they are on the Opportunities list. A drop calls the same stage route as the opportunity page, so the probability and dates change in the same way. The tag filter applies.
+**Rules.** Every stage is a lane, in the configured order. Won, Lost and Dropped are the last three lanes. Won is a drop like any other. Lost and Dropped need a reason, so a drop there opens the opportunity to choose it. The closed lanes show the 30 most recently closed, and the header shows the full count. A drop calls the same stage route as the opportunity page, so the probability and dates change in the same way. The tag filter applies.
 
