@@ -309,6 +309,39 @@
   <% } %>
 </section>
 
+<section class="card table-card">
+  <h2 class="card-pad">Customer visits</h2>
+  <p class="card-pad muted"><%= view.visits.completed.total %> completed (<%= view.visits.completed.inYear %> this year) · visits to the EI centre and to customer premises</p>
+  <% if (view.visits.upcoming.length === 0) { %>
+    <p class="subtle">No planned visits. Plan one on a customer's page.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Visit</th>
+            <th scope="col">Our person</th>
+            <th scope="col">Who we meet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const v of view.visits.upcoming) { %>
+            <tr class="clickable" data-href="/customers/<%= v.customerId %>">
+              <td><%= fmtDate(v.on) %></td>
+              <td><a href="/customers/<%= v.customerId %>"><%= v.customer %></a></td>
+              <td><%= v.kind %></td>
+              <td><%= v.whoName %></td>
+              <td><%= v.with || '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
 <div class="chart-grid chart-grid-one">
   <section class="card chart-card">
     <h2>Submissions due, next 6 months</h2>
