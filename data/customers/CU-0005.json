@@ -13,6 +13,17 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-10-22T10:49:06+02:00",
-  "updated_at": "2026-10-22T10:49:06+02:00",
-  "connects": []
+  "updated_at": "2026-10-26T13:32:42+01:00",
+  "connects": [
+    {
+      "id": "67c3a2c5",
+      "on": "2026-10-07",
+      "kind": "EI center visit",
+      "status": "Done",
+      "who_id": "PE-0012",
+      "with": "Uwe Köhler",
+      "note": "Topic: AI capabilities.",
+      "created_at": "2026-10-26T12:32:42.655Z"
+    }
+  ]
 }
