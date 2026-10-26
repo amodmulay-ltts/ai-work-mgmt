@@ -523,3 +523,9 @@ a.stack-seg:hover { opacity: 0.8; }
 a.visit-total { display: block; font-size: var(--fs-xl); font-weight: 600; color: var(--text); text-decoration: none; margin: var(--s1) 0; }
 a.visit-total:hover, a.visit-total:focus-visible { text-decoration: underline; }
 
+/* opportunities list: the summary strip (Won, Submitted, Lost, everything else) */
+.summary-strip { display: flex; flex-wrap: wrap; gap: var(--s3); margin-bottom: var(--s4); }
+.summary-item { display: flex; align-items: baseline; gap: var(--s2); padding: var(--s2) var(--s4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); text-decoration: none; }
+a.summary-item:hover { border-color: var(--border-strong); text-decoration: none; }
+.summary-num { font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.summary-label { font-size: var(--fs-sm); color: var(--text-muted); }

@@ -23,6 +23,13 @@
 
 <%- include('../partials/tag-filter', { all: cfg.tags, tags, base: '/opportunities', query: tagQuery }) %>
 
+<nav class="summary-strip" aria-label="Summary of opportunities">
+  <a class="summary-item" href="/opportunities?status=won"><span class="summary-num"><%= summary.won %></span><span class="summary-label">Won</span></a>
+  <a class="summary-item" href="/opportunities?submitted=1"><span class="summary-num"><%= summary.submitted %></span><span class="summary-label">Submitted</span></a>
+  <a class="summary-item" href="/opportunities?status=lost"><span class="summary-num"><%= summary.lost %></span><span class="summary-label">Lost</span></a>
+  <span class="summary-item"><span class="summary-num"><%= summary.other %></span><span class="summary-label">Everything else</span></span>
+</nav>
+
 <form method="get" action="/opportunities" class="filters" role="search">
   <input type="search" name="q" value="<%= filter.q %>" placeholder="Search opportunities…" aria-label="Search opportunities" class="search">
   <%- ui.selectControl({ name: 'status', value: filter.status, options: statusOptions, ariaLabel: 'Status' }) %>
