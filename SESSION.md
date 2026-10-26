@@ -166,3 +166,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-26 — visit cards — Linux
 - Done: the visits block is two cards above Internal activities: Upcoming visits (table) and Completed visits (the count, which links to the Visits page filtered to Done). 287 tests pass.
+
+### 2026-10-26 — board — Linux
+- Done: /board, a kanban view with one lane per open stage. Cards can be dragged to another lane, which calls the stage route. Checked with a real drag in headless Chrome. 299 tests pass. Spec: PLAN.md section 21.
+- Not done: keyboard moves for cards (drag only), and Won, Lost and Dropped lanes.
