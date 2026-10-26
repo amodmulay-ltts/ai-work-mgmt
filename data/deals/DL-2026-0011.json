@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "DL-2026-0011",
+  "title": "RRPS: HARA extension",
+  "type": "Renewal / Extension",
+  "source": "Account mining",
+  "description": "Extension to phase one of HARA identification. This will go on to 2028",
+  "customer_id": "CU-0017",
+  "contact_ids": [
+    "PE-0024"
+  ],
+  "c4c_id": "0",
+  "sales_owner_id": "PE-0023",
+  "presales_owner_id": "PE-0001",
+  "delivery_owner_id": null,
+  "support_ids": [],
+  "support_requests": [],
+  "support_seq": 0,
+  "bu": "IP",
+  "practice": "SAI",
+  "region": "Europe",
+  "stage": "Solutioning",
+  "on_hold": false,
+  "probability": 50,
+  "priority": "Medium",
+  "go_no_go": "Pending",
+  "go_no_go_on": null,
+  "received_on": "2026-10-01",
+  "qa_due": null,
+  "submission_due": null,
+  "submitted_on": null,
+  "expected_decision_on": null,
+  "expected_start_on": null,
+  "closed_on": null,
+  "currency": "EUR",
+  "est_value": 400000,
+  "effort_person_months": null,
+  "duration_months": null,
+  "pricing_model": "Fixed Price",
+  "incumbent": null,
+  "competitors": [],
+  "outcome_reason": null,
+  "next_action": null,
+  "next_action_due": "2026-11-08",
+  "tags": [
+    "Follow-up"
+  ],
+  "links": [],
+  "history": [
+    {
+      "at": "2026-10-26T13:55:39+01:00",
+      "kind": "created",
+      "text": "Opportunity created",
+      "from_value": null,
+      "to_value": null
+    }
+  ],
+  "created_at": "2026-10-26T13:55:39+01:00",
+  "updated_at": "2026-10-26T13:55:39+01:00"
+}

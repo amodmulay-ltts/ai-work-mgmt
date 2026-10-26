@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "PE-0024",
+  "name": "Jurgen Blassmann",
+  "role": "Customer",
+  "title": null,
+  "email": null,
+  "phone": null,
+  "customer_id": "CU-0017",
+  "notes": "",
+  "active": true,
+  "created_at": "2026-10-26T13:55:39+01:00",
+  "updated_at": "2026-10-26T13:55:39+01:00"
+}
