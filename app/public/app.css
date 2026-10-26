@@ -523,11 +523,7 @@ a.stack-seg:hover { opacity: 0.8; }
 a.visit-total { display: block; font-size: var(--fs-xl); font-weight: 600; color: var(--text); text-decoration: none; margin: var(--s1) 0; }
 a.visit-total:hover, a.visit-total:focus-visible { text-decoration: underline; }
 
-/* opportunities list: the summary strip, four KPI cards in a row (Won, Submitted, Lost, everything else) */
-.summary-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4); margin-bottom: var(--s4); }
-.summary-item { margin: 0; color: var(--text); text-decoration: none; }
-a.summary-item:hover { border-color: var(--border-strong); text-decoration: none; }
+/* opportunities list: the summary figures, a row of KPI cards (Won, Submitted, Lost, everything else) */
+a.summary-item { display: block; color: var(--text); text-decoration: none; }
+a.summary-item:hover { border-color: var(--border-strong); }
 a.summary-item:hover .kpi-label { color: var(--text); }
-@media (max-width: 700px) {
-  .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
