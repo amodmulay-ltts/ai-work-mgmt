@@ -92,6 +92,10 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding the visits page (2026-10-26)
+- **Visits have their own page for data entry** (/visits). The customer page keeps its own visit list for each customer. Both use the same rules and store the same records.
+- **A refused form keeps its values**, so a mistyped date or customer does not clear the rest.
+
 ### Made while adding customer visits (2026-10-26)
 - **Planned and Done are a status on the connect**, not separate lists, so one list per customer still holds the whole history.
 - **Only Done connects count for the flag and the completed total.** A planned visit does not clear the 'not connected' flag.

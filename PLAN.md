@@ -1313,3 +1313,11 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 **Not in scope yet.** Calendar export, reminders, and visits in the Excel exports.
 
+## 20. Customer visits page
+
+**Purpose.** Enter visits to the EI centre and to customer premises in one place, for any customer, without opening each customer.
+
+**Page.** /visits, in the navigation. A form logs a visit: customer, kind (the two visit kinds only; Teams is on the customer page), status (Done or Planned), date, our person, who we met and a note. Below the form, a table lists every visit with a filter for Planned or Done, Mark done for planned visits, and Remove.
+
+**Rules.** The same as section 19: a planned visit is today or later, a done one is today or earlier. A refused form keeps what was typed. Mark done and Remove from this page return here.
+

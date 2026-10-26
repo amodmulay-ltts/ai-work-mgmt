@@ -1,0 +1,84 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+%>
+<div class="page-header">
+  <h1>Customer visits</h1>
+</div>
+
+<% if (errors.form) { %><p class="error" role="alert"><%= errors.form %></p><% } %>
+
+<section class="card form-section">
+  <h3>Log a visit</h3>
+  <p class="muted">A visit to the EI centre or to a customer's premises. Use Planned for a visit that has not happened yet, and Done once it has.</p>
+  <form method="post" action="/visits" class="deal-form" novalidate>
+    <div class="form-grid">
+      <%- ui.field({ name: 'customer_id', label: 'Customer', type: 'select', value: values.customer_id, required: true, options: customers.map((c) => [c.id, c.name]), placeholder: 'Choose a customer', error: errors.customer_id || '' }) %>
+      <%- ui.field({ name: 'kind', label: 'Visit', type: 'select', value: values.kind, required: true, options: kinds.map((k) => [k, k === 'EI center visit' ? 'Visit to the EI centre' : 'Visit to customer premises']) }) %>
+      <%- ui.field({ name: 'status', label: 'Status', type: 'select', value: values.status, required: true, options: [['Done', 'Done'], ['Planned', 'Planned']] }) %>
+      <%- f('on', 'Date', { type: 'date', required: true }) %>
+      <%- ui.field({ name: 'who_id', label: 'Our person', type: 'select', value: values.who_id, options: people.map((p) => [p.id, p.name]), placeholder: 'Unassigned' }) %>
+      <%- f('with', 'Who we met', { maxlength: 100 }) %>
+      <%- f('note', 'Note', { type: 'textarea', span: true, rows: 3 }) %>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-primary" type="submit">Save visit</button>
+    </div>
+  </form>
+</section>
+
+<section class="card table-card">
+  <form method="get" action="/visits" class="filters card-pad">
+    <label for="visit-status">Show</label>
+    <select id="visit-status" name="status" data-autosubmit>
+      <option value="">All visits</option>
+      <option value="Planned"<%- filter === 'Planned' ? ' selected' : '' %>>Planned</option>
+      <option value="Done"<%- filter === 'Done' ? ' selected' : '' %>>Done</option>
+    </select>
+    <noscript><button class="btn btn-secondary btn-sm" type="submit">Show</button></noscript>
+  </form>
+  <% if (rows.length === 0) { %>
+    <p class="subtle card-pad">No visits here yet. Log one above.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Visit</th>
+            <th scope="col">Status</th>
+            <th scope="col">Our person</th>
+            <th scope="col">Who we met</th>
+            <th scope="col">Note</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const v of rows) { %>
+            <tr>
+              <td><%= fmtDate(v.on) %></td>
+              <td><a href="/customers/<%= v.customerId %>"><%= v.customer %></a></td>
+              <td><%= v.kind %></td>
+              <td><%= v.status %></td>
+              <td><%= v.whoName %></td>
+              <td><%= v.with || '—' %></td>
+              <td class="ellipsis" title="<%= v.note %>"><%= v.note || '—' %></td>
+              <td class="row-actions">
+                <% if (v.status === 'Planned') { %>
+                  <form method="post" action="/customers/<%= v.customerId %>/connects/<%= v.id %>/done" class="inline">
+                    <input type="hidden" name="next" value="/visits">
+                    <button class="btn btn-ghost btn-sm" type="submit">Mark done</button>
+                  </form>
+                <% } %>
+                <form method="post" action="/customers/<%= v.customerId %>/connects/<%= v.id %>/delete" class="inline" data-confirm="Remove this visit?">
+                  <input type="hidden" name="next" value="/visits">
+                  <button class="btn btn-ghost btn-sm" type="submit">Remove</button>
+                </form>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
