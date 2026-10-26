@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "CU-0008",
+  "name": "Karlstorz",
+  "short_name": null,
+  "industry": null,
+  "region": null,
+  "country": null,
+  "bu": null,
+  "account_manager_id": null,
+  "c4c_account_id": null,
+  "website": null,
+  "tags": [],
+  "notes": "",
+  "created_at": "2026-10-26T13:15:13+01:00",
+  "updated_at": "2026-10-26T13:15:13+01:00",
+  "connects": [
+    {
+      "id": "80bf9251",
+      "on": "2026-10-29",
+      "kind": "EI center visit",
+      "status": "Planned",
+      "who_id": "PE-0018",
+      "with": "Barthelmes, Thorsten",
+      "note": "We have a customer visit this Thursday – Karlstorz and the intent is on QARA- Remediation activities. We need to have a show and tell on Qassure .AI as that is something they are very keen on to look at .\r\nTheir main challenge is on remediation to FDA and NMPA and ofcourse MDD to MDR for a few of their product families.",
+      "created_at": "2026-10-26T12:15:13.910Z"
+    }
+  ]
+}
