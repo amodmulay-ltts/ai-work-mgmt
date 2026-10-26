@@ -12,7 +12,7 @@ import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuie
 import { noteEntry } from './history.js';
 import { moveReferences, personUsage } from './lib/merge.js';
 import {
-  customerToValues, dealToTyped, ensureCustomer, parseCustomerValues, parseDealValues, parsePersonValues,
+  customerToValues, dealToTyped, ensureCustomer, ensurePerson, parseCustomerValues, parseDealValues, parsePersonValues,
   personToValues, saveActivity, saveCustomer, saveDeal, savePerson, typedToValues,
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
@@ -1019,7 +1019,7 @@ export function createRouter() {
       active: 'visits',
       rows,
       filter,
-      values: { on: today, kind: VISIT_ENTRY_KINDS[0], status: 'Done', customer: '', who_id: '', with: '', note: '', ...values },
+      values: { on: today, kind: VISIT_ENTRY_KINDS[0], status: 'Done', customer: '', sales_lead: '', with: '', note: '', ...values },
       errors,
       kinds: VISIT_ENTRY_KINDS,
       customers: store.listCustomers(),
@@ -1040,18 +1040,21 @@ export function createRouter() {
     const errors = {};
     if (!name) errors.customer = 'Type the customer name.';
     // The visit is checked before anything is created, so a refused form leaves no new customer behind.
-    const { entry, errors: formErrors } = newConnect(req.body, { id: randomUUID().slice(0, 8), people: store.listPeople().filter((p) => p.active), today: todayIso() });
+    // The sales lead is typed as a name, so the visit is checked without a person id; the id is set below.
+    const { entry, errors: formErrors } = newConnect({ ...req.body, who_id: '' }, { id: randomUUID().slice(0, 8), people: [], today: todayIso() });
     if (entry && !VISIT_ENTRY_KINDS.includes(entry.kind)) formErrors.push('Pick a visit: to the EI centre or to customer premises.');
     if (Object.keys(errors).length || formErrors.length) {
       return renderVisits(req, res, { values: req.body, errors: { ...errors, form: formErrors.join(' ') }, status: 422 });
     }
     try {
-      // A name that is not a customer yet creates the customer, in the same commit as the visit (as opportunities do).
+      // A new customer or a new sales lead is created in the same commit as the visit (as opportunities do).
       const pending = [];
       const createdNames = [];
+      const leadName = String(req.body.sales_lead ?? '').trim();
+      const lead = leadName ? await ensurePerson(store, leadName, 'Sales', null, pending, createdNames) : null;
       const found = await ensureCustomer(store, name, pending, createdNames);
       const base = pending.find((c) => c.id === found.id) ?? found;
-      const saved = { ...base, connects: [...(base.connects ?? []), entry] };
+      const saved = { ...base, connects: [...(base.connects ?? []), { ...entry, who_id: lead?.id ?? null }] };
       const others = pending.filter((c) => c.id !== base.id);
       const extra = createdNames.length ? ` · created ${createdNames.join(', ')}` : '';
       await store.save([...others, saved], `${base.id}: visit ${entry.kind} on ${entry.on} (${entry.status})${extra}`);

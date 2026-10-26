@@ -41,7 +41,7 @@ describe('the Visits page for entering customer visits', () => {
       body: new URLSearchParams(fields),
     });
   const visitForm = (over = {}) => ({
-    customer: 'Bosch', kind: 'EI center visit', status: 'Done', on: '2026-10-20', who_id: '', with: 'Plant lead', note: 'Demo', ...over,
+    customer: 'Bosch', kind: 'EI center visit', status: 'Done', on: '2026-10-20', sales_lead: '', with: 'Plant lead', note: 'Demo', ...over,
   });
 
   test('the page has the entry form, with the customer, the visit and the status to pick', async () => {
@@ -90,6 +90,34 @@ describe('the Visits page for entering customer visits', () => {
     const res = await post('/visits', visitForm({ customer: 'Ghost Corp', kind: 'Teams' }));
     assert.equal(res.status, 422);
     assert.equal(store.findCustomerByName('Ghost Corp'), null);
+    assert.equal(Number(git(root, 'rev-list', '--count', 'HEAD')), before);
+  });
+
+  test('a sales lead that is already a person is matched, not duplicated', async () => {
+    const priya = store.findPersonByName('Priya S');
+    const people = store.listPeople().length;
+    await post('/visits', visitForm({ customer: 'Bosch', sales_lead: 'Priya S', with: 'Matched lead' }));
+    const saved = store.getCustomer('CU-0001').connects.at(-1);
+    assert.equal(saved.who_id, priya.id);
+    assert.equal(store.listPeople().length, people, 'no new person');
+  });
+
+  test('a new sales lead creates a Sales person, in the same commit as the visit', async () => {
+    const before = Number(git(root, 'rev-list', '--count', 'HEAD'));
+    const res = await post('/visits', visitForm({ customer: 'Bosch', sales_lead: 'Ravi Kumar', with: 'New lead' }));
+    assert.equal(res.status, 303);
+    assert.equal(Number(git(root, 'rev-list', '--count', 'HEAD')), before + 1, 'one commit');
+    const lead = store.findPersonByName('Ravi Kumar');
+    assert.ok(lead, 'the person was created');
+    assert.equal(lead.role, 'Sales');
+    assert.equal(store.getCustomer('CU-0001').connects.at(-1).who_id, lead.id);
+  });
+
+  test('a refused visit with a new sales lead creates no person', async () => {
+    const before = Number(git(root, 'rev-list', '--count', 'HEAD'));
+    const res = await post('/visits', visitForm({ customer: 'Bosch', sales_lead: 'Nobody Here', kind: 'Teams' }));
+    assert.equal(res.status, 422);
+    assert.equal(store.findPersonByName('Nobody Here'), null);
     assert.equal(Number(git(root, 'rev-list', '--count', 'HEAD')), before);
   });
 

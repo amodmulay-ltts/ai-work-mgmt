@@ -1322,3 +1322,5 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 **Rules.** The same as section 19: a planned visit is today or later, a done one is today or earlier. A refused form keeps what was typed. Mark done and Remove from this page return here.
 
 **Customer by name (added 2026-10-26).** The customer is typed as a name, with the known customers offered as suggestions, as on the opportunity form. A name that is not a customer yet creates the customer, in the same commit as the visit. A refused visit creates nothing.
+
+**Sales lead (added 2026-10-26).** The person on a visit is the sales lead, typed as a name. A name that is not a person yet creates a Sales person, in the same commit as the visit. A refused visit creates nothing.

@@ -189,7 +189,7 @@ export async function ensureCustomer(store, name, pending, created) {
   return customer;
 }
 
-async function ensurePerson(store, name, role, customerId, pending, created) {
+export async function ensurePerson(store, name, role, customerId, pending, created) {
   const key = name.toLowerCase();
   const claimed = pending.find((p) => p.name.toLowerCase() === key && p.role === role && p.customer_id === (customerId ?? p.customer_id));
   if (claimed) return claimed;

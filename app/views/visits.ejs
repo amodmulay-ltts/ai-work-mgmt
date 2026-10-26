@@ -6,6 +6,7 @@
 </div>
 
 <%- ui.datalist('visit-customers', customers.map((c) => c.name)) %>
+<%- ui.datalist('visit-people', people.map((p) => p.name)) %>
 
 <% if (errors.form) { %><p class="error" role="alert"><%= errors.form %></p><% } %>
 
@@ -18,7 +19,7 @@
       <%- ui.field({ name: 'kind', label: 'Visit', type: 'select', value: values.kind, required: true, options: kinds.map((k) => [k, k === 'EI center visit' ? 'Visit to the EI centre' : 'Visit to customer premises']) }) %>
       <%- ui.field({ name: 'status', label: 'Status', type: 'select', value: values.status, required: true, options: [['Done', 'Done'], ['Planned', 'Planned']] }) %>
       <%- f('on', 'Date', { type: 'date', required: true }) %>
-      <%- ui.field({ name: 'who_id', label: 'Our person', type: 'select', value: values.who_id, options: people.map((p) => [p.id, p.name]), placeholder: 'Unassigned' }) %>
+      <%- f('sales_lead', 'Sales lead', { list: 'visit-people', help: 'Type a new name to create the person on save.' }) %>
       <%- f('with', 'Who we met', { maxlength: 100 }) %>
       <%- f('note', 'Note', { type: 'textarea', span: true, rows: 3 }) %>
     </div>
@@ -49,7 +50,7 @@
             <th scope="col">Customer</th>
             <th scope="col">Visit</th>
             <th scope="col">Status</th>
-            <th scope="col">Our person</th>
+            <th scope="col">Sales lead</th>
             <th scope="col">Who we met</th>
             <th scope="col">Note</th>
             <th scope="col"><span class="sr-only">Actions</span></th>
