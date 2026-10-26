@@ -13,6 +13,17 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-10-23T16:13:09+02:00",
-  "updated_at": "2026-10-23T16:13:09+02:00",
-  "connects": []
+  "updated_at": "2026-10-26T13:32:42+01:00",
+  "connects": [
+    {
+      "id": "f8fe6f2a",
+      "on": "2026-10-08",
+      "kind": "EI center visit",
+      "status": "Done",
+      "who_id": null,
+      "with": "Mathieu Le Bras",
+      "note": "Mathieu Le Bras: R&D Performance Director. Topic: AI capabilities.",
+      "created_at": "2026-10-26T12:32:42.676Z"
+    }
+  ]
 }
