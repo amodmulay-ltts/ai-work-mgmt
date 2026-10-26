@@ -161,6 +161,18 @@ function dashboardView(store, cfg, today, me, tags) {
   };
 }
 
+/**
+ * The strip above the opportunities list: Won, Submitted (open and submitted), Lost, and everything else.
+ * The groups do not overlap, so they add up to the total. Tags apply, as on the list; status does not.
+ */
+function opportunitySummary(store, cfg, today, tags) {
+  const rows = store.listDeals().filter((d) => hasAllTags(d, tags)).map((d) => dealRow(d, store, cfg, today));
+  const won = rows.filter((r) => r.status === 'Won').length;
+  const lost = rows.filter((r) => r.status === 'Lost').length;
+  const submitted = rows.filter((r) => r.open && !!r.deal.submitted_on).length;
+  return { total: rows.length, won, submitted, lost, other: rows.length - won - lost - submitted };
+}
+
 /** Won opportunities: how many, and their estimated value per currency. */
 function wonToDate(deals, cfg) {
   const won = deals.filter((d) => stageInfo(cfg, d.stage)?.outcome === 'won');
@@ -311,6 +323,7 @@ function listDeals(store, cfg, today, query) {
     bu: query.bu || '',
     priority: query.priority || '',
     health: query.health || '',
+    submitted: query.submitted === '1' ? '1' : '',
     // Chart links (dashboard and wins page): open deals due in a month, and won or lost deals closed in a year.
     submit_month: /^\d{4}-\d{2}$/.test(query.submit_month ?? '') ? query.submit_month : '',
     closed_year: /^\d{4}$/.test(query.closed_year ?? '') ? query.closed_year : '',
@@ -337,6 +350,7 @@ function listDeals(store, cfg, today, query) {
   if (filter.closed_year) rows = rows.filter((r) => r.deal.closed_on?.slice(0, 4) === filter.closed_year);
   if (filter.priority) rows = rows.filter((r) => r.deal.priority === filter.priority);
   if (filter.health) rows = rows.filter((r) => r.health.level === filter.health);
+  if (filter.submitted) rows = rows.filter((r) => r.open && !!r.deal.submitted_on);
   if (q) {
     rows = rows.filter((r) => {
       const d = r.deal;
@@ -675,6 +689,7 @@ export function createRouter() {
       title: 'Opportunities',
       active: 'deals',
       ...listing,
+      summary: opportunitySummary(store, cfg, today, tagsFrom(req.query, cfg)),
       tagQuery: otherQuery(req.query),
       today,
       customers: store.listCustomers(),
