@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "CU-0020",
+  "name": "Linde",
+  "short_name": null,
+  "industry": null,
+  "region": null,
+  "country": null,
+  "bu": null,
+  "account_manager_id": null,
+  "c4c_account_id": null,
+  "website": null,
+  "tags": [],
+  "notes": "",
+  "created_at": "2026-10-26T13:32:42+01:00",
+  "updated_at": "2026-10-26T13:32:42+01:00",
+  "connects": [
+    {
+      "id": "5aadd3ea",
+      "on": "2026-07-28",
+      "kind": "Teams",
+      "status": "Done",
+      "who_id": "PE-0022",
+      "with": "Dexin Luo, Hiral Patel",
+      "note": "Online meeting.",
+      "created_at": "2026-10-26T12:32:42.936Z"
+    }
+  ]
+}
