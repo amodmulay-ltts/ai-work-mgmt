@@ -23,7 +23,7 @@
 
 <%- include('../partials/tag-filter', { all: cfg.tags, tags, base: '/opportunities', query: tagQuery }) %>
 
-<nav class="summary-strip" aria-label="Summary of opportunities">
+<div class="kpi-grid summary-strip" aria-label="Summary of opportunities">
   <a class="card kpi summary-item" href="/opportunities?status=won">
     <div class="kpi-label">Won</div>
     <div class="kpi-value"><%= summary.won %></div>
@@ -40,7 +40,7 @@
     <div class="kpi-label">Everything else</div>
     <div class="kpi-value"><%= summary.other %></div>
   </div>
-</nav>
+</div>
 
 <form method="get" action="/opportunities" class="filters" role="search">
   <label for="filter-from">Received from</label>
