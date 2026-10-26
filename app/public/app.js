@@ -185,6 +185,11 @@
       const id = event.dataTransfer.getData('text/plain');
       const card = document.querySelector(`[data-kanban-card][data-id="${id}"]`);
       if (!card || card.dataset.stage === lane.dataset.stage) return;
+      if (lane.dataset.outcome === 'lost' || lane.dataset.outcome === 'dropped') {
+        window.alert('Lost and Dropped need a reason. The opportunity will open so you can choose one.');
+        window.location.href = `/opportunities/${id}`;
+        return;
+      }
       const body = new URLSearchParams({ stage: lane.dataset.stage });
       try {
         const res = await fetch(`/opportunities/${id}/stage`, {

@@ -170,3 +170,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-26 — board — Linux
 - Done: /board, a kanban view with one lane per open stage. Cards can be dragged to another lane, which calls the stage route. Checked with a real drag in headless Chrome. 299 tests pass. Spec: PLAN.md section 21.
 - Not done: keyboard moves for cards (drag only), and Won, Lost and Dropped lanes.
+
+### 2026-10-26 — board closed lanes — Linux
+- Done: Won, Lost and Dropped are the last lanes. Won takes a drop; Lost and Dropped open the opportunity to choose the reason. 302 tests pass.

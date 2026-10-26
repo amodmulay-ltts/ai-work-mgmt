@@ -2,16 +2,16 @@
   <h1>Board</h1>
 </div>
 
-<p class="muted">Drag an opportunity to another stage. Won, Lost and Dropped are on the Opportunities list.</p>
+<p class="muted">Drag an opportunity to another stage. To mark it Lost or Dropped, drop it there and choose the reason on its page.</p>
 
 <%- include('partials/tag-filter', { all: cfg.tags, tags, base: '/board', query: tagQuery }) %>
 
 <div class="board" role="list">
   <% for (const lane of lanes) { %>
-    <section class="board-lane" data-stage="<%= lane.name %>" aria-label="<%= lane.name %>, <%= lane.rows.length %> opportunities" role="listitem">
+    <section class="board-lane" data-stage="<%= lane.name %>" aria-label="<%= lane.name %>, <%= lane.count %> opportunities" role="listitem" data-outcome="<%= lane.outcome %>">
       <header class="board-lane-head">
         <span class="board-lane-name"><%= lane.name %></span>
-        <span class="count"><%= lane.rows.length %></span>
+        <span class="count"><%= lane.count %></span>
       </header>
       <div class="board-lane-total muted"><%= lane.totalText %></div>
       <div class="board-cards">
@@ -26,7 +26,7 @@
             <div class="board-card-foot">
               <span><%= moneyCompact(d.est_value, d.currency) %></span>
               <% if (d.on_hold) { %><span class="tag">On hold</span><% } %>
-              <% if (d.submission_due && !d.submitted_on) { %><span class="rel">Submit <%= fmtDate(d.submission_due) %></span><% } %>
+              <% if (d.closed_on) { %><span class="rel">Closed <%= fmtDate(d.closed_on) %></span><% } else if (d.submission_due && !d.submitted_on) { %><span class="rel">Submit <%= fmtDate(d.submission_due) %></span><% } %>
             </div>
           </article>
         <% } %>

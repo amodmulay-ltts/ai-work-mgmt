@@ -46,9 +46,13 @@ describe('the board: open opportunities in lanes by stage, moved by dragging', (
     assert.ok(card > lead && card < qualified, 'the card is inside the Lead lane');
   });
 
-  test('won opportunities are not on the board', async () => {
+  test('the closed stages are lanes too: a won opportunity sits in the Won lane, and the lost and dropped lanes exist', async () => {
     const html = await (await fetch(`${base}/board`)).text();
-    assert.doesNotMatch(html, /Won card/);
+    const won = html.indexOf('data-stage="Won"');
+    assert.ok(won > 0, 'the Won lane exists');
+    assert.ok(html.indexOf('Won card') > won, 'the won card is in the Won lane');
+    assert.match(html, /data-stage="Lost" aria-label="Lost, 0 opportunities" role="listitem" data-outcome="lost"/);
+    assert.match(html, /data-stage="Dropped" aria-label="Dropped, 0 opportunities" role="listitem" data-outcome="dropped"/);
   });
 
   test('a card moved to another stage changes its stage and its probability, as the stage route does', async () => {
