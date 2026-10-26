@@ -23,7 +23,7 @@
 
 <%- include('../partials/tag-filter', { all: cfg.tags, tags, base: '/opportunities', query: tagQuery }) %>
 
-<nav class="summary-strip" aria-label="Summary of opportunities">
+<nav class="card summary-strip" aria-label="Summary of opportunities">
   <a class="summary-item" href="/opportunities?status=won"><span class="summary-num"><%= summary.won %></span><span class="summary-label">Won</span></a>
   <a class="summary-item" href="/opportunities?submitted=1"><span class="summary-num"><%= summary.submitted %></span><span class="summary-label">Submitted</span></a>
   <a class="summary-item" href="/opportunities?status=lost"><span class="summary-num"><%= summary.lost %></span><span class="summary-label">Lost</span></a>
