@@ -163,3 +163,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-26 — sales lead on visits — Linux
 - Done: on the Visits page, "Our person" is now Sales lead, typed as a name. A new name creates a Sales person in the same commit as the visit. 286 tests pass. The customer page still says "Our person".
+
+### 2026-10-26 — visit cards — Linux
+- Done: the visits block is two cards above Internal activities: Upcoming visits (table) and Completed visits (the count, which links to the Visits page filtered to Done). 287 tests pass.
