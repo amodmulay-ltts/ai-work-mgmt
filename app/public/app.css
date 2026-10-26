@@ -527,3 +527,19 @@ a.visit-total:hover, a.visit-total:focus-visible { text-decoration: underline; }
 a.summary-item { display: block; color: var(--text); text-decoration: none; }
 a.summary-item:hover { border-color: var(--border-strong); }
 a.summary-item:hover .kpi-label { color: var(--text); }
+
+/* board: kanban lanes by stage (PLAN.md §21) */
+.board { display: flex; gap: var(--s3); align-items: flex-start; overflow-x: auto; padding-bottom: var(--s3); }
+.board-lane { flex: 0 0 240px; background: var(--surface-muted); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--s3); min-height: 200px; }
+.board-lane.is-over { border-color: var(--primary); background: var(--primary-soft); }
+.board-lane-head { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-sm); font-weight: 600; }
+.board-lane-total { font-size: var(--fs-xs); margin: var(--s1) 0 var(--s3); }
+.board-cards { display: flex; flex-direction: column; gap: var(--s2); min-height: 120px; }
+.board-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s2) var(--s3); box-shadow: var(--shadow); cursor: grab; font-size: var(--fs-sm); }
+.board-card.is-dragging { opacity: 0.5; }
+.board-card-top { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-xs); }
+.board-card-title { display: block; font-weight: 600; color: var(--text); margin: var(--s1) 0; text-decoration: none; }
+.board-card-title:hover { text-decoration: underline; }
+.board-card-customer { font-size: var(--fs-xs); }
+.board-card-foot { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; font-size: var(--fs-xs); margin-top: var(--s1); }
+

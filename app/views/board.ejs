@@ -1,0 +1,36 @@
+<div class="page-header">
+  <h1>Board</h1>
+</div>
+
+<p class="muted">Drag an opportunity to another stage. Won, Lost and Dropped are on the Opportunities list.</p>
+
+<%- include('partials/tag-filter', { all: cfg.tags, tags, base: '/board', query: tagQuery }) %>
+
+<div class="board" role="list">
+  <% for (const lane of lanes) { %>
+    <section class="board-lane" data-stage="<%= lane.name %>" aria-label="<%= lane.name %>, <%= lane.rows.length %> opportunities" role="listitem">
+      <header class="board-lane-head">
+        <span class="board-lane-name"><%= lane.name %></span>
+        <span class="count"><%= lane.rows.length %></span>
+      </header>
+      <div class="board-lane-total muted"><%= lane.totalText %></div>
+      <div class="board-cards">
+        <% for (const r of lane.rows) { const d = r.deal; %>
+          <article class="board-card" draggable="true" data-kanban-card data-id="<%= d.id %>" data-stage="<%= d.stage %>">
+            <div class="board-card-top">
+              <a class="mono" href="/opportunities/<%= d.id %>"><%= d.id %></a>
+              <%- ui.healthDot(r.health) %>
+            </div>
+            <a class="board-card-title" href="/opportunities/<%= d.id %>"><%= d.title %></a>
+            <div class="muted board-card-customer"><%= r.customerName %></div>
+            <div class="board-card-foot">
+              <span><%= moneyCompact(d.est_value, d.currency) %></span>
+              <% if (d.on_hold) { %><span class="tag">On hold</span><% } %>
+              <% if (d.submission_due && !d.submitted_on) { %><span class="rel">Submit <%= fmtDate(d.submission_due) %></span><% } %>
+            </div>
+          </article>
+        <% } %>
+      </div>
+    </section>
+  <% } %>
+</div>

@@ -1324,3 +1324,12 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 **Customer by name (added 2026-10-26).** The customer is typed as a name, with the known customers offered as suggestions, as on the opportunity form. A name that is not a customer yet creates the customer, in the same commit as the visit. A refused visit creates nothing.
 
 **Sales lead (added 2026-10-26).** The person on a visit is the sales lead, typed as a name. A name that is not a person yet creates a Sales person, in the same commit as the visit. A refused visit creates nothing.
+
+## 21. Board (kanban)
+
+**Purpose.** See the open opportunities as cards in lanes by stage, and move a card to another stage by dragging it.
+
+**Page.** /board, in the navigation. One lane per open stage, in the configured order. Each lane shows its count and the EUR total. A lean card shows the ID, title, customer, value, health, and the submission date while not yet submitted. On hold shows as a tag.
+
+**Rules.** Only open stages are lanes. Won, Lost and Dropped are not on the board, because Lost and Dropped need a reason, and they are on the Opportunities list. A drop calls the same stage route as the opportunity page, so the probability and dates change in the same way. The tag filter applies.
+

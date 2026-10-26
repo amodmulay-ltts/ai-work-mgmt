@@ -64,9 +64,37 @@
       "text": "Incumbent: nON → Non",
       "from_value": "nON",
       "to_value": "Non"
+    },
+    {
+      "at": "2026-10-26T14:35:26+01:00",
+      "kind": "stage",
+      "text": "Stage: Proposal Submitted → Clarification / Negotiation",
+      "from_value": "Proposal Submitted",
+      "to_value": "Clarification / Negotiation"
+    },
+    {
+      "at": "2026-10-26T14:35:28+01:00",
+      "kind": "stage",
+      "text": "Stage: Clarification / Negotiation → Proposal Submitted",
+      "from_value": "Clarification / Negotiation",
+      "to_value": "Proposal Submitted"
+    },
+    {
+      "at": "2026-10-26T14:35:29+01:00",
+      "kind": "stage",
+      "text": "Stage: Proposal Submitted → Clarification / Negotiation",
+      "from_value": "Proposal Submitted",
+      "to_value": "Clarification / Negotiation"
+    },
+    {
+      "at": "2026-10-26T14:35:30+01:00",
+      "kind": "stage",
+      "text": "Stage: Clarification / Negotiation → Proposal Submitted",
+      "from_value": "Clarification / Negotiation",
+      "to_value": "Proposal Submitted"
     }
   ],
   "created_at": "2026-10-21T10:33:07+02:00",
-  "updated_at": "2026-10-21T15:02:19+02:00",
+  "updated_at": "2026-10-26T14:35:30+01:00",
   "type": "Lead"
 }
