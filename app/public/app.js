@@ -10,7 +10,7 @@
   });
 
   // 2. Auto-submit: a select with data-autosubmit submits its form when it changes.
-  document.querySelectorAll('select[data-autosubmit]').forEach((select) => {
+  document.querySelectorAll('select[data-autosubmit], input[data-autosubmit]').forEach((select) => {
     select.addEventListener('change', () => select.form.submit());
   });
 
