@@ -1297,3 +1297,19 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 **Where.** A Merge… link on each row of the People page, which opens the merge page with the counts of what will move.
 
+## 19. Customer visits (EI centre and customer premises)
+
+**Purpose.** Plan and record visits to a customer. There are two kinds: a visit to the EI centre, and a visit to the customer's premises. Teams meetings stay as they were (section 16).
+
+**Kinds.** Teams, EI center visit, Customer premises visit. The older kind 'Visit' is kept, so existing entries still load and show as they were saved.
+
+**Status.** Each connect is Planned or Done. A Planned visit must be today or later. A Done one cannot be in the future. An entry with no status (from before this section) is Done.
+
+**Counting.** Only Done connects update the "last connected" date and the flag (section 16). Completed visits are the Done entries of the visit kinds (not Teams).
+
+**Pages.**
+- Customer page: the Connections card shows the visit totals, the upcoming planned visits, and a Status column. A planned visit has a Mark done action, which only works from its date.
+- Dashboard: a Customer visits card with the completed total (and this year) and the next ten planned visits, each linked to its customer.
+
+**Not in scope yet.** Calendar export, reminders, and visits in the Excel exports.
+

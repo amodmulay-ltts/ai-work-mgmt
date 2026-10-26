@@ -7,7 +7,7 @@ import {
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
 import { resolveTags } from './lib/tags.js';
-import { connectState, connectSummary, newConnect } from './lib/connects.js';
+import { connectState, connectSummary, isDone, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { noteEntry } from './history.js';
 import { moveReferences, personUsage } from './lib/merge.js';
@@ -119,8 +119,18 @@ function dashboardView(store, cfg, today, me, tags) {
       .sort((x, y) => x.last.localeCompare(y.last))
       .slice(0, 8),
   };
+  // Customer visits (EI centre and customer premises; not Teams). Completed counts, and the next planned ones.
+  const customers = store.listCustomers();
+  const visits = {
+    completed: visitCounts(customers.flatMap((c) => c.connects), today.slice(0, 4)),
+    upcoming: customers
+      .flatMap((c) => plannedConnects(c.connects, today).filter(isVisit).map((x) => ({ ...x, customer: c.name, customerId: c.id, whoName: store.getPerson(x.who_id)?.name ?? '—' })))
+      .sort((a, b) => a.on.localeCompare(b.on))
+      .slice(0, 10),
+  };
   return {
     connectFlags,
+    visits,
     activities: activityView,
     kpi: {
       open: open.length,
@@ -973,6 +983,8 @@ export function createRouter() {
         .sort((a, b) => b.on.localeCompare(a.on))
         .map((c) => ({ ...c, whoName: store.getPerson(c.who_id)?.name ?? '—' })),
       connect: connectState(customer, today, cfg.connect_after_days),
+      planned: plannedConnects(customer.connects, today).map((c) => ({ ...c, whoName: store.getPerson(c.who_id)?.name ?? '—' })),
+      visits: visitCounts(customer.connects, today.slice(0, 4)),
       people: store.listPeople().filter((p) => p.active),
       today,
     });
@@ -995,6 +1007,25 @@ export function createRouter() {
     } catch (err) {
       if (!(err instanceof ValidationError)) throw err;
       flash(res, 'error', err.errors.map(plain).join('; '));
+    }
+    return res.redirect(303, `/customers/${customer.id}`);
+  });
+
+  // A planned visit that has happened is marked Done. It cannot be done before its date.
+  router.post('/customers/:id/connects/:connectId/done', async (req, res) => {
+    const { store } = req.app.locals;
+    const customer = store.getCustomer(req.params.id);
+    if (!customer) return notFound(req, res, 'This customer');
+    const today = todayIso();
+    const planned = customer.connects.find((c) => c.id === req.params.connectId && !isDone(c));
+    if (!planned) {
+      flash(res, 'error', 'That planned visit no longer exists.');
+    } else if (planned.on > today) {
+      flash(res, 'error', `It is on ${planned.on}, so it can be marked done from that day.`);
+    } else {
+      const connects = customer.connects.map((c) => (c.id === planned.id ? { ...c, status: 'Done' } : c));
+      await store.save([{ ...customer, connects }], `${customer.id}: ${planned.kind} on ${planned.on} done`);
+      flash(res, 'success', 'Marked as done.');
     }
     return res.redirect(303, `/customers/${customer.id}`);
   });

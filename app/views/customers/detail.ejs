@@ -26,6 +26,17 @@
           Never connected. Log a Teams meeting or a visit below.
         <% } %>
       </p>
+      <p class="muted">
+        Visits: <%= visits.total %> completed (<%= visits.inYear %> this year)<% if (planned.length) { %> · <%= planned.length %> planned<% } %>
+      </p>
+      <% if (planned.length) { %>
+        <h3>Upcoming</h3>
+        <ul class="plain-list">
+          <% for (const c of planned) { %>
+            <li><%= fmtDate(c.on) %> · <%= c.kind %> · <%= c.whoName %><% if (c.with) { %> with <%= c.with %><% } %></li>
+          <% } %>
+        </ul>
+      <% } %>
       <% if (connects.length) { %>
         <div class="table-wrap">
           <table class="table">
@@ -33,6 +44,7 @@
               <tr>
                 <th scope="col">Date</th>
                 <th scope="col">Kind</th>
+                <th scope="col">Status</th>
                 <th scope="col">Our person</th>
                 <th scope="col">Met</th>
                 <th scope="col">Note</th>
@@ -44,10 +56,16 @@
                 <tr>
                   <td><%= fmtDate(c.on) %></td>
                   <td><%= c.kind %></td>
+                  <td><%= c.status ?? 'Done' %></td>
                   <td><%= c.whoName %></td>
                   <td><%= c.with || '—' %></td>
                   <td class="ellipsis" title="<%= c.note %>"><%= c.note || '—' %></td>
                   <td class="row-actions">
+                    <% if ((c.status ?? 'Done') === 'Planned') { %>
+                      <form method="post" action="/customers/<%= customer.id %>/connects/<%= c.id %>/done" class="inline">
+                        <button class="btn btn-ghost btn-sm" type="submit">Mark done</button>
+                      </form>
+                    <% } %>
                     <form method="post" action="/customers/<%= customer.id %>/connects/<%= c.id %>/delete" class="inline" data-confirm="Remove this connect?">
                       <button class="btn btn-ghost btn-sm" type="submit">Remove</button>
                     </form>
@@ -61,13 +79,21 @@
       <form method="post" action="/customers/<%= customer.id %>/connects" class="ask-form">
         <div class="field">
           <label for="connect-on">Date</label>
-          <input type="date" id="connect-on" name="on" required max="<%= today %>" value="<%= today %>">
+          <input type="date" id="connect-on" name="on" required value="<%= today %>">
         </div>
         <div class="field">
           <label for="connect-kind">Kind</label>
           <select id="connect-kind" name="kind" required>
             <option value="Teams">Teams</option>
-            <option value="Visit">Visit</option>
+            <option value="EI center visit">Visit to the EI centre</option>
+            <option value="Customer premises visit">Visit to customer premises</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="connect-status">Status</label>
+          <select id="connect-status" name="status">
+            <option value="Done">Done</option>
+            <option value="Planned">Planned</option>
           </select>
         </div>
         <div class="field">

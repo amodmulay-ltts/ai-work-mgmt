@@ -150,3 +150,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-23 — customer in recently updated — Linux
 - Done: Recently updated shows the customer name after the title. The column is switched on for the dashboard only, so the customer page is unchanged. 264 tests pass.
+
+### 2026-10-26 — customer visits — Linux
+- Done: two visit kinds (EI centre, customer premises) next to Teams. Each connect is Planned or Done. The customer page lists upcoming visits with Mark done; the dashboard has a Customer visits card with completed totals and the next ten planned visits. 274 tests pass. Spec: PLAN.md section 19.
+- Open question: the old kind Visit is kept as it was saved. Confirm whether it means EI centre or premises.

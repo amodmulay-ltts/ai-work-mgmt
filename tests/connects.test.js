@@ -37,9 +37,11 @@ describe('connect rules', () => {
     assert.deepEqual([entry.on, entry.kind, entry.who_id, entry.with, entry.note], ['2026-10-20', 'Teams', 'PE-0001', 'Procurement', 'Scope call']);
   });
 
-  test('a connect cannot be in the future, and only Teams or Visit are kinds', () => {
+  test('a completed connect cannot be in the future, and the kinds are checked', () => {
     assert.match(newConnect(form({ on: '2026-10-22' }), { id: 'x', people: PEOPLE, today: TODAY }).errors[0], /future/);
-    assert.match(newConnect(form({ kind: 'Call' }), { id: 'x', people: PEOPLE, today: TODAY }).errors[0], /Teams or Visit/);
+    assert.match(newConnect(form({ kind: 'Call' }), { id: 'x', people: PEOPLE, today: TODAY }).errors[0], /kind/);
+    assert.equal(newConnect(form({ kind: 'EI center visit' }), { id: 'x', people: PEOPLE, today: TODAY }).errors.length, 0);
+    assert.equal(newConnect(form({ kind: 'Customer premises visit' }), { id: 'x', people: PEOPLE, today: TODAY }).errors.length, 0);
   });
 
   test('our person must be an active person in the list, and the person is optional', () => {

@@ -92,6 +92,11 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 - **The UI says opportunity; the code says deal.** Visible text and URLs (`/deals` to `/opportunities`) changed. Old /deals links redirect (308). `DL-` ids and `data/deals/` are kept, so no records move.
 - **Dashboard and deals list filter by tag** with `?tag=…` (repeatable). A deal must have every tag picked. Unknown tags are ignored.
 
+### Made while adding customer visits (2026-10-26)
+- **Planned and Done are a status on the connect**, not separate lists, so one list per customer still holds the whole history.
+- **Only Done connects count for the flag and the completed total.** A planned visit does not clear the 'not connected' flag.
+- **The old Visit kind stays.** Nothing is migrated, so existing files keep their meaning.
+
 ### Made while making EUR the only currency (2026-10-22)
 - **All values are EUR**, as the user confirmed. USD and GBP are removed from the config, the forms and Settings. The helpers still accept any code, so no other code needed to change.
 - **Older files are read as EUR in memory, with their amounts kept.** The file changes only when it is next saved. Git keeps the old code.
