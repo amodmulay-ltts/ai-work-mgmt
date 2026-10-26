@@ -39,7 +39,7 @@ describe('the opportunities summary strip', () => {
 
   const strip = async (path = '/opportunities') => {
     const html = await (await fetch(base + path)).text();
-    return [...html.matchAll(/summary-num">(\d+)</g)].map((m) => Number(m[1]));
+    return [...html.matchAll(/kpi-label">[^<]*<\/div>\s*<div class="kpi-value">(\d+)<\/div>/g)].map((m) => Number(m[1]));
   };
 
   test('the four numbers are Won, Submitted, Lost and everything else, and they add up to the total', async () => {
