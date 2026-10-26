@@ -73,6 +73,13 @@ describe('the app can be installed as a PWA', () => {
     assert.match(js, /\/static\//, 'it caches only the static files');
   });
 
+  test('the service worker asks the server first, and uses its cache only when the server is unreachable', async () => {
+    const js = await (await fetch(`${base}/sw.js`)).text();
+    assert.match(js, /work-tracker-static-v2/, 'a new cache name drops the stale cache');
+    assert.match(js, /fetch\(event\.request\)\s*\.then/, 'the network comes first');
+    assert.match(js, /\.catch\(\(\) => caches\.match\(event\.request\)\)/, 'the cache is the fallback');
+  });
+
   test('the pages link the manifest and the icon, and the script registers the worker', async () => {
     const html = await (await fetch(`${base}/`)).text();
     assert.match(html, /<link rel="manifest" href="\/static\/manifest\.webmanifest">/);

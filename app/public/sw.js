@@ -1,6 +1,6 @@
-// Work Tracker service worker. It only caches the app's static files (CSS, JS, icons), so the install
-// works and the look loads quickly. Pages and data always come from the local server, so they are never stale.
-const CACHE = 'work-tracker-static-v1';
+// Work Tracker service worker. It caches the app's static files (CSS, JS, icons) as a fallback only. The server's
+// copy is always asked for first, so a change to the look shows at once. Pages and data always come from the server.
+const CACHE = 'work-tracker-static-v2';
 const STATIC = [
   '/static/app.css',
   '/static/app.js',
@@ -27,6 +27,12 @@ self.addEventListener('fetch', (event) => {
     return; // pages, forms, the API and exports always go to the server
   }
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request)),
+    fetch(event.request)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+        return res;
+      })
+      .catch(() => caches.match(event.request)),
   );
 });
