@@ -1,8 +1,13 @@
 <%
+  // The form opens when a save was refused, so the typed values and the message stay in view.
+  const showForm = Object.keys(errors).length > 0;
   const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
 %>
 <div class="page-header">
   <h1>Customer visits</h1>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" data-reveal="visit-form" aria-expanded="<%= showForm ? 'true' : 'false' %>" aria-controls="visit-form">+ Log a visit</button>
+  </div>
 </div>
 
 <%- ui.datalist('visit-customers', customers.map((c) => c.name)) %>
@@ -10,7 +15,7 @@
 
 <% if (errors.form) { %><p class="error" role="alert"><%= errors.form %></p><% } %>
 
-<section class="card form-section">
+<section id="visit-form" class="card form-section"<%- showForm ? '' : ' hidden' %>>
   <h3>Log a visit</h3>
   <p class="muted">A visit to the EI centre or to a customer's premises. Use Planned for a visit that has not happened yet, and Done once it has.</p>
   <form method="post" action="/visits" class="deal-form" novalidate>
