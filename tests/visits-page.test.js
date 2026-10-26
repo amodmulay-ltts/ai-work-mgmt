@@ -55,6 +55,19 @@ describe('the Visits page for entering customer visits', () => {
     assert.match(html, /Visit to customer premises/);
   });
 
+  test('the form is hidden until the Log a visit button opens it', async () => {
+    const html = await (await fetch(`${base}/visits`)).text();
+    assert.match(html, /<section id="visit-form" class="card form-section" hidden>/);
+    assert.match(html, /<button type="button" class="btn btn-primary" data-reveal="visit-form"[^>]*>\+ Log a visit<\/button>/);
+  });
+
+  test('a refused visit opens the form again, with what was typed', async () => {
+    const res = await post('/visits', visitForm({ kind: 'Teams', with: 'Kept open' }));
+    const html = await res.text();
+    assert.match(html, /<section id="visit-form" class="card form-section">/);
+    assert.match(html, /value="Kept open"/);
+  });
+
   test('a completed visit to customer premises is saved on the customer', async () => {
     const res = await post('/visits', visitForm({ kind: 'Customer premises visit' }));
     assert.equal(res.status, 303);
