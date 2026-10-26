@@ -412,6 +412,9 @@ async function renderDealForm(req, res, { existing, values, errors = {}, formErr
   }, code);
 }
 
+/** Where a row action returns: the Visits page when the row came from there, otherwise the customer page. */
+const backTo = (req, customer) => (req.body.next === '/visits' ? '/visits' : `/customers/${customer.id}`);
+
 /** Shared by create and update: parse, pull (on create), save, then redirect to the opportunity. */
 async function saveDealFromForm(req, res, { existing }) {
   const { store } = req.app.locals;
@@ -990,6 +993,67 @@ export function createRouter() {
     });
   });
 
+  // ------------------------------------------------ customer visits page (data entry) (PLAN.md §20)
+  // Every visit to the EI centre or a customer's premises, across all customers, with a form to log one.
+  const VISIT_ENTRY_KINDS = ['EI center visit', 'Customer premises visit'];
+
+  function visitRowsFor(store, today) {
+    return store
+      .listCustomers()
+      .flatMap((c) => c.connects.filter(isVisit).map((x) => ({
+        ...x,
+        status: x.status ?? 'Done',
+        customerId: c.id,
+        customer: c.name,
+        whoName: store.getPerson(x.who_id)?.name ?? '—',
+      })))
+      .sort((a, b) => b.on.localeCompare(a.on) || a.customer.localeCompare(b.customer));
+  }
+
+  async function renderVisits(req, res, { values = {}, errors = {}, status: code = 200, filter = '' }) {
+    const { store } = req.app.locals;
+    const today = todayIso();
+    const rows = visitRowsFor(store, today).filter((v) => !filter || v.status === filter);
+    await renderPage(req, res, 'visits', {
+      title: 'Customer visits',
+      active: 'visits',
+      rows,
+      filter,
+      values: { on: today, kind: VISIT_ENTRY_KINDS[0], status: 'Done', customer_id: '', who_id: '', with: '', note: '', ...values },
+      errors,
+      kinds: VISIT_ENTRY_KINDS,
+      customers: store.listCustomers(),
+      people: store.listPeople().filter((p) => p.active),
+      today,
+    }, code);
+  }
+
+  router.get('/visits', async (req, res) => {
+    const filter = ['Planned', 'Done'].includes(req.query.status) ? req.query.status : '';
+    const values = req.query.customer ? { customer_id: String(req.query.customer) } : {};
+    await renderVisits(req, res, { filter, values });
+  });
+
+  router.post('/visits', async (req, res) => {
+    const { store } = req.app.locals;
+    const customer = store.getCustomer(String(req.body.customer_id ?? ''));
+    const errors = {};
+    if (!customer) errors.customer_id = 'Pick the customer.';
+    const { entry, errors: formErrors } = newConnect(req.body, { id: randomUUID().slice(0, 8), people: store.listPeople().filter((p) => p.active), today: todayIso() });
+    if (entry && !VISIT_ENTRY_KINDS.includes(entry.kind)) formErrors.push('Pick a visit: to the EI centre or to customer premises.');
+    if (Object.keys(errors).length || formErrors.length) {
+      return renderVisits(req, res, { values: req.body, errors: { ...errors, form: formErrors.join(' ') }, status: 422 });
+    }
+    try {
+      await store.save([{ ...customer, connects: [...customer.connects, entry] }], `${customer.id}: visit ${entry.kind} on ${entry.on} (${entry.status})`);
+      flash(res, 'success', `${entry.status === 'Planned' ? 'Planned' : 'Logged'} visit to ${customer.name} on ${entry.on}.`);
+      return res.redirect(303, '/visits');
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderVisits(req, res, { values: req.body, errors: { form: err.errors.map(plain).join('; ') }, status: 422 });
+    }
+  });
+
   // Connects (Teams meetings and visits) are logged on the customer. Each one is saved as its own change.
   router.post('/customers/:id/connects', async (req, res) => {
     const { store } = req.app.locals;
@@ -1027,7 +1091,7 @@ export function createRouter() {
       await store.save([{ ...customer, connects }], `${customer.id}: ${planned.kind} on ${planned.on} done`);
       flash(res, 'success', 'Marked as done.');
     }
-    return res.redirect(303, `/customers/${customer.id}`);
+    return res.redirect(303, backTo(req, customer));
   });
 
   router.post('/customers/:id/connects/:connectId/delete', async (req, res) => {
@@ -1037,11 +1101,11 @@ export function createRouter() {
     const gone = customer.connects.find((c) => c.id === req.params.connectId);
     if (!gone) {
       flash(res, 'error', 'That connect no longer exists.');
-      return res.redirect(303, `/customers/${customer.id}`);
+      return res.redirect(303, backTo(req, customer));
     }
     await store.save([{ ...customer, connects: customer.connects.filter((c) => c.id !== gone.id) }], `${customer.id}: connect on ${gone.on} removed`);
     flash(res, 'success', 'Connect removed.');
-    return res.redirect(303, `/customers/${customer.id}`);
+    return res.redirect(303, backTo(req, customer));
   });
 
   router.get('/customers/:id/edit', async (req, res) => {

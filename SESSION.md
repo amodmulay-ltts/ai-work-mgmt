@@ -154,3 +154,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-26 — customer visits — Linux
 - Done: two visit kinds (EI centre, customer premises) next to Teams. Each connect is Planned or Done. The customer page lists upcoming visits with Mark done; the dashboard has a Customer visits card with completed totals and the next ten planned visits. 274 tests pass. Spec: PLAN.md section 19.
 - Open question: the old kind Visit is kept as it was saved. Confirm whether it means EI centre or premises.
+
+### 2026-10-26 — visits page — Linux
+- Done: /visits page, in the nav, for entering visits to the EI centre and customer premises for any customer. Lists all visits with a Planned or Done filter, and Mark done and Remove return to it. 281 tests pass. Spec: PLAN.md section 20.
