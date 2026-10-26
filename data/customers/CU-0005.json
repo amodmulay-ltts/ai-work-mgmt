@@ -24,6 +24,16 @@
       "with": "Uwe Köhler",
       "note": "Topic: AI capabilities.",
       "created_at": "2026-10-26T12:32:42.655Z"
+    },
+    {
+      "id": "4cdfe8b9",
+      "on": "2026-08-04",
+      "kind": "EI center visit",
+      "status": "Done",
+      "who_id": "PE-0009",
+      "with": "Omid Sharif",
+      "note": "Infotainment and ADAS are coming together. Highly integrated platform (HIP). Show: SIMA AI, ReqSpec, drivesomethinggreater.com.",
+      "created_at": "2026-10-26T12:32:42.897Z"
     }
   ]
 }
