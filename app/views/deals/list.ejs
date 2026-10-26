@@ -31,6 +31,10 @@
 </nav>
 
 <form method="get" action="/opportunities" class="filters" role="search">
+  <label for="filter-from">Received from</label>
+  <input type="date" id="filter-from" name="from" value="<%= filter.from %>" data-autosubmit>
+  <label for="filter-to">to</label>
+  <input type="date" id="filter-to" name="to" value="<%= filter.to %>" data-autosubmit>
   <input type="search" name="q" value="<%= filter.q %>" placeholder="Search opportunities…" aria-label="Search opportunities" class="search">
   <%- ui.selectControl({ name: 'status', value: filter.status, options: statusOptions, ariaLabel: 'Status' }) %>
   <%- ui.selectControl({ name: 'stage', value: filter.stage, placeholder: 'All stages', ariaLabel: 'Stage', options: cfg.stages.map((s) => [s.name, s.name]) }) %>

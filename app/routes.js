@@ -324,6 +324,8 @@ function listDeals(store, cfg, today, query) {
     priority: query.priority || '',
     health: query.health || '',
     submitted: query.submitted === '1' ? '1' : '',
+    from: isIsoDate(query.from ?? '') ? query.from : '',
+    to: isIsoDate(query.to ?? '') ? query.to : '',
     // Chart links (dashboard and wins page): open deals due in a month, and won or lost deals closed in a year.
     submit_month: /^\d{4}-\d{2}$/.test(query.submit_month ?? '') ? query.submit_month : '',
     closed_year: /^\d{4}$/.test(query.closed_year ?? '') ? query.closed_year : '',
@@ -351,6 +353,9 @@ function listDeals(store, cfg, today, query) {
   if (filter.priority) rows = rows.filter((r) => r.deal.priority === filter.priority);
   if (filter.health) rows = rows.filter((r) => r.health.level === filter.health);
   if (filter.submitted) rows = rows.filter((r) => r.open && !!r.deal.submitted_on);
+  // Received between two dates, both included. Either end can be left open.
+  if (filter.from) rows = rows.filter((r) => r.deal.received_on >= filter.from);
+  if (filter.to) rows = rows.filter((r) => r.deal.received_on <= filter.to);
   if (q) {
     rows = rows.filter((r) => {
       const d = r.deal;
