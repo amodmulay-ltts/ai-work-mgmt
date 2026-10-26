@@ -1,16 +1,17 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import { createApp } from '../app/server.js';
-import { cleanup, makeClone, makeRemote } from './helpers.js';
+import { cleanup, git, makeClone, makeRemote } from './helpers.js';
 
 describe('the Visits page for entering customer visits', () => {
   let base;
   let store;
+  let root;
   let close;
 
   before(async () => {
     const remote = await makeRemote();
-    const root = await makeClone(remote.dir, 'app', null);
+    root = await makeClone(remote.dir, 'app', null);
     const created = await createApp({ root, syncEnabled: false });
     store = created.store;
     const server = await new Promise((resolve) => {
@@ -40,7 +41,7 @@ describe('the Visits page for entering customer visits', () => {
       body: new URLSearchParams(fields),
     });
   const visitForm = (over = {}) => ({
-    customer_id: 'CU-0001', kind: 'EI center visit', status: 'Done', on: '2026-10-20', who_id: '', with: 'Plant lead', note: 'Demo', ...over,
+    customer: 'Bosch', kind: 'EI center visit', status: 'Done', on: '2026-10-20', who_id: '', with: 'Plant lead', note: 'Demo', ...over,
   });
 
   test('the page has the entry form, with the customer, the visit and the status to pick', async () => {
@@ -48,8 +49,8 @@ describe('the Visits page for entering customer visits', () => {
     assert.equal(res.status, 200);
     const html = await res.text();
     assert.match(html, /<h3>Log a visit<\/h3>/);
-    assert.match(html, /<select id="f-customer_id" name="customer_id"/);
-    assert.match(html, /<option value="CU-0001">Bosch<\/option>/);
+    assert.match(html, /<input[^>]*id="f-customer"[^>]*list="visit-customers"/);
+    assert.match(html, /<datalist id="visit-customers"><option value="Bosch"><\/option>/);
     assert.match(html, /Visit to the EI centre/);
     assert.match(html, /Visit to customer premises/);
   });
@@ -73,6 +74,25 @@ describe('the Visits page for entering customer visits', () => {
     assert.doesNotMatch(html, /20 Oct 2026/, 'the filter keeps only the planned visits');
   });
 
+  test('a customer name that is not in the list creates the customer, in the same commit as the visit', async () => {
+    const before = Number(git(root, 'rev-list', '--count', 'HEAD'));
+    const res = await post('/visits', visitForm({ customer: 'Tata Motors', kind: 'Customer premises visit', status: 'Done' }));
+    assert.equal(res.status, 303);
+    assert.equal(Number(git(root, 'rev-list', '--count', 'HEAD')), before + 1, 'one commit');
+    const created = store.findCustomerByName('Tata Motors');
+    assert.ok(created, 'the customer was created');
+    assert.equal(created.connects.at(-1).kind, 'Customer premises visit');
+    assert.match(git(root, 'log', '-1', '--format=%s'), /created customer "Tata Motors"/);
+  });
+
+  test('a refused visit with a new customer name creates no customer', async () => {
+    const before = Number(git(root, 'rev-list', '--count', 'HEAD'));
+    const res = await post('/visits', visitForm({ customer: 'Ghost Corp', kind: 'Teams' }));
+    assert.equal(res.status, 422);
+    assert.equal(store.findCustomerByName('Ghost Corp'), null);
+    assert.equal(Number(git(root, 'rev-list', '--count', 'HEAD')), before);
+  });
+
   test('a Teams meeting is refused here, and the typed values are kept on the form', async () => {
     const before = store.getCustomer('CU-0001').connects.length;
     const res = await post('/visits', visitForm({ kind: 'Teams', with: 'Typed name' }));
@@ -86,7 +106,7 @@ describe('the Visits page for entering customer visits', () => {
   test('a planned visit in the past is refused, and a visit needs a customer', async () => {
     const before = store.getCustomer('CU-0001').connects.length;
     assert.equal((await post('/visits', visitForm({ status: 'Planned', on: '2020-01-01' }))).status, 422);
-    assert.equal((await post('/visits', visitForm({ customer_id: '' }))).status, 422);
+    assert.equal((await post('/visits', visitForm({ customer: '' }))).status, 422);
     assert.equal(store.getCustomer('CU-0001').connects.length, before);
   });
 

@@ -5,6 +5,8 @@
   <h1>Customer visits</h1>
 </div>
 
+<%- ui.datalist('visit-customers', customers.map((c) => c.name)) %>
+
 <% if (errors.form) { %><p class="error" role="alert"><%= errors.form %></p><% } %>
 
 <section class="card form-section">
@@ -12,7 +14,7 @@
   <p class="muted">A visit to the EI centre or to a customer's premises. Use Planned for a visit that has not happened yet, and Done once it has.</p>
   <form method="post" action="/visits" class="deal-form" novalidate>
     <div class="form-grid">
-      <%- ui.field({ name: 'customer_id', label: 'Customer', type: 'select', value: values.customer_id, required: true, options: customers.map((c) => [c.id, c.name]), placeholder: 'Choose a customer', error: errors.customer_id || '' }) %>
+      <%- f('customer', 'Customer', { required: true, list: 'visit-customers', help: 'Type a new name to create the customer on save.' }) %>
       <%- ui.field({ name: 'kind', label: 'Visit', type: 'select', value: values.kind, required: true, options: kinds.map((k) => [k, k === 'EI center visit' ? 'Visit to the EI centre' : 'Visit to customer premises']) }) %>
       <%- ui.field({ name: 'status', label: 'Status', type: 'select', value: values.status, required: true, options: [['Done', 'Done'], ['Planned', 'Planned']] }) %>
       <%- f('on', 'Date', { type: 'date', required: true }) %>
