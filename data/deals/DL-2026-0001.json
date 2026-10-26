@@ -18,9 +18,9 @@
   "bu": "Mobility",
   "practice": "SAI",
   "region": "Europe",
-  "stage": "Proposal Submitted",
+  "stage": "Clarification / Negotiation",
   "on_hold": false,
-  "probability": 50,
+  "probability": 70,
   "priority": "Medium",
   "go_no_go": "Pending",
   "go_no_go_on": null,
@@ -64,9 +64,16 @@
       "text": "Incumbent: nON → Non",
       "from_value": "nON",
       "to_value": "Non"
+    },
+    {
+      "at": "2026-10-26T14:35:26+01:00",
+      "kind": "stage",
+      "text": "Stage: Proposal Submitted → Clarification / Negotiation",
+      "from_value": "Proposal Submitted",
+      "to_value": "Clarification / Negotiation"
     }
   ],
   "created_at": "2026-10-21T10:33:07+02:00",
-  "updated_at": "2026-10-21T15:02:19+02:00",
+  "updated_at": "2026-10-26T14:35:26+01:00",
   "type": "Lead"
 }
