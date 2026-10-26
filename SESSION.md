@@ -157,3 +157,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-26 — visits page — Linux
 - Done: /visits page, in the nav, for entering visits to the EI centre and customer premises for any customer. Lists all visits with a Planned or Done filter, and Mark done and Remove return to it. 281 tests pass. Spec: PLAN.md section 20.
+
+### 2026-10-26 — visit creates customer — Linux
+- Done: the Visits form takes the customer by name, like the opportunity form. A new name creates the customer in the same commit as the visit. A refused visit creates nothing. 283 tests pass.

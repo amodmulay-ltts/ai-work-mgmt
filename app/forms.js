@@ -163,7 +163,7 @@ async function allocateId(store, kind, pending) {
  * Finds or creates a customer, person and so on, by name. Records created here are
  * pushed onto `pending` and saved in the same commit as the opportunity.
  */
-async function ensureCustomer(store, name, pending, created) {
+export async function ensureCustomer(store, name, pending, created) {
   const existing = store.findCustomerByName(name);
   if (existing) return existing;
   const now = nowIso();

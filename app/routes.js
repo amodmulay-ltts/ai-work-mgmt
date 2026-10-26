@@ -12,7 +12,7 @@ import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuie
 import { noteEntry } from './history.js';
 import { moveReferences, personUsage } from './lib/merge.js';
 import {
-  customerToValues, dealToTyped, parseCustomerValues, parseDealValues, parsePersonValues,
+  customerToValues, dealToTyped, ensureCustomer, parseCustomerValues, parseDealValues, parsePersonValues,
   personToValues, saveActivity, saveCustomer, saveDeal, savePerson, typedToValues,
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
@@ -1019,7 +1019,7 @@ export function createRouter() {
       active: 'visits',
       rows,
       filter,
-      values: { on: today, kind: VISIT_ENTRY_KINDS[0], status: 'Done', customer_id: '', who_id: '', with: '', note: '', ...values },
+      values: { on: today, kind: VISIT_ENTRY_KINDS[0], status: 'Done', customer: '', who_id: '', with: '', note: '', ...values },
       errors,
       kinds: VISIT_ENTRY_KINDS,
       customers: store.listCustomers(),
@@ -1030,23 +1030,32 @@ export function createRouter() {
 
   router.get('/visits', async (req, res) => {
     const filter = ['Planned', 'Done'].includes(req.query.status) ? req.query.status : '';
-    const values = req.query.customer ? { customer_id: String(req.query.customer) } : {};
+    const values = req.query.customer ? { customer: req.app.locals.store.getCustomer(String(req.query.customer))?.name ?? '' } : {};
     await renderVisits(req, res, { filter, values });
   });
 
   router.post('/visits', async (req, res) => {
     const { store } = req.app.locals;
-    const customer = store.getCustomer(String(req.body.customer_id ?? ''));
+    const name = String(req.body.customer ?? '').trim();
     const errors = {};
-    if (!customer) errors.customer_id = 'Pick the customer.';
+    if (!name) errors.customer = 'Type the customer name.';
+    // The visit is checked before anything is created, so a refused form leaves no new customer behind.
     const { entry, errors: formErrors } = newConnect(req.body, { id: randomUUID().slice(0, 8), people: store.listPeople().filter((p) => p.active), today: todayIso() });
     if (entry && !VISIT_ENTRY_KINDS.includes(entry.kind)) formErrors.push('Pick a visit: to the EI centre or to customer premises.');
     if (Object.keys(errors).length || formErrors.length) {
       return renderVisits(req, res, { values: req.body, errors: { ...errors, form: formErrors.join(' ') }, status: 422 });
     }
     try {
-      await store.save([{ ...customer, connects: [...customer.connects, entry] }], `${customer.id}: visit ${entry.kind} on ${entry.on} (${entry.status})`);
-      flash(res, 'success', `${entry.status === 'Planned' ? 'Planned' : 'Logged'} visit to ${customer.name} on ${entry.on}.`);
+      // A name that is not a customer yet creates the customer, in the same commit as the visit (as opportunities do).
+      const pending = [];
+      const createdNames = [];
+      const found = await ensureCustomer(store, name, pending, createdNames);
+      const base = pending.find((c) => c.id === found.id) ?? found;
+      const saved = { ...base, connects: [...(base.connects ?? []), entry] };
+      const others = pending.filter((c) => c.id !== base.id);
+      const extra = createdNames.length ? ` · created ${createdNames.join(', ')}` : '';
+      await store.save([...others, saved], `${base.id}: visit ${entry.kind} on ${entry.on} (${entry.status})${extra}`);
+      flash(res, 'success', `${entry.status === 'Planned' ? 'Planned' : 'Logged'} visit to ${base.name} on ${entry.on}.${extra}`);
       return res.redirect(303, '/visits');
     } catch (err) {
       if (!(err instanceof ValidationError)) throw err;
