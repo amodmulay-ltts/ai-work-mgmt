@@ -12,7 +12,9 @@
   "sales_owner_id": "PE-0002",
   "presales_owner_id": "PE-0003",
   "delivery_owner_id": "PE-0004",
-  "support_ids": [],
+  "support_ids": [
+    "PE-0001"
+  ],
   "support_requests": [],
   "support_seq": 0,
   "bu": "Mobility",
@@ -92,9 +94,16 @@
       "text": "Stage: Clarification / Negotiation → Proposal Submitted",
       "from_value": "Clarification / Negotiation",
       "to_value": "Proposal Submitted"
+    },
+    {
+      "at": "2026-10-26T14:47:16+01:00",
+      "kind": "field",
+      "text": "Supporters: — → Amod Mulay",
+      "from_value": null,
+      "to_value": null
     }
   ],
   "created_at": "2026-10-21T10:33:07+02:00",
-  "updated_at": "2026-10-26T14:35:30+01:00",
+  "updated_at": "2026-10-26T14:47:16+01:00",
   "type": "Lead"
 }
