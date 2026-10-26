@@ -10,7 +10,7 @@ export const CONNECT_KINDS = ['Teams', 'EI center visit', 'Customer premises vis
 export const VISIT_KINDS = ['EI center visit', 'Customer premises visit', 'Visit'];
 export const CONNECT_STATUSES = ['Planned', 'Done'];
 export const CONNECT_WITH_MAX = 100;
-export const CONNECT_NOTE_MAX = 500;
+export const CONNECT_NOTE_MAX = 2000;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Older customer files have no `connects`. They load with an empty list, and nothing else changes. */
