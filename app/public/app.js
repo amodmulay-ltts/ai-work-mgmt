@@ -164,46 +164,5 @@
   // 10. Install: the service worker caches the static files so the installed app loads fast.
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 
-  // 11. Board: drag a card onto a lane to move it to that stage. The stage route does the work, then the board reloads.
-  document.querySelectorAll('[data-kanban-card]').forEach((card) => {
-    card.addEventListener('dragstart', (event) => {
-      event.dataTransfer.setData('text/plain', card.dataset.id);
-      event.dataTransfer.effectAllowed = 'move';
-      card.classList.add('is-dragging');
-    });
-    card.addEventListener('dragend', () => card.classList.remove('is-dragging'));
-  });
-  document.querySelectorAll('.board-lane').forEach((lane) => {
-    lane.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      lane.classList.add('is-over');
-    });
-    lane.addEventListener('dragleave', () => lane.classList.remove('is-over'));
-    lane.addEventListener('drop', async (event) => {
-      event.preventDefault();
-      lane.classList.remove('is-over');
-      const id = event.dataTransfer.getData('text/plain');
-      const card = document.querySelector(`[data-kanban-card][data-id="${id}"]`);
-      if (!card || card.dataset.stage === lane.dataset.stage) return;
-      if (lane.dataset.outcome === 'lost' || lane.dataset.outcome === 'dropped') {
-        window.alert('Lost and Dropped need a reason. The opportunity will open so you can choose one.');
-        window.location.href = `/opportunities/${id}`;
-        return;
-      }
-      const body = new URLSearchParams({ stage: lane.dataset.stage });
-      try {
-        const res = await fetch(`/opportunities/${id}/stage`, {
-          method: 'POST',
-          headers: { 'content-type': 'application/x-www-form-urlencoded' },
-          body,
-        });
-        if (!res.ok) throw new Error(res.statusText);
-        window.location.reload();
-      } catch (_) {
-        window.alert('The stage could not be changed. Try again.');
-      }
-    });
-  });
-
   // 9. Outcome reason: "Mark Lost…" and "Mark Dropped…" use the reveal above (data-reveal="outcome-Lost").
 })();
