@@ -39,7 +39,7 @@
   "competitors": [],
   "outcome_reason": "Technical fit",
   "next_action": "Talk to UDE Team for feedback",
-  "next_action_due": "2026-10-26",
+  "next_action_due": "2026-11-02",
   "tags": [
     "Software"
   ],
@@ -79,8 +79,15 @@
       "text": "Tags: Meetin with Henrike for feedback → Software",
       "from_value": "Meetin with Henrike for feedback",
       "to_value": "Software"
+    },
+    {
+      "at": "2026-10-26T14:26:28+01:00",
+      "kind": "field",
+      "text": "Next action due: 26 Oct 2026 → 2 Nov 2026",
+      "from_value": "26 Oct 2026",
+      "to_value": "2 Nov 2026"
     }
   ],
   "created_at": "2026-10-21T14:53:56+02:00",
-  "updated_at": "2026-10-26T14:26:07+01:00"
+  "updated_at": "2026-10-26T14:26:28+01:00"
 }
