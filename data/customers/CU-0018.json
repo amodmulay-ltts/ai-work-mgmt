@@ -24,6 +24,16 @@
       "with": "",
       "note": "Consultancy. €40K by end of August.",
       "created_at": "2026-10-26T12:32:42.879Z"
+    },
+    {
+      "id": "94a1fb3d",
+      "on": "2026-08-13",
+      "kind": "EI center visit",
+      "status": "Done",
+      "who_id": null,
+      "with": "",
+      "note": "Specific use cases. Showcase to the president and the CIO from the US. CV potential €500K.",
+      "created_at": "2026-10-26T12:32:42.910Z"
     }
   ]
 }
