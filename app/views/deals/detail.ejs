@@ -258,6 +258,9 @@
       <% if (d.next_action) { %>
         <p class="next-text"><%= d.next_action %></p>
         <p class="muted"><%= d.next_action_due ? 'Due ' + fmtDate(d.next_action_due) : 'No due date' %></p>
+        <form method="post" action="/opportunities/<%= d.id %>/next-action/done">
+          <button class="btn btn-primary btn-sm" type="submit">Mark done</button>
+        </form>
       <% } else { %>
         <p class="subtle">No next action yet.</p>
       <% } %>
@@ -272,6 +275,16 @@
         </div>
         <button class="btn btn-secondary btn-sm" type="submit">Save next action</button>
       </form>
+      <% if ((d.done_actions ?? []).length) { %>
+        <details class="done-actions">
+          <summary>Done (<%= d.done_actions.length %>)</summary>
+          <ul>
+            <% for (const a of [...d.done_actions].reverse().slice(0, 10)) { %>
+              <li><%= a.text %> <span class="subtle"><%= fmtDate(a.done_on) %></span></li>
+            <% } %>
+          </ul>
+        </details>
+      <% } %>
     </section>
 
     <section class="card">

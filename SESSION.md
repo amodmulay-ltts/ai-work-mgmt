@@ -24,6 +24,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Wins by year (dashboard) | Done (213 tests pass) | merged to `main` |
 | Internal activities (PLAN.md §17) | Done (226 tests pass) | merged to `main` |
 | Merge people entered by mistake (PLAN.md §18) | Done (235 tests pass) | `merge-people` |
+| Mark next action done on opportunities | Done (306 tests pass) | `next-action-done` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -176,3 +177,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-26 — board removed — Linux
 - Done: the board (/board), its route, nav link, drag-and-drop script, styles and test are removed. The stage-change route stays, since the opportunity page uses it. PLAN.md section 21 is marked removed.
+
+### 2026-10-26 — next action mark done — Linux
+- Done: opportunity next action has a "Mark done" button. The action moves to `done_actions` (kept on the page under "Done (n)") and the live next action clears. Timeline entry, one commit. 306 tests pass. Branch `next-action-done`.
+- Not done: "Mark done" on the dashboard "My next actions" card (only the opportunity page for now).
