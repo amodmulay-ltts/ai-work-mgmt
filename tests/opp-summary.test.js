@@ -48,6 +48,13 @@ describe('the opportunities summary strip', () => {
     assert.equal(won + submitted + lost + other, 4);
   });
 
+  test('each figure also shows the EUR value of its opportunities', async () => {
+    const html = await (await fetch(`${base}/opportunities`)).text();
+    const cards = [...html.matchAll(/kpi-sub">([^<]*)<\/div>/g)].map((m) => m[1]);
+    // Won, Submitted, Lost and everything else: each one opportunity at EUR 1,000.
+    assert.deepEqual(cards.slice(0, 4), ['EUR 1K', 'EUR 1K', 'EUR 1K', 'EUR 1K']);
+  });
+
   test('the numbers do not change when the status filter is set, so the strip is the whole picture', async () => {
     assert.deepEqual(await strip('/opportunities?status=won'), [1, 1, 1, 1]);
   });

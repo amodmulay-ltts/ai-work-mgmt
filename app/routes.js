@@ -170,7 +170,23 @@ function opportunitySummary(store, cfg, today, tags) {
   const won = rows.filter((r) => r.status === 'Won').length;
   const lost = rows.filter((r) => r.status === 'Lost').length;
   const submitted = rows.filter((r) => r.open && !!r.deal.submitted_on).length;
-  return { total: rows.length, won, submitted, lost, other: rows.length - won - lost - submitted };
+  // The EUR value of each group: the sum of the estimated values, or null when none of them has a value.
+  const sumOf = (list) => {
+    const values = list.map((r) => r.deal.est_value).filter((v) => v != null);
+    return values.length ? values.reduce((a, b) => a + b, 0) : null;
+  };
+  const wonRows = rows.filter((r) => r.status === 'Won');
+  const lostRows = rows.filter((r) => r.status === 'Lost');
+  const submittedRows = rows.filter((r) => r.open && !!r.deal.submitted_on);
+  const otherRows = rows.filter((r) => !wonRows.includes(r) && !lostRows.includes(r) && !submittedRows.includes(r));
+  return {
+    total: rows.length,
+    won,
+    submitted,
+    lost,
+    other: rows.length - won - lost - submitted,
+    values: { won: sumOf(wonRows), submitted: sumOf(submittedRows), lost: sumOf(lostRows), other: sumOf(otherRows) },
+  };
 }
 
 /** Won opportunities: how many, and their estimated value per currency. */

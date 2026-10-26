@@ -27,18 +27,22 @@
   <a class="card kpi summary-item" href="/opportunities?status=won">
     <div class="kpi-label">Won</div>
     <div class="kpi-value"><%= summary.won %></div>
+    <div class="kpi-sub"><%= moneyCompact(summary.values.won, 'EUR') %></div>
   </a>
   <a class="card kpi summary-item" href="/opportunities?submitted=1">
     <div class="kpi-label">Submitted</div>
     <div class="kpi-value"><%= summary.submitted %></div>
+    <div class="kpi-sub"><%= moneyCompact(summary.values.submitted, 'EUR') %></div>
   </a>
   <a class="card kpi summary-item" href="/opportunities?status=lost">
     <div class="kpi-label">Lost</div>
     <div class="kpi-value"><%= summary.lost %></div>
+    <div class="kpi-sub"><%= moneyCompact(summary.values.lost, 'EUR') %></div>
   </a>
   <div class="card kpi summary-item">
     <div class="kpi-label">Everything else</div>
     <div class="kpi-value"><%= summary.other %></div>
+    <div class="kpi-sub"><%= moneyCompact(summary.values.other, 'EUR') %></div>
   </div>
 </div>
 
