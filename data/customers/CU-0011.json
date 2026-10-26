@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "CU-0011",
+  "name": "Palfinger",
+  "short_name": null,
+  "industry": null,
+  "region": null,
+  "country": null,
+  "bu": null,
+  "account_manager_id": null,
+  "c4c_account_id": null,
+  "website": null,
+  "tags": [],
+  "notes": "",
+  "created_at": "2026-10-26T13:32:42+01:00",
+  "updated_at": "2026-10-26T13:32:42+01:00",
+  "connects": [
+    {
+      "id": "60fd06dc",
+      "on": "2026-09-28",
+      "kind": "EI center visit",
+      "status": "Done",
+      "who_id": "PE-0021",
+      "with": "",
+      "note": "Topic: AI capabilities.",
+      "created_at": "2026-10-26T12:32:42.729Z"
+    }
+  ]
+}
