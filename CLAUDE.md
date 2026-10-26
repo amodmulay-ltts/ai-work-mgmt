@@ -18,3 +18,6 @@ This repo is worked on from several devices, at different times. Your conversati
 **Commits and pushes:** Always make a new branch for any new feature and commit when done. Push when the user asks. The data in `data/` is committed automatically by the app; do not commit it by hand.
 
 **Rules for code** are in `PLAN.md` §0 (Node.js 20+, plain JavaScript, no Python, no new dependencies without a reason in `NOTES.md`).
+
+- When reporting information to me, be extreamly concise and sacrifice grammar for the sake of concision
+
