@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "CU-0016",
+  "name": "ZEISS Medtech",
+  "short_name": null,
+  "industry": null,
+  "region": null,
+  "country": null,
+  "bu": null,
+  "account_manager_id": null,
+  "c4c_account_id": null,
+  "website": null,
+  "tags": [],
+  "notes": "",
+  "created_at": "2026-10-26T13:32:42+01:00",
+  "updated_at": "2026-10-26T13:32:42+01:00",
+  "connects": [
+    {
+      "id": "77a61c08",
+      "on": "2026-07-06",
+      "kind": "EI center visit",
+      "status": "Done",
+      "who_id": null,
+      "with": "Anuj Kalra",
+      "note": "Agenda: welcome and introductions; LTTS Engineering Intelligence (EI) CoE walkthrough; demonstration of AI-powered solutions; engineering lifecycle solution showcase; LTTS success stories; open discussion.",
+      "created_at": "2026-10-26T12:32:42.828Z"
+    }
+  ]
+}
