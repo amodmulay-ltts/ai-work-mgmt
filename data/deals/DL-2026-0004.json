@@ -30,7 +30,7 @@
   "expected_decision_on": "2026-03-01",
   "expected_start_on": null,
   "closed_on": "2026-03-26",
-  "currency": "USD",
+  "currency": "EUR",
   "est_value": 12000000,
   "effort_person_months": null,
   "duration_months": null,
@@ -82,5 +82,5 @@
     }
   ],
   "created_at": "2026-10-21T14:53:56+02:00",
-  "updated_at": "2026-10-22T14:41:13+02:00"
+  "updated_at": "2026-10-26T14:26:07+01:00"
 }
