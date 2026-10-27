@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "DL-2026-0015",
-  "title": "CARIAD: RFQ: CSO  2026 000534 - InCar Charging App",
+  "title": "CARIAD: RFQ: 000534 - InCar Charging App",
   "type": "RFQ",
   "source": "Customer RFQ",
   "description": "InCar charging app development",
@@ -11,7 +11,7 @@
   ],
   "c4c_id": "0",
   "sales_owner_id": "PE-0002",
-  "presales_owner_id": "PE-0001",
+  "presales_owner_id": "PE-0014",
   "delivery_owner_id": null,
   "support_ids": [],
   "support_requests": [],
@@ -61,8 +61,22 @@
       "text": "Opportunity created",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-10-27T07:07:11+01:00",
+      "kind": "field",
+      "text": "Title: CARIAD: RFQ: CSO  2026 000534 - InCar Charging App → CARIAD: RFQ: 000534 - InCar Charging App",
+      "from_value": "CARIAD: RFQ: CSO  2026 000534 - InCar Charging App",
+      "to_value": "CARIAD: RFQ: 000534 - InCar Charging App"
+    },
+    {
+      "at": "2026-10-27T07:07:11+01:00",
+      "kind": "field",
+      "text": "Presales owner: Amod Mulay → Piyush Kumar",
+      "from_value": "Amod Mulay",
+      "to_value": "Piyush Kumar"
     }
   ],
   "created_at": "2026-10-27T06:49:06+01:00",
-  "updated_at": "2026-10-27T06:49:06+01:00"
+  "updated_at": "2026-10-27T07:07:11+01:00"
 }
