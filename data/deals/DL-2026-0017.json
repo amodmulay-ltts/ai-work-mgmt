@@ -21,7 +21,7 @@
   "stage": "Lead",
   "on_hold": false,
   "probability": 15,
-  "priority": "Medium",
+  "priority": "High",
   "go_no_go": "Pending",
   "go_no_go_on": null,
   "received_on": "2026-08-13",
@@ -50,8 +50,15 @@
       "text": "Opportunity created",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-10-27T09:19:55+01:00",
+      "kind": "field",
+      "text": "Priority: Medium → High",
+      "from_value": "Medium",
+      "to_value": "High"
     }
   ],
   "created_at": "2026-10-27T09:19:35+01:00",
-  "updated_at": "2026-10-27T09:19:35+01:00"
+  "updated_at": "2026-10-27T09:19:55+01:00"
 }
