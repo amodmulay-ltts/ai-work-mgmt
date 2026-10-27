@@ -294,3 +294,8 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - **Done next actions go to `done_actions`** (text, due, done_on), newest last. Nothing entered is dropped. Older files get `[]` on load (`withSupportDefaults`).
 - **Marking done clears the live next action and writes a timeline entry.** It is one commit, with no confirm prompt, because no data is lost.
 - **The opportunity form carries `done_actions` over**, as it does for supporters and asks.
+
+### Made while making region free text on opportunities (2026-10-27)
+- **Region works like BU on opportunities.** Pick from the list, or type a new one; a new one is added to `config.regions` in the same save. Values are matched ignoring case.
+- **Default regions are now EU - Nordics, DACH, PE & IP, Aero & Rail, UKFrBnx.** The on-disk config keeps its old list, so the user updates it in Settings → Regions.
+- **Existing values ('Europe', 'UK') are not removed.** A saved opportunity with an unlisted region adds it to the list, so no entered data is lost.

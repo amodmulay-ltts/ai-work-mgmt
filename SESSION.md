@@ -181,3 +181,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-26 — next action mark done — Linux
 - Done: opportunity next action has a "Mark done" button. The action moves to `done_actions` (kept on the page under "Done (n)") and the live next action clears. Timeline entry, one commit. 306 tests pass. Branch `next-action-done`.
 - Not done: "Mark done" on the dashboard "My next actions" card (only the opportunity page for now).
+
+### 2026-10-27 — region free text — Linux
+- Done: opportunity Region is a text field with suggestions from config.regions. Typed new regions are added to the list on save. Default list is the five EU regions. 313 tests pass. Branch `region-free-text`.
+- Open: the user's live config still has the old list (edit in Settings → Regions). 13 deals have 'Europe' and 1 has 'UK'; not remapped. Customer region is still a select.

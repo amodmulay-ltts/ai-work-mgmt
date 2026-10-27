@@ -43,7 +43,7 @@ export const DEFAULT_CONFIG = {
   ],
   sources: ['Customer RFQ', 'Sales lead', 'Account mining', 'Partner', 'Inbound / Website', 'Other'],
   business_units: ['Mobility', 'Sustainability', 'Hi-Tech'],
-  regions: ['North America', 'Europe', 'UK', 'India', 'APAC', 'Japan', 'Middle East'],
+  regions: ['EU - Nordics', 'DACH', 'PE & IP', 'Aero & Rail', 'UKFrBnx'],
   pricing_models: ['T&M', 'Fixed Price', 'Managed Capacity', 'ODC', 'Hybrid'],
   // Every value is in EUR. Other currency codes in older files are read as EUR (see loadAll and models.js).
   currencies: ['EUR'],
