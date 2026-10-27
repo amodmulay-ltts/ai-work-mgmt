@@ -10,6 +10,7 @@ import { nowIso, validateRecord, ValidationError, DATE_FIELDS } from './models.j
 import { stageInfo } from './metrics.js';
 import { resolveTags } from './lib/tags.js';
 import { resolveBusinessUnit } from './lib/business-units.js';
+import { resolveRegion } from './lib/regions.js';
 
 const TEXT_FIELDS = [
   'title', 'type', 'source', 'description', 'customer', 'contacts', 'c4c_id', 'sales_owner', 'presales_owner',
@@ -26,9 +27,9 @@ const unique = (items) => [...new Set(items)];
 const lines = (value) => value.split('\n').map((l) => l.trim()).filter(Boolean);
 const commaList = (value) => unique(value.split(',').map((x) => x.trim()).filter(Boolean));
 /** The config with new tags and business units appended. Returns cfg itself when nothing is new. */
-function withNewValues(cfg, { tags = [], business_units = [] }) {
-  if (!tags.length && !business_units.length) return cfg;
-  return { ...cfg, tags: [...cfg.tags, ...tags], business_units: [...cfg.business_units, ...business_units] };
+function withNewValues(cfg, { tags = [], business_units = [], regions = [] }) {
+  if (!tags.length && !business_units.length && !regions.length) return cfg;
+  return { ...cfg, tags: [...cfg.tags, ...tags], business_units: [...cfg.business_units, ...business_units], regions: [...cfg.regions, ...regions] };
 }
 
 /** 'Label | URL' per line; a line with only a URL uses the URL as the label. */
@@ -288,7 +289,10 @@ export async function saveDeal(store, typed, { existing = null, today }) {
   // A new BU is added to config.business_units in the same commit, as new tags are.
   const unit = resolveBusinessUnit(typed.bu, cfg.business_units);
   if (unit.errors.length) throw new ValidationError(unit.errors);
-  const cfgNext = withNewValues(cfg, { tags: tagged.added, business_units: unit.added ? [unit.added] : [] });
+  // A new region is added to config.regions the same way.
+  const region = resolveRegion(typed.region, cfg.regions);
+  if (region.errors.length) throw new ValidationError(region.errors);
+  const cfgNext = withNewValues(cfg, { tags: tagged.added, business_units: unit.added ? [unit.added] : [], regions: region.added ? [region.added] : [] });
   const refs = await resolveReferences(store, typed);
   const now = nowIso();
   const id = existing ? existing.id : await store.nextId('deal');
@@ -314,7 +318,7 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     done_actions: existing?.done_actions ?? [],
     bu: unit.bu,
     practice: typed.practice,
-    region: typed.region,
+    region: region.region,
     stage: typed.stage,
     on_hold: typed.on_hold,
     probability: typed.probability,
