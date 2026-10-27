@@ -16,7 +16,7 @@
   "support_seq": 0,
   "bu": "Med-Tech",
   "practice": null,
-  "region": "UK",
+  "region": "UKFrBnx",
   "stage": "Lead",
   "on_hold": false,
   "probability": 5,
@@ -84,10 +84,17 @@
       "text": "Next action done: Internal meeting",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-10-27T08:16:06+01:00",
+      "kind": "field",
+      "text": "Region: UK → UKFrBnx",
+      "from_value": "UK",
+      "to_value": "UKFrBnx"
     }
   ],
   "created_at": "2026-10-21T14:08:29+02:00",
-  "updated_at": "2026-10-27T09:13:09+01:00",
+  "updated_at": "2026-10-27T09:16:06+01:00",
   "done_actions": [
     {
       "text": "Internal meeting",
