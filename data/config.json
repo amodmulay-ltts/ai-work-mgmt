@@ -188,13 +188,11 @@
     "IP"
   ],
   "regions": [
-    "North America",
-    "Europe",
-    "UK",
-    "India",
-    "APAC",
-    "Japan",
-    "Middle East"
+    "EU - Nordics",
+    "DACH",
+    "PE & IP",
+    "Aero & Rail",
+    "UKFrBnx"
   ],
   "pricing_models": [
     "T&M",
