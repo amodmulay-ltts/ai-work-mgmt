@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "CU-0025",
+  "name": "ZKW",
+  "short_name": null,
+  "industry": null,
+  "region": null,
+  "country": null,
+  "bu": null,
+  "account_manager_id": null,
+  "c4c_account_id": null,
+  "website": null,
+  "tags": [],
+  "notes": "",
+  "created_at": "2026-10-27T14:18:44+01:00",
+  "updated_at": "2026-10-27T14:18:44+01:00",
+  "connects": [
+    {
+      "id": "1dd7bb73",
+      "on": "2026-11-16",
+      "kind": "EI center visit",
+      "status": "Planned",
+      "who_id": "PE-0009",
+      "with": "",
+      "note": "",
+      "created_at": "2026-10-27T13:18:44.578Z"
+    }
+  ]
+}
