@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "id": "DL-2026-0015",
+  "title": "CARIAD: RFQ: CSO  2026 000534 - InCar Charging App",
+  "type": "RFQ",
+  "source": "Customer RFQ",
+  "description": "InCar charging app development",
+  "customer_id": "CU-0001",
+  "contact_ids": [
+    "PE-0033"
+  ],
+  "c4c_id": "0",
+  "sales_owner_id": "PE-0002",
+  "presales_owner_id": "PE-0001",
+  "delivery_owner_id": null,
+  "support_ids": [],
+  "support_requests": [],
+  "support_seq": 0,
+  "bu": "Mobility",
+  "practice": null,
+  "region": "Europe",
+  "stage": "Solutioning",
+  "on_hold": false,
+  "probability": 10,
+  "priority": "High",
+  "go_no_go": "Pending",
+  "go_no_go_on": null,
+  "received_on": "2026-10-15",
+  "qa_due": null,
+  "submission_due": "2026-10-28",
+  "submitted_on": null,
+  "expected_decision_on": null,
+  "expected_start_on": null,
+  "closed_on": null,
+  "currency": "EUR",
+  "est_value": 500000,
+  "effort_person_months": null,
+  "duration_months": null,
+  "pricing_model": "Managed Capacity",
+  "incumbent": null,
+  "competitors": [
+    "KPIT"
+  ],
+  "outcome_reason": null,
+  "next_action": null,
+  "next_action_due": null,
+  "tags": [
+    "RFQ",
+    "Software"
+  ],
+  "links": [
+    {
+      "label": "https://github.com/LTTS-TRS-HackLab/ecocharge-poc-app",
+      "url": "https://github.com/LTTS-TRS-HackLab/ecocharge-poc-app"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-10-27T06:49:06+01:00",
+      "kind": "created",
+      "text": "Opportunity created",
+      "from_value": null,
+      "to_value": null
+    }
+  ],
+  "created_at": "2026-10-27T06:49:06+01:00",
+  "updated_at": "2026-10-27T06:49:06+01:00"
+}
