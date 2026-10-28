@@ -13,13 +13,13 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-10-26T13:59:28+01:00",
-  "updated_at": "2026-10-26T13:59:28+01:00",
+  "updated_at": "2026-10-28T14:15:18+01:00",
   "connects": [
     {
       "id": "7ffe9362",
       "on": "2026-10-28",
       "kind": "EI center visit",
-      "status": "Planned",
+      "status": "Done",
       "who_id": "PE-0025",
       "with": "Collins, Greg",
       "note": "",
