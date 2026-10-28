@@ -5,8 +5,19 @@
   </div>
 </div>
 
+<form method="get" action="/customers" class="filters" role="search">
+  <input type="search" name="q" value="<%= q %>" placeholder="Search customers…" aria-label="Search customers" class="search">
+  <button class="btn btn-secondary btn-sm" type="submit">Search</button>
+  <% if (searching) { %><a href="/customers" class="btn btn-ghost">Clear</a><% } %>
+</form>
+
 <section class="card table-card">
-  <% if (rows.length === 0) { %>
+  <% if (rows.length === 0 && searching) { %>
+    <div class="empty-state">
+      <h2>No customers match "<%= q %>"</h2>
+      <p class="muted">Try fewer words, or <a href="/customers">show all customers</a>.</p>
+    </div>
+  <% } else if (rows.length === 0) { %>
     <div class="empty-state">
       <h2>No customers yet</h2>
       <p class="muted">Customers are created automatically when you name one on an opportunity, or you can add one now.</p>

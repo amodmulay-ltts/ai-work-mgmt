@@ -299,3 +299,8 @@ Conversation history is stored on the machine where the session ran, so a sessio
 - **Region works like BU on opportunities.** Pick from the list, or type a new one; a new one is added to `config.regions` in the same save. Values are matched ignoring case.
 - **Default regions are now EU - Nordics, DACH, PE & IP, Aero & Rail, UKFrBnx.** The on-disk config keeps its old list, so the user updates it in Settings → Regions.
 - **Existing values ('Europe', 'UK') are not removed.** A saved opportunity with an unlisted region adds it to the list, so no entered data is lost.
+
+### Made while adding search to customers and opportunities (2026-10-28)
+- **One search helper for both lists** (`lib/search.js`). Every word must appear somewhere in the record, ignoring case. Before, opportunities matched the whole phrase as one string.
+- **Opportunity search also covers** stage, BU, region, contacts, owners, supporters, next action, outcome reason and asks. The customer name was already covered.
+- **Customer search covers** name, short name, industry, region, country, BU, tags, C4C id, website, notes and account manager.

@@ -12,6 +12,7 @@ import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuie
 import { noteEntry } from './history.js';
 import { markNextActionDone } from './lib/next-action.js';
 import { moveReferences, personUsage } from './lib/merge.js';
+import { matchesSearch, searchWords } from './lib/search.js';
 import {
   customerToValues, dealToTyped, ensureCustomer, ensurePerson, parseCustomerValues, parseDealValues, parsePersonValues,
   personToValues, saveActivity, saveCustomer, saveDeal, savePerson, typedToValues,
@@ -329,7 +330,7 @@ const SORTS = {
  * @returns {{ rows: object[], query: Record<string, string> }}
  */
 function listDeals(store, cfg, today, query) {
-  const q = clean(query.q).toLowerCase();
+  const words = searchWords(query.q);
   const tags = tagsFrom(query, cfg);
   const filter = {
     status: query.status || 'open',
@@ -373,13 +374,18 @@ function listDeals(store, cfg, today, query) {
   // Received between two dates, both included. Either end can be left open.
   if (filter.from) rows = rows.filter((r) => r.deal.received_on >= filter.from);
   if (filter.to) rows = rows.filter((r) => r.deal.received_on <= filter.to);
-  if (q) {
-    rows = rows.filter((r) => {
-      const d = r.deal;
-      const haystack = [d.id, d.title, r.customerName, d.c4c_id, d.practice, d.description, ...d.tags].join(' ').toLowerCase();
-      return haystack.includes(q);
-    });
-  }
+  // Search covers the id, title, customer, contacts, owners, supporters, stage, BU, region, practice, C4C id, description, tags, next action and asks.
+  const personName = (id) => store.getPerson(id)?.name ?? null;
+  rows = rows.filter((r) => {
+    const d = r.deal;
+    return matchesSearch([
+      d.id, d.title, r.customerName, d.c4c_id, d.practice, d.description, d.stage, d.bu, d.region,
+      d.next_action, d.outcome_reason, d.tags,
+      d.contact_ids.map(personName),
+      [d.sales_owner_id, d.presales_owner_id, d.delivery_owner_id, ...d.support_ids].map(personName),
+      d.support_requests.map((a) => a.text),
+    ], words);
+  });
   rows.sort(SORTS[sortKey](dir));
   return { rows, filter: { ...filter, q: query.q || '' }, tags, sort: sortKey, dir: dir === 1 ? 'asc' : 'desc' };
 }
@@ -988,8 +994,14 @@ export function createRouter() {
   router.get('/customers', async (req, res) => {
     const { store } = req.app.locals;
     const cfg = store.config();
-    const rows = customerRows(store, cfg, todayIso());
-    await renderPage(req, res, 'customers/list', { title: 'Customers', active: 'customers', rows });
+    const words = searchWords(req.query.q);
+    // Search covers the name, short name, industry, region, country, BU, tags, C4C id, website, notes and account manager.
+    const rows = customerRows(store, cfg, todayIso()).filter((r) => {
+      const c = r.customer;
+      return matchesSearch([c.name, c.short_name, c.industry, c.region, c.country, c.bu, c.tags, c.c4c_account_id, c.website, c.notes, r.accountManager], words);
+    });
+    const q = clean(req.query.q);
+    await renderPage(req, res, 'customers/list', { title: 'Customers', active: 'customers', rows, q, searching: q !== '' });
   });
 
   router.get('/customers/new', async (req, res) => {
