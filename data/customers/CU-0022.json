@@ -13,13 +13,13 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-10-26T14:00:54+01:00",
-  "updated_at": "2026-10-26T14:00:54+01:00",
+  "updated_at": "2026-10-28T14:17:45+01:00",
   "connects": [
     {
       "id": "338a3b1e",
       "on": "2026-10-28",
       "kind": "EI center visit",
-      "status": "Planned",
+      "status": "Done",
       "who_id": "PE-0026",
       "with": "Spier, Sven",
       "note": "",
