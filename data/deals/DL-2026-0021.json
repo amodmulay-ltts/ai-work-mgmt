@@ -13,7 +13,9 @@
   "sales_owner_id": "PE-0002",
   "presales_owner_id": "PE-0034",
   "delivery_owner_id": null,
-  "support_ids": [],
+  "support_ids": [
+    "PE-0001"
+  ],
   "support_requests": [],
   "support_seq": 0,
   "done_actions": [],
@@ -52,8 +54,15 @@
       "text": "Opportunity created",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-10-28T19:28:27+01:00",
+      "kind": "field",
+      "text": "Supporters: — → Amod Mulay",
+      "from_value": null,
+      "to_value": null
     }
   ],
   "created_at": "2026-10-28T19:26:56+01:00",
-  "updated_at": "2026-10-28T19:26:56+01:00"
+  "updated_at": "2026-10-28T19:28:27+01:00"
 }
