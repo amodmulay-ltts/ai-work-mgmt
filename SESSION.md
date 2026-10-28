@@ -185,3 +185,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-10-27 — region free text — Linux
 - Done: opportunity Region is a text field with suggestions from config.regions. Typed new regions are added to the list on save. Default list is the five EU regions. 313 tests pass. Branch `region-free-text`.
 - Open: the user's live config still has the old list (edit in Settings → Regions). 13 deals have 'Europe' and 1 has 'UK'; not remapped. Customer region is still a select.
+
+### 2026-10-28 — search customers and opportunities — Linux
+- Done: customers list has a search box. Opportunity search covers more fields and every word must match. 322 tests pass. Branch `search-customers-opportunities`.
