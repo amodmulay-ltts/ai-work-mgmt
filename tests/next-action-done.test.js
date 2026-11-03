@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
-import { markNextActionDone } from '../app/lib/next-action.js';
+import { closeNextAction, markNextActionDone } from '../app/lib/next-action.js';
 import { withDealDefaults } from '../app/models.js';
 import { createApp } from '../app/server.js';
 import { cleanup, git, makeClone, makeRemote } from './helpers.js';
@@ -180,6 +180,7 @@ describe('next action done: dashboard', () => {
     assert.doesNotMatch(html, /Health of open opportunities/);
     assert.match(html, new RegExp(`action="/opportunities/${DEAL}/next-action/done"`));
     assert.match(html, new RegExp(`action="/opportunities/${DEAL}/next-action"`));
+    assert.match(html, new RegExp(`action="/opportunities/${DEAL}/next-action/close"`));
   });
 
   test('Done from the dashboard returns to the dashboard', async () => {
@@ -203,5 +204,91 @@ describe('next action done: dashboard', () => {
     });
     assert.equal(res.headers.get('location'), '/');
     assert.equal(app.store.getDeal(DEAL).next_action, 'Call Priya');
+  });
+});
+
+describe('next action cancelled or postponed', () => {
+  test('closing keeps the text and reason in done_actions with its status', () => {
+    const deal = { next_action: 'Send the estimate', next_action_due: '2026-10-30', done_actions: [] };
+    const { deal: next, entry } = closeNextAction(deal, { status: 'postponed', reason: 'Customer on leave', today: TODAY, at: NOW });
+    assert.equal(next.next_action, null);
+    assert.equal(next.next_action_due, null);
+    assert.deepEqual(next.done_actions, [{ text: 'Send the estimate', due: '2026-10-30', done_on: TODAY, status: 'postponed', reason: 'Customer on leave' }]);
+    assert.equal(entry.text, 'Next action postponed: Send the estimate (Customer on leave)');
+  });
+
+  test('no next action means nothing to close', () => {
+    assert.equal(closeNextAction({ next_action: null, done_actions: [] }, { status: 'cancelled', reason: 'x', today: TODAY, at: NOW }), null);
+  });
+
+});
+
+describe('next action cancelled or postponed: over HTTP', () => {
+  let app;
+
+  before(async () => {
+    app = await startApp();
+    await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
+    await post(app.base, '/opportunities', {
+      title: 'ADAS validation services',
+      type: 'Lead',
+      customer: 'Bosch',
+      sales_owner: 'Priya S',
+      received_on: '2026-10-01',
+      stage: 'Lead',
+      probability: '5',
+      currency: 'EUR',
+      priority: 'Medium',
+      go_no_go: 'Pending',
+      next_action: 'Send the estimate',
+      next_action_due: '2026-10-30',
+    });
+  });
+
+  after(async () => {
+    await app.close();
+  });
+
+  test('the opportunity page offers Cancel or postpone with a status and reason', async () => {
+    const { html } = await get(app.base, `/opportunities/${DEAL}`);
+    assert.match(html, new RegExp(`action="/opportunities/${DEAL}/next-action/close"`));
+    assert.match(html, /<option value="cancelled">Cancelled<\/option>/);
+    assert.match(html, /<option value="postponed">Postponed<\/option>/);
+  });
+
+  test('a close without a reason is refused with no commit', async () => {
+    const before = commits(app.root);
+    const res = await post(app.base, `/opportunities/${DEAL}/next-action/close`, { status: 'cancelled', reason: '  ' });
+    assert.equal(res.status, 303);
+    assert.equal(commits(app.root), before);
+    assert.equal(app.store.getDeal(DEAL).next_action, 'Send the estimate');
+  });
+
+  test('an unknown status is refused with no commit', async () => {
+    const before = commits(app.root);
+    await post(app.base, `/opportunities/${DEAL}/next-action/close`, { status: 'done', reason: 'x' });
+    assert.equal(commits(app.root), before);
+  });
+
+  test('cancelling saves one commit with the reason, and shows it on the page', async () => {
+    const before = commits(app.root);
+    const res = await post(app.base, `/opportunities/${DEAL}/next-action/close`, { status: 'cancelled', reason: 'Customer dropped the scope' });
+    assert.equal(res.status, 303);
+    assert.equal(commits(app.root), before + 1);
+    const deal = app.store.getDeal(DEAL);
+    assert.equal(deal.next_action, null);
+    assert.deepEqual(deal.done_actions.at(-1), {
+      text: 'Send the estimate', due: '2026-10-30', done_on: deal.done_actions.at(-1).done_on,
+      status: 'cancelled', reason: 'Customer dropped the scope',
+    });
+    assert.equal(deal.history.at(-1).text, 'Next action cancelled: Send the estimate (Customer dropped the scope)');
+    const { html } = await get(app.base, `/opportunities/${DEAL}`);
+    assert.match(html, /cancelled — Customer dropped the scope/);
+  });
+
+  test('closing with no next action changes nothing', async () => {
+    const before = commits(app.root);
+    await post(app.base, `/opportunities/${DEAL}/next-action/close`, { status: 'postponed', reason: 'later' });
+    assert.equal(commits(app.root), before);
   });
 });

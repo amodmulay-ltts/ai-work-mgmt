@@ -93,10 +93,21 @@
             </form>
           <% } %>
           <button type="button" class="btn btn-ghost btn-sm" data-reveal="na-<%= d.id %>" aria-expanded="false" aria-controls="na-<%= d.id %>" aria-label="Edit next action for <%= d.title %>">Edit</button>
+          <% if (d.next_action) { %>
+            <button type="button" class="btn btn-ghost btn-sm" data-reveal="cl-<%= d.id %>" aria-expanded="false" aria-controls="cl-<%= d.id %>" aria-label="Cancel or postpone next action for <%= d.title %>">Cancel or postpone</button>
+          <% } %>
         </div>
         <form method="post" action="/opportunities/<%= d.id %>/next-action" class="reveal-form" id="na-<%= d.id %>" hidden>
           <input type="text" name="next_action" value="<%= d.next_action || '' %>" placeholder="What happens next" aria-label="Next action">
           <input type="date" name="next_action_due" value="<%= d.next_action_due || '' %>" aria-label="Due">
+          <button class="btn btn-primary btn-sm" type="submit">Save</button>
+        </form>
+        <form method="post" action="/opportunities/<%= d.id %>/next-action/close" class="reveal-form" id="cl-<%= d.id %>" hidden>
+          <select name="status" aria-label="Cancelled or postponed">
+            <option value="cancelled">Cancelled</option>
+            <option value="postponed">Postponed</option>
+          </select>
+          <input type="text" name="reason" required placeholder="Reason" aria-label="Reason">
           <button class="btn btn-primary btn-sm" type="submit">Save</button>
         </form>
       </li>

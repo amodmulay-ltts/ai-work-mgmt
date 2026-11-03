@@ -10,7 +10,7 @@ import { resolveTags } from './lib/tags.js';
 import { connectState, connectSummary, isDone, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { noteEntry } from './history.js';
-import { markNextActionDone } from './lib/next-action.js';
+import { CLOSE_STATUSES, closeNextAction, markNextActionDone } from './lib/next-action.js';
 import { moveReferences, personUsage } from './lib/merge.js';
 import { matchesSearch, searchWords } from './lib/search.js';
 import {
@@ -834,6 +834,24 @@ export function createRouter() {
     const done = markNextActionDone(deal, { today: todayIso(), at: nowIso() });
     if (!done) return supportError(res, deal, 'There is no next action to mark done.');
     return saveSupportChange(req, res, deal, done.deal, { entries: [done.entry], message: 'next action done', success: 'Next action marked done.' });
+  });
+
+  // Cancel or postpone the next action. A reason is required, and it is kept with the action.
+  router.post('/opportunities/:id/next-action/close', async (req, res) => {
+    const { store } = req.app.locals;
+    const deal = store.getDeal(req.params.id);
+    if (!deal) return notFound(req, res, 'This opportunity');
+    const status = clean(req.body.status);
+    const reason = clean(req.body.reason);
+    if (!CLOSE_STATUSES.includes(status)) return supportError(res, deal, 'Choose cancelled or postponed.');
+    if (!reason) return supportError(res, deal, 'Give a reason.');
+    const closed = closeNextAction(deal, { status, reason, today: todayIso(), at: nowIso() });
+    if (!closed) return supportError(res, deal, 'There is no next action to close.');
+    return saveSupportChange(req, res, deal, closed.deal, {
+      entries: [closed.entry],
+      message: `next action ${status}`,
+      success: `Next action ${status}.`,
+    });
   });
 
   router.post('/opportunities/:id/notes', async (req, res) => {

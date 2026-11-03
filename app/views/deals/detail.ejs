@@ -261,6 +261,23 @@
         <form method="post" action="/opportunities/<%= d.id %>/next-action/done">
           <button class="btn btn-primary btn-sm" type="submit">Mark done</button>
         </form>
+        <details class="close-action">
+          <summary>Cancel or postpone…</summary>
+          <form method="post" action="/opportunities/<%= d.id %>/next-action/close" class="stack">
+            <div class="field">
+              <label for="close_status">Status</label>
+              <select id="close_status" name="status">
+                <option value="cancelled">Cancelled</option>
+                <option value="postponed">Postponed</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="close_reason">Reason</label>
+              <input type="text" id="close_reason" name="reason" required>
+            </div>
+            <button class="btn btn-secondary btn-sm" type="submit">Save</button>
+          </form>
+        </details>
       <% } else { %>
         <p class="subtle">No next action yet.</p>
       <% } %>
@@ -280,7 +297,7 @@
           <summary>Done (<%= d.done_actions.length %>)</summary>
           <ul>
             <% for (const a of [...d.done_actions].reverse().slice(0, 10)) { %>
-              <li><%= a.text %> <span class="subtle"><%= fmtDate(a.done_on) %></span></li>
+              <li><%= a.text %> <span class="subtle"><%= fmtDate(a.done_on) %><% if (a.status && a.status !== 'done') { %> · <%= a.status %><% } %><% if (a.reason) { %> — <%= a.reason %><% } %></span></li>
             <% } %>
           </ul>
         </details>

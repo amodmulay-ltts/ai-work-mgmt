@@ -205,3 +205,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-11-03 — default supporter on new RFQs — Linux
 - Done: a new opportunity starts with the current user as supporter, unless they are one of its owners (owners are not repeated in support_ids, PLAN.md §15). Existing opportunities are unchanged. 327 tests pass. Branch default-supporter.
 - Open: when the user is the presales owner (the form default), no supporter is added. Asked whether to add them anyway.
+
+### 2026-11-03 — next action cancelled or postponed — Linux
+- Done: next action can be Cancelled or Postponed, with a required reason. It moves into the Done list with its status and reason, and the timeline records it. Offered on the opportunity page (Cancel or postpone…) and on the dashboard (Cancel or postpone). Postponed closes the action; enter the next action after. 334 tests pass. Branch next-action-close.
