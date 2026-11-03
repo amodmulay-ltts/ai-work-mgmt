@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "AC-0004",
+  "title": "AI Design KB for BMW",
+  "kind": "Prototype",
+  "status": "Idea",
+  "owner_id": "PE-0051",
+  "start_on": "2026-10-14",
+  "target_on": "2026-11-16",
+  "description": "",
+  "links": [],
+  "tags": [
+    "AI",
+    "Mobility"
+  ],
+  "updates": [],
+  "created_at": "2026-11-03T10:54:26+01:00",
+  "updated_at": "2026-11-03T10:54:26+01:00"
+}
