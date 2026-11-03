@@ -272,6 +272,14 @@ export function duplicateC4cWarning(store, c4cId, selfId) {
   return other ? `Warning: C4C ID ${c4cId} is also used by ${other.id}` : null;
 }
 
+/** The supporters a new opportunity starts with: the current user, when they are not one of its owners. */
+function defaultSupporters(cfg, owners) {
+  const me = cfg.me_person_id;
+  if (!me) return [];
+  const ownerIds = [owners.sales_owner_id, owners.presales_owner_id, owners.delivery_owner_id];
+  return ownerIds.includes(me) ? [] : [me];
+}
+
 /**
  * Saves an opportunity from typed fields: resolves names, applies the stage rules, writes the
  * deal and any new customers or people in one commit.
@@ -312,7 +320,8 @@ export async function saveDeal(store, typed, { existing = null, today }) {
     presales_owner_id: refs.refs.presales_owner_id,
     delivery_owner_id: refs.refs.delivery_owner_id,
     // Supporters, asks and done next actions are changed on the opportunity page, not in this form, so they carry over.
-    support_ids: existing?.support_ids ?? [],
+    // A new opportunity starts with the current user as supporter, unless they already own it (owners are not repeated here).
+    support_ids: existing?.support_ids ?? defaultSupporters(cfg, refs.refs),
     support_requests: existing?.support_requests ?? [],
     support_seq: existing?.support_seq ?? 0,
     done_actions: existing?.done_actions ?? [],

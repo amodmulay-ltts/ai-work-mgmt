@@ -84,6 +84,8 @@ describe('RFQs I support: pages, filters and dashboard', () => {
     await post(app.base, '/opportunities', dealForm('Mine supported'));   // 0001
     await post(app.base, '/opportunities', dealForm('Ravi supports'));    // 0002
     await post(app.base, '/opportunities', dealForm('Not mine'));         // 0003
+    // New opportunities start with me as supporter; take myself off this colleague's deal.
+    await post(app.base, `/opportunities/${id(3)}/support`, { action: 'remove', person_id: app.store.config().me_person_id });
     await post(app.base, '/opportunities', dealForm('Won one'));          // 0004
     await post(app.base, `/opportunities/${id(4)}/stage`, { stage: 'Won' });
 

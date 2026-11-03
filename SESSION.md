@@ -201,3 +201,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-03 — next actions beside asks — Linux
 - Done: My next actions shares a row with Asks for me. Its list scrolls inside the card (max 360px), so the card keeps its height. Pipeline and Aging form the row below. 325 tests pass. Branch next-actions-scroll.
+
+### 2026-11-03 — default supporter on new RFQs — Linux
+- Done: a new opportunity starts with the current user as supporter, unless they are one of its owners (owners are not repeated in support_ids, PLAN.md §15). Existing opportunities are unchanged. 327 tests pass. Branch default-supporter.
+- Open: when the user is the presales owner (the form default), no supporter is added. Asked whether to add them anyway.

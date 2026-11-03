@@ -243,6 +243,7 @@ describe('supporters and asks: opportunity page', () => {
       type: 'Lead',
       customer: 'Bosch',
       sales_owner: 'Priya S',
+      presales_owner: 'Amod Mulay',
       received_on: '2026-10-01',
       stage: 'Lead',
       probability: '5',

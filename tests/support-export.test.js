@@ -112,7 +112,7 @@ describe('support export and weekly report', () => {
       sheet.eachRow((row, n) => {
         if (n > 1 && row.getCell(1).value === id(1)) alpha = row;
       });
-      assert.equal(alpha.getCell(13).value, 'Ravi K, Amod Mulay');
+      assert.equal(alpha.getCell(13).value, 'Amod Mulay, Ravi K', 'the default supporter comes first');
       assert.equal(alpha.getCell(14).value, 2, 'two open asks on Alpha: the done one is not counted');
     });
   });
