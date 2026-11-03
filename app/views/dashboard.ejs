@@ -66,33 +66,48 @@
   </div>
 </div>
 
+<section class="card">
+  <h2>My next actions</h2>
+  <% if (view.actions.length === 0) { %>
+    <p class="subtle">No open opportunities have you as presales owner yet.</p>
+  <% } %>
+  <ul class="action-list">
+    <% for (const r of view.actions) { const d = r.deal; %>
+      <li class="action">
+        <div class="action-main">
+          <div>
+            <a href="/opportunities/<%= d.id %>"><%= d.title %></a>
+            <span class="mono subtle"><%= d.id %></span>
+          </div>
+          <div class="muted">
+            <%= d.next_action || 'No next action set' %>
+            <% if (d.next_action_due) { %> · <%= fmtDate(d.next_action_due) %> (<%= relDays(d.next_action_due, today) %>)<% } %>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <% if (d.next_action) { %>
+            <form method="post" action="/opportunities/<%= d.id %>/next-action/done" class="inline">
+              <button class="btn btn-secondary btn-sm" type="submit" aria-label="Mark done: <%= d.next_action %>">Done</button>
+            </form>
+          <% } %>
+          <button type="button" class="btn btn-ghost btn-sm" data-reveal="na-<%= d.id %>" aria-expanded="false" aria-controls="na-<%= d.id %>" aria-label="Edit next action for <%= d.title %>">Edit</button>
+        </div>
+        <form method="post" action="/opportunities/<%= d.id %>/next-action" class="reveal-form" id="na-<%= d.id %>" hidden>
+          <input type="text" name="next_action" value="<%= d.next_action || '' %>" placeholder="What happens next" aria-label="Next action">
+          <input type="date" name="next_action_due" value="<%= d.next_action_due || '' %>" aria-label="Due">
+          <button class="btn btn-primary btn-sm" type="submit">Save</button>
+        </form>
+      </li>
+    <% } %>
+  </ul>
+</section>
+
 <%
-  const hm = view.health;
-  const hTotal = hm.red + hm.amber + hm.green + hm.hold;
-  const healthRows = [['red', 'Red'], ['amber', 'Amber'], ['green', 'Green'], ['hold', 'On hold']];
   const sub = view.submissions;
   const maxSub = Math.max(1, ...sub.months.map((m) => m.count));
   const maxBu = Math.max(1, ...view.byBu.map((b) => b.count));
 %>
-<div class="chart-grid chart-grid-three">
-  <section class="card chart-card">
-    <h2>Health of open opportunities</h2>
-    <% if (hTotal === 0) { %>
-      <p class="subtle">No open opportunities.</p>
-    <% } else { %>
-      <div class="stack-bar" role="img" aria-label="<%= healthRows.map(([l, label]) => label + ' ' + hm[l]).join(', ') %>">
-        <% for (const [level, label] of healthRows) { if (hm[level]) { %>
-          <a class="stack-seg seg-<%= level %>" href="/opportunities?health=<%= level %>" style="flex-grow: <%= hm[level] %>" title="<%= label %>: <%= hm[level] %> · see them"></a>
-        <% } } %>
-      </div>
-      <ul class="legend">
-        <% for (const [level, label] of healthRows) { %>
-          <li><a class="chart-link" href="/opportunities?health=<%= level %>"><span class="health health-<%= level %>" aria-hidden="true"></span> <%= label %> <strong><%= hm[level] %></strong></a></li>
-        <% } %>
-      </ul>
-    <% } %>
-  </section>
-
+<div class="chart-grid chart-grid-two">
   <section class="card chart-card">
     <h2>Open opportunities by BU</h2>
     <% if (view.byBu.length === 0) { %>
@@ -211,7 +226,7 @@
   <%- include('partials/deal-table', { rows: view.recent, cfg, today, withCustomer: true, empty: 'No opportunities yet.', extra: [{ header: 'Last updated', cell: (r) => fmtDate(r.deal.updated_at.slice(0, 10)) }, { header: 'Next step', cell: (r) => r.deal.next_action ? `<div class="ellipsis">${ui.esc(r.deal.next_action)}</div>${r.deal.next_action_due ? `<span class="rel">${fmtDate(r.deal.next_action_due)}</span>` : ''}` : '<span class="subtle">Not set</span>' }] }) %>
 </section>
 
-<div class="dash-grid">
+<div class="dash-grid dash-grid-one">
   <section class="card table-card">
     <h2 class="card-pad">Needs attention</h2>
     <% if (view.attention.length === 0) { %>
@@ -245,34 +260,6 @@
     <p class="card-foot"><a href="/opportunities">All opportunities →</a></p>
   </section>
 
-  <section class="card">
-    <h2>My next actions</h2>
-    <% if (view.actions.length === 0) { %>
-      <p class="subtle">No open opportunities have you as presales owner yet.</p>
-    <% } %>
-    <ul class="action-list">
-      <% for (const r of view.actions) { const d = r.deal; %>
-        <li class="action">
-          <div class="action-main">
-            <div>
-              <a href="/opportunities/<%= d.id %>"><%= d.title %></a>
-              <span class="mono subtle"><%= d.id %></span>
-            </div>
-            <div class="muted">
-              <%= d.next_action || 'No next action set' %>
-              <% if (d.next_action_due) { %> · <%= fmtDate(d.next_action_due) %> (<%= relDays(d.next_action_due, today) %>)<% } %>
-            </div>
-          </div>
-          <button type="button" class="btn btn-ghost btn-sm" data-reveal="na-<%= d.id %>" aria-expanded="false" aria-controls="na-<%= d.id %>" aria-label="Update next action for <%= d.title %>">✓</button>
-          <form method="post" action="/opportunities/<%= d.id %>/next-action" class="reveal-form" id="na-<%= d.id %>" hidden>
-            <input type="text" name="next_action" value="<%= d.next_action || '' %>" placeholder="What happens next" aria-label="Next action">
-            <input type="date" name="next_action_due" value="<%= d.next_action_due || '' %>" aria-label="Due">
-            <button class="btn btn-primary btn-sm" type="submit">Save</button>
-          </form>
-        </li>
-      <% } %>
-    </ul>
-  </section>
 </div>
 
 <div class="dash-grid">

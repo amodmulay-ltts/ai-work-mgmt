@@ -371,6 +371,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 .kpi-sub { font-size: var(--fs-xs); color: var(--text-muted); }
 .dash-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--s4); margin-bottom: var(--s4); align-items: start; }
 .dash-grid > .card { margin-bottom: 0; }
+.dash-grid-one { grid-template-columns: minmax(0, 1fr); }
+.action-buttons { display: flex; align-items: center; gap: var(--s2); }
+.action-buttons form { display: inline; }
 .dash-grid:has(> section:nth-child(2):last-child) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .card-foot { margin: var(--s3) 0 0; font-size: var(--fs-sm); }
 .card-pad { padding: var(--s4) var(--s4) 0; }

@@ -26,6 +26,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Merge people entered by mistake (PLAN.md §18) | Done (235 tests pass) | `merge-people` |
 | Mark next action done on opportunities | Done (306 tests pass) | `next-action-done` |
 | People page: long names wrap, no horizontal scrollbar | Done (322 tests pass); browser check pending | `people-name-wrap` |
+| Dashboard: health card replaced by full-width My next actions (Done, inline Edit); 325 tests pass | merged to `main` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -193,3 +194,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-11-03 — people name wrap — Linux
 - Done: People list names wrap inside a 32ch column (`.people-table td.name-cell`), so long names like PE-0038 no longer force a horizontal scrollbar. 322 tests pass. Branch `people-name-wrap`.
 - Not done: browser check of the People page with PE-0038 (not run; server auto-syncs git).
+
+### 2026-11-03 — dashboard next actions — Linux
+- Done: dashboard health card removed. My next actions is full width at the top, with Done (marks the action done, same as the opportunity page) and Edit (inline text and due date). Both return to the dashboard. Needs attention now spans the full width. 325 tests pass. Branch dashboard-next-actions.
+- Not done: "status" is read as done or not done, since actions have no other status.

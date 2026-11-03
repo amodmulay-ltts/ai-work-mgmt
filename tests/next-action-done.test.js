@@ -147,3 +147,61 @@ describe('next action done: opportunity page', () => {
     assert.deepEqual(app.store.getDeal(DEAL).done_actions.map((a) => a.text), ['Send the estimate', 'Book the call']);
   });
 });
+
+describe('next action done: dashboard', () => {
+  let app;
+
+  before(async () => {
+    app = await startApp();
+    await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
+    await post(app.base, '/opportunities', {
+      title: 'ADAS validation services',
+      type: 'Lead',
+      customer: 'Bosch',
+      sales_owner: 'Priya S',
+      received_on: '2026-10-01',
+      stage: 'Lead',
+      probability: '5',
+      currency: 'EUR',
+      priority: 'Medium',
+      go_no_go: 'Pending',
+      next_action: 'Send the estimate',
+      next_action_due: '2026-10-30',
+    });
+  });
+
+  after(async () => {
+    await app.close();
+  });
+
+  test('the dashboard shows next actions full width, with Done and Edit, and no health card', async () => {
+    const { html } = await get(app.base, '/');
+    assert.match(html, /<h2>My next actions<\/h2>/);
+    assert.doesNotMatch(html, /Health of open opportunities/);
+    assert.match(html, new RegExp(`action="/opportunities/${DEAL}/next-action/done"`));
+    assert.match(html, new RegExp(`action="/opportunities/${DEAL}/next-action"`));
+  });
+
+  test('Done from the dashboard returns to the dashboard', async () => {
+    const res = await fetch(`${app.base}/opportunities/${DEAL}/next-action/done`, {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', referer: `${app.base}/` },
+      body: new URLSearchParams({}),
+    });
+    assert.equal(res.status, 303);
+    assert.equal(res.headers.get('location'), '/');
+    assert.equal(app.store.getDeal(DEAL).next_action, null);
+  });
+
+  test('editing the next action from the dashboard returns to the dashboard', async () => {
+    const res = await fetch(`${app.base}/opportunities/${DEAL}/next-action`, {
+      method: 'POST',
+      redirect: 'manual',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', referer: `${app.base}/` },
+      body: new URLSearchParams({ next_action: 'Call Priya', next_action_due: '2026-11-05' }),
+    });
+    assert.equal(res.headers.get('location'), '/');
+    assert.equal(app.store.getDeal(DEAL).next_action, 'Call Priya');
+  });
+});

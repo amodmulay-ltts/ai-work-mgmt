@@ -63,7 +63,6 @@ describe('the opportunities list filters used by the charts', () => {
 
   test('the dashboard charts link to these filters', async () => {
     const html = await (await fetch(`${app.base}/`)).text();
-    assert.match(html, /href="\/opportunities\?health=amber"/);
     assert.match(html, /href="\/opportunities\?bu=Mobility"/);
     assert.match(html, /href="\/opportunities\?bu=none"/);
     assert.match(html, /href="\/opportunities\?customer=CU-0001"/);

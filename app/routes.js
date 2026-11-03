@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 import {
-  agingCounts, ageDays, askOverdue, asksFor, byBusinessUnit, byCustomer, daysInStage, daysToSubmission, hasAllTags, health, healthMix, isOpen, isOpenAsk, isSupportedBy,
+  agingCounts, ageDays, askOverdue, asksFor, byBusinessUnit, byCustomer, daysInStage, daysToSubmission, hasAllTags, health, isOpen, isOpenAsk, isSupportedBy,
   moneyTotals, submissionsByMonth, winsByYear, openAsks, pipelineByStage, stageInfo, status, weightedValue,
 } from './metrics.js';
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
@@ -155,7 +155,6 @@ function dashboardView(store, cfg, today, me, tags) {
       .map((r) => ({ ...r, summary: dealSummary(r, store, cfg) })),
     pipeline: pipelineByStage(deals, cfg),
     aging: agingCounts(deals, cfg, today),
-    health: healthMix(open),
     submissions: submissionsByMonth(deals, cfg, today),
     byBu: byBusinessUnit(open.map((r) => r.deal), cfg),
     byCustomer: byCustomer(open.map((r) => r.deal), cfg, (id) => store.getCustomer(id)?.name ?? '—'),
@@ -517,7 +516,7 @@ async function saveSupportChange(req, res, deal, next, { entries, message, succe
     if (!(err instanceof ValidationError)) throw err;
     flash(res, 'error', err.errors.map(plain).join('; '));
   }
-  return res.redirect(303, `/opportunities/${deal.id}`);
+  return res.redirect(303, safeBackPath(req, `/opportunities/${deal.id}`));
 }
 
 /** Shows a message on the opportunity page and changes nothing. */
