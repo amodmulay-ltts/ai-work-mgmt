@@ -14,7 +14,13 @@
   "support_ids": [],
   "support_requests": [],
   "support_seq": 0,
-  "done_actions": [],
+  "done_actions": [
+    {
+      "text": "Presentation of tool to higher management",
+      "due": "2026-10-27",
+      "done_on": "2026-11-03"
+    }
+  ],
   "bu": "Mobility",
   "practice": null,
   "region": "UKFrBnx",
@@ -39,8 +45,8 @@
   "incumbent": null,
   "competitors": [],
   "outcome_reason": null,
-  "next_action": "Presentation of tool to higher management",
-  "next_action_due": "2026-10-27",
+  "next_action": null,
+  "next_action_due": null,
   "tags": [],
   "links": [],
   "history": [
@@ -57,8 +63,15 @@
       "text": "Priority: Medium → High",
       "from_value": "Medium",
       "to_value": "High"
+    },
+    {
+      "at": "2026-11-03T12:49:27+01:00",
+      "kind": "field",
+      "text": "Next action done: Presentation of tool to higher management",
+      "from_value": null,
+      "to_value": null
     }
   ],
   "created_at": "2026-10-27T09:19:35+01:00",
-  "updated_at": "2026-10-27T09:19:55+01:00"
+  "updated_at": "2026-11-03T12:49:27+01:00"
 }
