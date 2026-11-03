@@ -13,7 +13,14 @@
     "AI",
     "Mobility"
   ],
-  "updates": [],
+  "updates": [
+    {
+      "id": "5dd39515",
+      "on": "2026-11-03",
+      "text": "Luca has developed the first prototype",
+      "created_at": "2026-11-03T10:54:42+01:00"
+    }
+  ],
   "created_at": "2026-11-03T10:54:26+01:00",
-  "updated_at": "2026-11-03T10:54:26+01:00"
+  "updated_at": "2026-11-03T10:54:42+01:00"
 }
