@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "PE-0038",
+  "name": "ingestion of new invoices, both with zero document loss.",
+  "role": "Customer",
+  "title": null,
+  "email": null,
+  "phone": null,
+  "customer_id": "CU-0001",
+  "notes": "",
+  "active": true,
+  "created_at": "2026-11-03T09:39:05+01:00",
+  "updated_at": "2026-11-03T09:39:05+01:00"
+}
