@@ -66,11 +66,13 @@
   </div>
 </div>
 
-<section class="card">
+<div class="dash-grid dash-grid-pair">
+<section class="card next-actions-card">
   <h2>My next actions</h2>
   <% if (view.actions.length === 0) { %>
     <p class="subtle">No open opportunities have you as presales owner yet.</p>
   <% } %>
+  <div class="scroll-list">
   <ul class="action-list">
     <% for (const r of view.actions) { const d = r.deal; %>
       <li class="action">
@@ -100,7 +102,35 @@
       </li>
     <% } %>
   </ul>
+  </div>
 </section>
+
+<section class="card asks-card">
+    <h2>Asks for me</h2>
+    <p class="muted"><%= view.myAsks.dueWeek %> due this week, including overdue</p>
+    <% if (view.myAsks.rows.length === 0) { %>
+      <p class="subtle">No open asks for you.</p>
+    <% } %>
+    <ul class="action-list">
+      <% for (const r of view.myAsks.rows) { %>
+        <li class="action">
+          <div class="action-main">
+            <div>
+              <a href="/opportunities/<%= r.deal.id %>#support"><%= r.ask.text %></a>
+              <span class="mono subtle"><%= r.deal.id %></span>
+            </div>
+            <div class="muted">
+              <%= r.deal.title %> ·
+              <% if (r.ask.due_on) { %><%= fmtDate(r.ask.due_on) %> (<%= relDays(r.ask.due_on, today) %>)<% } else { %>No due date<% } %>
+            </div>
+          </div>
+        </li>
+      <% } %>
+    </ul>
+    <p class="card-foot"><a href="/support/asks">All my asks (<%= view.myAsks.total %>) →</a></p>
+  </section>
+</div>
+
 
 <%
   const sub = view.submissions;
@@ -263,31 +293,6 @@
 </div>
 
 <div class="dash-grid">
-  <section class="card asks-card">
-    <h2>Asks for me</h2>
-    <p class="muted"><%= view.myAsks.dueWeek %> due this week, including overdue</p>
-    <% if (view.myAsks.rows.length === 0) { %>
-      <p class="subtle">No open asks for you.</p>
-    <% } %>
-    <ul class="action-list">
-      <% for (const r of view.myAsks.rows) { %>
-        <li class="action">
-          <div class="action-main">
-            <div>
-              <a href="/opportunities/<%= r.deal.id %>#support"><%= r.ask.text %></a>
-              <span class="mono subtle"><%= r.deal.id %></span>
-            </div>
-            <div class="muted">
-              <%= r.deal.title %> ·
-              <% if (r.ask.due_on) { %><%= fmtDate(r.ask.due_on) %> (<%= relDays(r.ask.due_on, today) %>)<% } else { %>No due date<% } %>
-            </div>
-          </div>
-        </li>
-      <% } %>
-    </ul>
-    <p class="card-foot"><a href="/support/asks">All my asks (<%= view.myAsks.total %>) →</a></p>
-  </section>
-
   <section class="card">
     <h2>Pipeline by stage</h2>
     <% for (const s of view.pipeline) { %>

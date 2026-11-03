@@ -198,3 +198,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-11-03 — dashboard next actions — Linux
 - Done: dashboard health card removed. My next actions is full width at the top, with Done (marks the action done, same as the opportunity page) and Edit (inline text and due date). Both return to the dashboard. Needs attention now spans the full width. 325 tests pass. Branch dashboard-next-actions.
 - Not done: "status" is read as done or not done, since actions have no other status.
+
+### 2026-11-03 — next actions beside asks — Linux
+- Done: My next actions shares a row with Asks for me. Its list scrolls inside the card (max 360px), so the card keeps its height. Pipeline and Aging form the row below. 325 tests pass. Branch next-actions-scroll.
