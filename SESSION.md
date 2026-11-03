@@ -25,6 +25,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Internal activities (PLAN.md §17) | Done (226 tests pass) | merged to `main` |
 | Merge people entered by mistake (PLAN.md §18) | Done (235 tests pass) | `merge-people` |
 | Mark next action done on opportunities | Done (306 tests pass) | `next-action-done` |
+| People page: long names wrap, no horizontal scrollbar | Done (322 tests pass); browser check pending | `people-name-wrap` |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -188,3 +189,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-10-28 — search customers and opportunities — Linux
 - Done: customers list has a search box. Opportunity search covers more fields and every word must match. 322 tests pass. Branch `search-customers-opportunities`.
+
+### 2026-11-03 — people name wrap — Linux
+- Done: People list names wrap inside a 32ch column (`.people-table td.name-cell`), so long names like PE-0038 no longer force a horizontal scrollbar. 322 tests pass. Branch `people-name-wrap`.
+- Not done: browser check of the People page with PE-0038 (not run; server auto-syncs git).

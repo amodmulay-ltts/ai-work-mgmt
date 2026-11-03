@@ -266,6 +266,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 .table .ellipsis { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 .table .c-health { width: 32px; text-align: center; }
 .table .next-cell { max-width: 280px; }
+/* Long names wrap inside a column so the table never needs a horizontal scrollbar. */
+.people-table td.name-cell { white-space: normal; min-width: 12ch; max-width: 32ch; overflow-wrap: anywhere; }
 .table .row-actions { white-space: nowrap; }
 .table .row-actions form { display: inline; }
 .sort { color: var(--text-muted); text-decoration: none; }
