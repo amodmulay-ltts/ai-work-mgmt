@@ -9,7 +9,7 @@
   "contact_ids": [],
   "c4c_id": "0",
   "sales_owner_id": "PE-0002",
-  "presales_owner_id": "PE-0001",
+  "presales_owner_id": null,
   "delivery_owner_id": null,
   "support_ids": [],
   "support_requests": [],
@@ -53,8 +53,15 @@
       "text": "Opportunity created",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-11-03T13:14:13+01:00",
+      "kind": "field",
+      "text": "Presales owner: Amod Mulay → —",
+      "from_value": "Amod Mulay",
+      "to_value": "—"
     }
   ],
   "created_at": "2026-11-03T13:13:45+01:00",
-  "updated_at": "2026-11-03T13:13:45+01:00"
+  "updated_at": "2026-11-03T13:14:13+01:00"
 }
