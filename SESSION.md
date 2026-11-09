@@ -214,3 +214,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-09 — asks moved to bottom — Linux
 - Done: Asks for me moved to the bottom of the dashboard. My next actions now spans the full width (it had shared the row with Asks), and still scrolls past 360px. 336 tests pass. Branch asks-to-bottom.
+
+### 2026-11-09 — BU and customer charts above next actions — Linux
+- Done: Open opportunities by BU and by customer moved above My next actions. 336 tests pass. Branch charts-above-actions.

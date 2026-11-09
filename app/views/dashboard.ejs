@@ -79,6 +79,48 @@
   </div>
 </div>
 
+<%
+  const sub = view.submissions;
+  const maxSub = Math.max(1, ...sub.months.map((m) => m.count));
+  const maxBu = Math.max(1, ...view.byBu.map((b) => b.count));
+%>
+<div class="chart-grid chart-grid-two">
+  <section class="card chart-card">
+    <h2>Open opportunities by BU</h2>
+    <% if (view.byBu.length === 0) { %>
+      <p class="subtle">No open opportunities.</p>
+    <% } %>
+    <% for (const b of view.byBu) { %>
+      <a class="bar-row" href="/opportunities?bu=<%= encodeURIComponent(b.bu === 'No BU' ? 'none' : b.bu) %>" title="<%= b.bu %>: <%= b.count %> open · see them">
+        <span class="bar-label"><%= b.bu %></span>
+        <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((b.count / maxBu) * 100) %>%"></span></span>
+        <span class="bar-value"><%= b.count %> · <%= moneyTotalsText(b.totals) %></span>
+      </a>
+    <% } %>
+  </section>
+
+  <section class="card chart-card">
+    <h2>Open opportunities by customer</h2>
+    <% if (view.byCustomer.length === 0) { %>
+      <p class="subtle">No open opportunities.</p>
+    <% } %>
+    <%
+      const topCustomers = view.byCustomer.slice(0, 8);
+      const maxCustomer = Math.max(1, ...topCustomers.map((c) => c.count));
+    %>
+    <% for (const c of topCustomers) { %>
+      <a class="bar-row" href="/opportunities?customer=<%= c.customerId %>" title="<%= c.customer %>: <%= c.count %> open · see them">
+        <span class="bar-label"><%= c.customer %></span>
+        <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((c.count / maxCustomer) * 100) %>%"></span></span>
+        <span class="bar-value"><%= c.count %> · <%= moneyTotalsText(c.totals) %></span>
+      </a>
+    <% } %>
+    <% if (view.byCustomer.length > 8) { %>
+      <p class="card-foot muted">+<%= view.byCustomer.length - 8 %> more customers</p>
+    <% } %>
+  </section>
+</div>
+
 <div class="dash-grid dash-grid-one">
 <section class="card next-actions-card">
   <h2>My next actions</h2>
@@ -131,48 +173,6 @@
 
 </div>
 
-
-<%
-  const sub = view.submissions;
-  const maxSub = Math.max(1, ...sub.months.map((m) => m.count));
-  const maxBu = Math.max(1, ...view.byBu.map((b) => b.count));
-%>
-<div class="chart-grid chart-grid-two">
-  <section class="card chart-card">
-    <h2>Open opportunities by BU</h2>
-    <% if (view.byBu.length === 0) { %>
-      <p class="subtle">No open opportunities.</p>
-    <% } %>
-    <% for (const b of view.byBu) { %>
-      <a class="bar-row" href="/opportunities?bu=<%= encodeURIComponent(b.bu === 'No BU' ? 'none' : b.bu) %>" title="<%= b.bu %>: <%= b.count %> open · see them">
-        <span class="bar-label"><%= b.bu %></span>
-        <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((b.count / maxBu) * 100) %>%"></span></span>
-        <span class="bar-value"><%= b.count %> · <%= moneyTotalsText(b.totals) %></span>
-      </a>
-    <% } %>
-  </section>
-
-  <section class="card chart-card">
-    <h2>Open opportunities by customer</h2>
-    <% if (view.byCustomer.length === 0) { %>
-      <p class="subtle">No open opportunities.</p>
-    <% } %>
-    <%
-      const topCustomers = view.byCustomer.slice(0, 8);
-      const maxCustomer = Math.max(1, ...topCustomers.map((c) => c.count));
-    %>
-    <% for (const c of topCustomers) { %>
-      <a class="bar-row" href="/opportunities?customer=<%= c.customerId %>" title="<%= c.customer %>: <%= c.count %> open · see them">
-        <span class="bar-label"><%= c.customer %></span>
-        <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((c.count / maxCustomer) * 100) %>%"></span></span>
-        <span class="bar-value"><%= c.count %> · <%= moneyTotalsText(c.totals) %></span>
-      </a>
-    <% } %>
-    <% if (view.byCustomer.length > 8) { %>
-      <p class="card-foot muted">+<%= view.byCustomer.length - 8 %> more customers</p>
-    <% } %>
-  </section>
-</div>
 
 <div class="dash-grid">
   <section class="card table-card">
