@@ -11,7 +11,9 @@
   "sales_owner_id": "PE-0052",
   "presales_owner_id": null,
   "delivery_owner_id": null,
-  "support_ids": [],
+  "support_ids": [
+    "PE-0001"
+  ],
   "support_requests": [],
   "support_seq": 0,
   "done_actions": [],
@@ -59,8 +61,15 @@
       "text": "Presales owner: Amod Mulay → —",
       "from_value": "Amod Mulay",
       "to_value": "—"
+    },
+    {
+      "at": "2026-11-09T18:25:36+01:00",
+      "kind": "field",
+      "text": "Supporters: — → Amod Mulay",
+      "from_value": null,
+      "to_value": null
     }
   ],
   "created_at": "2026-11-05T11:39:44+01:00",
-  "updated_at": "2026-11-09T18:25:29+01:00"
+  "updated_at": "2026-11-09T18:25:36+01:00"
 }
