@@ -13,13 +13,13 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-10-26T13:15:13+01:00",
-  "updated_at": "2026-10-28T15:14:33+01:00",
+  "updated_at": "2026-11-09T13:14:20+01:00",
   "connects": [
     {
       "id": "80bf9251",
       "on": "2026-10-29",
       "kind": "EI center visit",
-      "status": "Planned",
+      "status": "Done",
       "who_id": "PE-0018",
       "with": "Barthelmes, Thorsten",
       "note": "We have a customer visit this Thursday – Karlstorz and the intent is on QARA- Remediation activities. We need to have a show and tell on Qassure .AI as that is something they are very keen on to look at .\r\nTheir main challenge is on remediation to FDA and NMPA and ofcourse MDD to MDR for a few of their product families.",
