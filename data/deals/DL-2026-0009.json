@@ -21,7 +21,7 @@
   "region": "DACH",
   "stage": "Lead",
   "on_hold": false,
-  "probability": 1,
+  "probability": 50,
   "priority": "Medium",
   "go_no_go": "Pending",
   "go_no_go_on": null,
@@ -33,7 +33,7 @@
   "expected_start_on": null,
   "closed_on": null,
   "currency": "EUR",
-  "est_value": 1000,
+  "est_value": 100000,
   "effort_person_months": null,
   "duration_months": null,
   "pricing_model": null,
@@ -86,10 +86,24 @@
       "text": "Meeting went well. First Poland commissioning will be taken up",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-11-09T18:21:47+01:00",
+      "kind": "field",
+      "text": "Probability: 1 → 50",
+      "from_value": "1",
+      "to_value": "50"
+    },
+    {
+      "at": "2026-11-09T18:21:47+01:00",
+      "kind": "field",
+      "text": "Estimated value: 1000 → 100000",
+      "from_value": "1000",
+      "to_value": "100000"
     }
   ],
   "created_at": "2026-10-22T16:43:53+02:00",
-  "updated_at": "2026-11-09T18:21:36+01:00",
+  "updated_at": "2026-11-09T18:21:47+01:00",
   "done_actions": [
     {
       "text": "First Meeting moved",
