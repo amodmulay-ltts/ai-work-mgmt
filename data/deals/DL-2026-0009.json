@@ -40,8 +40,8 @@
   "incumbent": null,
   "competitors": [],
   "outcome_reason": null,
-  "next_action": "First Meeting moved",
-  "next_action_due": "2026-11-05",
+  "next_action": null,
+  "next_action_due": null,
   "tags": [],
   "links": [],
   "history": [
@@ -72,9 +72,22 @@
       "text": "Next action due: 29 Oct 2026 → 5 Nov 2026",
       "from_value": "29 Oct 2026",
       "to_value": "5 Nov 2026"
+    },
+    {
+      "at": "2026-11-09T18:20:15+01:00",
+      "kind": "field",
+      "text": "Next action done: First Meeting moved",
+      "from_value": null,
+      "to_value": null
     }
   ],
   "created_at": "2026-10-22T16:43:53+02:00",
-  "updated_at": "2026-11-03T13:19:10+01:00",
-  "done_actions": []
+  "updated_at": "2026-11-09T18:20:15+01:00",
+  "done_actions": [
+    {
+      "text": "First Meeting moved",
+      "due": "2026-11-05",
+      "done_on": "2026-11-09"
+    }
+  ]
 }
