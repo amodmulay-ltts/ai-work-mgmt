@@ -137,6 +137,8 @@ function dashboardView(store, cfg, today, me, tags) {
     kpi: {
       open: open.length,
       onHold: open.filter((r) => r.deal.on_hold).length,
+      // Pipeline: the full estimated value of open opportunities, before probability.
+      pipeline: moneyTotals(open.map((r) => [r.deal.currency, r.deal.est_value]), cfg),
       weighted: moneyTotals(open.map((r) => [r.deal.currency, r.weighted]), cfg),
       // Won to date: every opportunity in a won stage, counted and valued by its own currency.
       won: wonToDate(deals, cfg),

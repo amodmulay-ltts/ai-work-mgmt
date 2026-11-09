@@ -27,12 +27,16 @@
 <%
   const k = view.kpi;
   const wt = Object.entries(k.weighted);
+  const pl = Object.entries(k.pipeline);
   const maxStage = Math.max(1, ...view.pipeline.map((s) => s.count));
   const maxAge = Math.max(1, ...Object.values(view.aging));
 %>
 <%- include('partials/tag-filter', { all: cfg.tags, tags, base: '/', query: tagQuery }) %>
 <div class="page-header dash-head">
   <h1><%= greeting %>, <%= firstName %></h1>
+  <form method="get" action="/opportunities" class="dash-search" role="search">
+    <input type="search" name="q" placeholder="Search opportunities…" aria-label="Search opportunities" class="search">
+  </form>
   <div class="page-actions">
     <a class="btn btn-secondary" href="/report/weekly">Weekly report</a>
     <a class="btn btn-secondary" href="/export/opportunities.xlsx">Export to Excel</a>
@@ -41,11 +45,20 @@
   </div>
 </div>
 
-<div class="kpi-grid kpi-grid-three">
+<div class="kpi-grid">
   <div class="card kpi">
     <div class="kpi-label">Open opportunities</div>
     <div class="kpi-value"><%= k.open %></div>
     <div class="kpi-sub"><%= k.onHold %> on hold</div>
+  </div>
+  <div class="card kpi">
+    <div class="kpi-label">Pipeline</div>
+    <div class="kpi-value kpi-money">
+      <% if (pl.length === 0) { %>—<% } %>
+      <% for (const [currency, amount] of pl.slice(0, 4)) { %><div><%= moneyCompact(amount, currency) %></div><% } %>
+      <% if (pl.length > 4) { %><div class="kpi-sub">+<%= pl.length - 4 %> more</div><% } %>
+    </div>
+    <div class="kpi-sub">estimated value · open opportunities</div>
   </div>
   <div class="card kpi">
     <div class="kpi-label">Weighted pipeline</div>

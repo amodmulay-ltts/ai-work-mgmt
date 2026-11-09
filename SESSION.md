@@ -208,3 +208,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-03 — next action cancelled or postponed — Linux
 - Done: next action can be Cancelled or Postponed, with a required reason. It moves into the Done list with its status and reason, and the timeline records it. Offered on the opportunity page (Cancel or postpone…) and on the dashboard (Cancel or postpone). Postponed closes the action; enter the next action after. 334 tests pass. Branch next-action-close.
+
+### 2026-11-09 — dashboard search and pipeline card — Linux
+- Done: dashboard has a search box after the greeting (goes to Opportunities with q). KPI row: Open opportunities, Pipeline (unweighted estimated value of open opportunities, per currency), Weighted pipeline, Won to date. 336 tests pass. Branch dashboard-search-pipeline.

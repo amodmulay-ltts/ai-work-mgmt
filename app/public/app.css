@@ -363,6 +363,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--focus); }
 /* ------------------------------------------------------------------ Phase 2: dashboard, settings, conflicts */
 
 .dash-head { align-items: center; }
+.dash-search { flex: 1; max-width: 360px; margin: 0 var(--s4); }
+.dash-search .search { width: 100%; min-width: 0; }
 .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4); margin-bottom: var(--s4); }
 .kpi { margin: 0; padding: var(--s4); }
 .kpi-label { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
@@ -535,3 +537,4 @@ a.visit-total:hover, a.visit-total:focus-visible { text-decoration: underline; }
 a.summary-item { display: block; color: var(--text); text-decoration: none; }
 a.summary-item:hover { border-color: var(--border-strong); }
 a.summary-item:hover .kpi-label { color: var(--text); }
+.dash-search input[type="search"] { height: 36px; padding: 0 var(--s3); border: 1px solid var(--border-strong); border-radius: var(--radius); font: inherit; width: 100%; }
