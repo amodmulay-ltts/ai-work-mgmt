@@ -211,3 +211,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-09 — dashboard search and pipeline card — Linux
 - Done: dashboard has a search box after the greeting (goes to Opportunities with q). KPI row: Open opportunities, Pipeline (unweighted estimated value of open opportunities, per currency), Weighted pipeline, Won to date. 336 tests pass. Branch dashboard-search-pipeline.
+
+### 2026-11-09 — asks moved to bottom — Linux
+- Done: Asks for me moved to the bottom of the dashboard. My next actions now spans the full width (it had shared the row with Asks), and still scrolls past 360px. 336 tests pass. Branch asks-to-bottom.
