@@ -13,13 +13,13 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-11-03T09:54:57+01:00",
-  "updated_at": "2026-11-03T09:54:57+01:00",
+  "updated_at": "2026-11-09T13:14:21+01:00",
   "connects": [
     {
       "id": "ba9b9a2c",
       "on": "2026-11-06",
       "kind": "EI center visit",
-      "status": "Planned",
+      "status": "Done",
       "who_id": "PE-0050",
       "with": "Filippo ELEUTERIO",
       "note": "Naveen DUGAR\r\n\r\nAgenda:\r\n\r\nL&T and LTTS Overview\r\nLTTS Rail Solutions\r\nAI Lab - Demo of AI Rail solutions\r\nMermec & LTTS partnership discussion\r\nNext Steps and Way Forward",
