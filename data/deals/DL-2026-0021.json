@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "DL-2026-0021",
-  "title": "CARIAD: GID Dat Hub Tender",
+  "title": "CARIAD: RFQ - 545 GIS Data Hub",
   "type": "RFQ",
   "source": "Customer RFQ",
   "description": "Executive Summary\r\n\r\nFramework agreement for development, integration, testing, data, UX, AI engineering and operations of the GIS Data Hub, planned for 36 months.\r\nScope is divided into 8 independently awardable work packages, allowing suppliers to bid selectively or end-to-end.\r\nMajor technology domains are Salesforce/SFCC, Adobe AEM, Microsoft Azure, E2E Testing, Data & Analytics, AI Engineering, UX/UI and Data Product Technical Leadership.\r\nTotal baseline capacity is 90,900 hours/year, with no guaranteed minimum call-off volume.\r\nStrong focus on international rollout, cloud integration, automation, security, production operations and third-level support.\r\nAI-assisted/agentic engineering is mandatory across all work packages, including measurable productivity and quality effects.\r\nDelivery is primarily offsite/remote, with a Best Cost Country approach explicitly requested, making an offshore/nearshore delivery model commercially relevant.\r\nOverall, this is a large-scale, multi-year digital platform and engineering services opportunity requiring strong enterprise delivery, DevSecOps and managed-service capabilities.",
@@ -61,8 +61,15 @@
       "text": "Supporters: — → Amod Mulay",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-11-09T18:18:21+01:00",
+      "kind": "field",
+      "text": "Title: CARIAD: GID Dat Hub Tender → CARIAD: RFQ - 545 GIS Data Hub",
+      "from_value": "CARIAD: GID Dat Hub Tender",
+      "to_value": "CARIAD: RFQ - 545 GIS Data Hub"
     }
   ],
   "created_at": "2026-10-28T19:26:56+01:00",
-  "updated_at": "2026-10-28T19:28:27+01:00"
+  "updated_at": "2026-11-09T18:18:21+01:00"
 }
