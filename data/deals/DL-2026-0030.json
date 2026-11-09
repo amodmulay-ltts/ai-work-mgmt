@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "DL-2026-0030",
+  "title": "CARIAD: RFQ - 518 - Mobile Platform Development",
+  "type": "RFQ",
+  "source": "Customer RFQ",
+  "description": "",
+  "customer_id": "CU-0001",
+  "contact_ids": [],
+  "c4c_id": null,
+  "sales_owner_id": "PE-0002",
+  "presales_owner_id": "PE-0001",
+  "delivery_owner_id": "PE-0004",
+  "support_ids": [
+    "PE-0001"
+  ],
+  "support_requests": [],
+  "support_seq": 0,
+  "done_actions": [],
+  "bu": "Mobility",
+  "practice": "SAI",
+  "region": "DACH",
+  "stage": "Proposal Submitted",
+  "on_hold": false,
+  "probability": 10,
+  "priority": "Medium",
+  "go_no_go": "Pending",
+  "go_no_go_on": null,
+  "received_on": "2026-10-15",
+  "qa_due": "2026-10-23",
+  "submission_due": "2026-11-05",
+  "submitted_on": "2026-11-05",
+  "expected_decision_on": null,
+  "expected_start_on": null,
+  "closed_on": null,
+  "currency": "EUR",
+  "est_value": 12464239.8,
+  "effort_person_months": null,
+  "duration_months": 36,
+  "pricing_model": "Managed Capacity",
+  "incumbent": null,
+  "competitors": [],
+  "outcome_reason": null,
+  "next_action": "Defence",
+  "next_action_due": "2026-11-11",
+  "tags": [
+    "RFQ"
+  ],
+  "links": [],
+  "history": [
+    {
+      "at": "2026-11-09T17:55:31+01:00",
+      "kind": "created",
+      "text": "Opportunity created",
+      "from_value": null,
+      "to_value": null
+    }
+  ],
+  "created_at": "2026-11-09T17:55:31+01:00",
+  "updated_at": "2026-11-09T17:55:31+01:00"
+}
