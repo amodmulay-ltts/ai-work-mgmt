@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "AC-0005",
+  "title": "BLOG: The human-in-the-loop paradox: who will validate the AI in Future?",
+  "kind": "Other",
+  "status": "In progress",
+  "owner_id": "PE-0001",
+  "start_on": "2026-11-10",
+  "target_on": "2026-11-30",
+  "description": "1. The human-in-the-loop paradox: who will validate the AI in Future? What's missing: The market talks about AI preserving the knowledge of retiring experts. Almost nobody talks about the reverse: AI is taking over the junior analysis work that turns people into experts in the first place. The argument: Human-in-the-loop only works if the human knows more than the AI. If AI does all the entry-level analysis, you stop producing the experts you'll need to check it. Call it competence debt: it builds up silently and comes due when a model fails. The PoV would propose about how to overcome this.",
+  "links": [],
+  "tags": [
+    "BLOG"
+  ],
+  "updates": [],
+  "created_at": "2026-11-09T13:16:33+01:00",
+  "updated_at": "2026-11-09T13:16:33+01:00"
+}
