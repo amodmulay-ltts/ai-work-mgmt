@@ -104,7 +104,7 @@ describe('visits over HTTP', () => {
   test('the dashboard lists the upcoming visit and links to the customer', async () => {
     const html = await (await fetch(`${base}/`)).text();
     assert.match(html, /<h2 class="card-pad">Upcoming visits<\/h2>/);
-    assert.match(html, /<h2>Completed visits<\/h2>/);
+    assert.match(html, /<h2>Visits<\/h2>/);
     assert.match(html, /<a href="\/customers\/CU-0001">Bosch<\/a>/);
     assert.match(html, /EI center visit/);
   });
@@ -112,7 +112,7 @@ describe('visits over HTTP', () => {
   test('a completed visit to customer premises counts on the dashboard', async () => {
     await post('/customers/CU-0001/connects', { on: '2020-05-10', kind: 'Customer premises visit', status: 'Done', with: 'Plant head' });
     const html = await (await fetch(`${base}/`)).text();
-    assert.match(html, /<a class="visit-total" href="\/visits\?status=Done">1<\/a>/);
+    assert.match(html, /<a href="\/visits\?status=Done">\s*<span class="visit-total">1<\/span>/);
     assert.match(html, /0 this year/);
   });
 
@@ -131,6 +131,6 @@ describe('visits over HTTP', () => {
   test('a Teams meeting is not a visit, so it is not in the visit count', async () => {
     await post('/customers/CU-0001/connects', { on: '2020-06-01', kind: 'Teams', status: 'Done' });
     const html = await (await fetch(`${base}/`)).text();
-    assert.match(html, /<a class="visit-total" href="\/visits\?status=Done">2<\/a>/, 'the Teams meeting is not added');
+    assert.match(html, /<a href="\/visits\?status=Done">\s*<span class="visit-total">2<\/span>/, 'the Teams meeting is not added');
   });
 });

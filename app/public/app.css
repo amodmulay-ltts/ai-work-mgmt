@@ -532,6 +532,10 @@ a.stack-seg:hover { opacity: 0.8; }
 /* dashboard: completed visits total, a link */
 a.visit-total { display: block; font-size: var(--fs-xl); font-weight: 600; color: var(--text); text-decoration: none; margin: var(--s1) 0; }
 a.visit-total:hover, a.visit-total:focus-visible { text-decoration: underline; }
+.visit-counts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3); }
+.visit-counts a { display: block; color: var(--text); text-decoration: none; }
+.visit-counts .visit-total { display: block; font-size: var(--fs-xl); font-weight: 600; margin: var(--s1) 0; }
+.visit-counts a:hover .visit-total, .visit-counts a:focus-visible .visit-total { text-decoration: underline; }
 
 /* opportunities list: the summary figures, a row of KPI cards (Won, Submitted, Lost, everything else) */
 a.summary-item { display: block; color: var(--text); text-decoration: none; }

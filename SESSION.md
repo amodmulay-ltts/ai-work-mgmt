@@ -217,3 +217,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-09 — BU and customer charts above next actions — Linux
 - Done: Open opportunities by BU and by customer moved above My next actions. 336 tests pass. Branch charts-above-actions.
+
+### 2026-11-09 — visit cancel, dashboard visit counts, visit log JSON — Linux
+- Done: visits can be Cancelled (visits page: Cancel visit on planned rows; filter Cancelled). Dashboard Visits card shows completed (with this year), planned and cancelled counts. Visits page has View as JSON (opens in browser; respects the status filter), at /export/visits.json, with each visit: id, customer, kind, status, date, sales lead, who met, note, created_at. 342 tests pass. Branch visit-log-export.
+- Open: cancelled counts are all time, not this year. Cancel is on the visits page only, not the customer page.

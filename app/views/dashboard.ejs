@@ -209,10 +209,22 @@
   </section>
 
   <section class="card">
-    <h2>Completed visits</h2>
-    <a class="visit-total" href="/visits?status=Done"><%= view.visits.completed.total %></a>
-    <div class="kpi-sub"><%= view.visits.completed.inYear %> this year · EI centre and customer premises</div>
-    <p class="card-foot"><a href="/visits?status=Done">See the completed visits →</a></p>
+    <h2>Visits</h2>
+    <div class="visit-counts">
+      <a href="/visits?status=Done">
+        <span class="visit-total"><%= view.visits.completed.total %></span>
+        <span class="kpi-sub">completed · <%= view.visits.completed.inYear %> this year</span>
+      </a>
+      <a href="/visits?status=Planned">
+        <span class="visit-total"><%= view.visits.planned %></span>
+        <span class="kpi-sub">planned</span>
+      </a>
+      <a href="/visits?status=Cancelled">
+        <span class="visit-total"><%= view.visits.cancelled %></span>
+        <span class="kpi-sub">cancelled</span>
+      </a>
+    </div>
+    <p class="card-foot"><a href="/visits">All visits →</a></p>
   </section>
 </div>
 

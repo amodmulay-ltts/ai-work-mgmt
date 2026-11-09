@@ -41,8 +41,10 @@
       <option value="">All visits</option>
       <option value="Planned"<%- filter === 'Planned' ? ' selected' : '' %>>Planned</option>
       <option value="Done"<%- filter === 'Done' ? ' selected' : '' %>>Done</option>
+      <option value="Cancelled"<%- filter === 'Cancelled' ? ' selected' : '' %>>Cancelled</option>
     </select>
     <noscript><button class="btn btn-secondary btn-sm" type="submit">Show</button></noscript>
+    <a class="btn btn-ghost btn-sm" href="/export/visits.json<%= filter ? '?status=' + filter : '' %>" target="_blank" rel="noopener">View as JSON</a>
   </form>
   <% if (rows.length === 0) { %>
     <p class="subtle card-pad">No visits here yet. Log one above.</p>
@@ -76,6 +78,10 @@
                   <form method="post" action="/customers/<%= v.customerId %>/connects/<%= v.id %>/done" class="inline">
                     <input type="hidden" name="next" value="/visits">
                     <button class="btn btn-ghost btn-sm" type="submit">Mark done</button>
+                  </form>
+                  <form method="post" action="/customers/<%= v.customerId %>/connects/<%= v.id %>/cancel" class="inline" data-confirm="Cancel this visit?">
+                    <input type="hidden" name="next" value="/visits">
+                    <button class="btn btn-ghost btn-sm" type="submit">Cancel visit</button>
                   </form>
                 <% } %>
                 <form method="post" action="/customers/<%= v.customerId %>/connects/<%= v.id %>/delete" class="inline" data-confirm="Remove this visit?">

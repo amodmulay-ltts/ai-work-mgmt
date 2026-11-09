@@ -7,7 +7,7 @@ import {
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
 import { resolveTags } from './lib/tags.js';
-import { connectState, connectSummary, isDone, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
+import { connectState, connectSummary, isDone, isPlanned, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { noteEntry } from './history.js';
 import { CLOSE_STATUSES, closeNextAction, markNextActionDone } from './lib/next-action.js';
@@ -125,6 +125,8 @@ function dashboardView(store, cfg, today, me, tags) {
   const customers = store.listCustomers();
   const visits = {
     completed: visitCounts(customers.flatMap((c) => c.connects), today.slice(0, 4)),
+    planned: customers.flatMap((c) => plannedConnects(c.connects, today)).filter(isVisit).length,
+    cancelled: customers.flatMap((c) => c.connects).filter((c) => c.status === 'Cancelled' && isVisit(c)).length,
     upcoming: customers
       .flatMap((c) => plannedConnects(c.connects, today).filter(isVisit).map((x) => ({ ...x, customer: c.name, customerId: c.id, whoName: store.getPerson(x.who_id)?.name ?? '—' })))
       .sort((a, b) => a.on.localeCompare(b.on))
@@ -1106,7 +1108,7 @@ export function createRouter() {
   }
 
   router.get('/visits', async (req, res) => {
-    const filter = ['Planned', 'Done'].includes(req.query.status) ? req.query.status : '';
+    const filter = ['Planned', 'Done', 'Cancelled'].includes(req.query.status) ? req.query.status : '';
     const values = req.query.customer ? { customer: req.app.locals.store.getCustomer(String(req.query.customer))?.name ?? '' } : {};
     await renderVisits(req, res, { filter, values });
   });
@@ -1143,6 +1145,31 @@ export function createRouter() {
     }
   });
 
+  // The visit log as JSON, opened in the browser. Each visit has its details; the optional status filters it.
+  router.get('/export/visits.json', (req, res) => {
+    const { store } = req.app.locals;
+    const filter = ['Planned', 'Done', 'Cancelled'].includes(req.query.status) ? req.query.status : '';
+    const visits = visitRowsFor(store, todayIso()).filter((v) => !filter || v.status === filter);
+    const body = {
+      exported_at: nowIso(),
+      status: filter || 'All',
+      count: visits.length,
+      visits: visits.map((v) => ({
+        id: v.id,
+        customer_id: v.customerId,
+        customer: v.customer,
+        kind: v.kind,
+        status: v.status,
+        on: v.on,
+        sales_lead: v.whoName,
+        who_met: v.with || null,
+        note: v.note || null,
+        created_at: v.created_at ?? null,
+      })),
+    };
+    res.type('application/json').send(JSON.stringify(body, null, 2));
+  });
+
   // Connects (Teams meetings and visits) are logged on the customer. Each one is saved as its own change.
   router.post('/customers/:id/connects', async (req, res) => {
     const { store } = req.app.locals;
@@ -1170,7 +1197,7 @@ export function createRouter() {
     const customer = store.getCustomer(req.params.id);
     if (!customer) return notFound(req, res, 'This customer');
     const today = todayIso();
-    const planned = customer.connects.find((c) => c.id === req.params.connectId && !isDone(c));
+    const planned = customer.connects.find((c) => c.id === req.params.connectId && isPlanned(c));
     if (!planned) {
       flash(res, 'error', 'That planned visit no longer exists.');
     } else if (planned.on > today) {
@@ -1179,6 +1206,22 @@ export function createRouter() {
       const connects = customer.connects.map((c) => (c.id === planned.id ? { ...c, status: 'Done' } : c));
       await store.save([{ ...customer, connects }], `${customer.id}: ${planned.kind} on ${planned.on} done`);
       flash(res, 'success', 'Marked as done.');
+    }
+    return res.redirect(303, backTo(req, customer));
+  });
+
+  // A planned visit that will not happen is cancelled. It stays in the log, with its reason in the note.
+  router.post('/customers/:id/connects/:connectId/cancel', async (req, res) => {
+    const { store } = req.app.locals;
+    const customer = store.getCustomer(req.params.id);
+    if (!customer) return notFound(req, res, 'This customer');
+    const planned = customer.connects.find((c) => c.id === req.params.connectId && isPlanned(c));
+    if (!planned) {
+      flash(res, 'error', 'That planned visit no longer exists.');
+    } else {
+      const connects = customer.connects.map((c) => (c.id === planned.id ? { ...c, status: 'Cancelled' } : c));
+      await store.save([{ ...customer, connects }], `${customer.id}: ${planned.kind} on ${planned.on} cancelled`);
+      flash(res, 'success', 'Visit cancelled.');
     }
     return res.redirect(303, backTo(req, customer));
   });

@@ -8,7 +8,7 @@ import { daysBetween } from '../metrics.js';
 
 export const CONNECT_KINDS = ['Teams', 'EI center visit', 'Customer premises visit', 'Visit'];
 export const VISIT_KINDS = ['EI center visit', 'Customer premises visit', 'Visit'];
-export const CONNECT_STATUSES = ['Planned', 'Done'];
+export const CONNECT_STATUSES = ['Planned', 'Done', 'Cancelled'];
 export const CONNECT_WITH_MAX = 100;
 export const CONNECT_NOTE_MAX = 2000;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -21,6 +21,8 @@ export function withConnectDefaults(customer) {
 /** An entry without a status is a past connect, so it is Done. */
 export const isDone = (c) => (c.status ?? 'Done') === 'Done';
 export const isVisit = (c) => VISIT_KINDS.includes(c.kind);
+/** A planned connect is one whose status is Planned. Cancelled ones are neither planned nor done. */
+export const isPlanned = (c) => c.status === 'Planned';
 
 /** Checks the fields of one stored connect. Returns the errors (empty when it is valid). */
 export function connectErrors(entry) {
@@ -45,7 +47,7 @@ export function newConnect(input, { id, people, today }) {
   const kind = String(input.kind ?? '').trim();
   if (!CONNECT_KINDS.includes(kind)) errors.push('Pick the kind of connect.');
   const status = String(input.status ?? '').trim() || 'Done';
-  if (!CONNECT_STATUSES.includes(status)) errors.push('Pick Planned or Done.');
+  if (!['Planned', 'Done'].includes(status)) errors.push('Pick Planned or Done.');
   if (DATE_RE.test(on)) {
     if (status === 'Done' && on > today) errors.push('A completed connect cannot be in the future. Mark it Planned instead.');
     if (status === 'Planned' && on < today) errors.push('A planned visit must be today or later.');
@@ -84,7 +86,7 @@ export function connectState(customer, today, afterDays) {
 
 /** Planned connects on or after today, soonest first. */
 export function plannedConnects(connects, today) {
-  return connects.filter((c) => !isDone(c) && c.on >= today).sort((a, b) => a.on.localeCompare(b.on));
+  return connects.filter((c) => isPlanned(c) && c.on >= today).sort((a, b) => a.on.localeCompare(b.on));
 }
 
 /**
