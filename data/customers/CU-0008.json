@@ -13,7 +13,7 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-10-26T13:15:13+01:00",
-  "updated_at": "2026-11-10T12:11:09+01:00",
+  "updated_at": "2026-11-10T12:12:28+01:00",
   "connects": [
     {
       "id": "80bf9251",
@@ -24,6 +24,16 @@
       "with": "Barthelmes, Thorsten",
       "note": "We have a customer visit this Thursday – Karlstorz and the intent is on QARA- Remediation activities. We need to have a show and tell on Qassure .AI as that is something they are very keen on to look at .\r\nTheir main challenge is on remediation to FDA and NMPA and ofcourse MDD to MDR for a few of their product families.",
       "created_at": "2026-10-26T12:15:13.910Z"
+    },
+    {
+      "id": "a2ad2875",
+      "on": "2026-10-29",
+      "kind": "Teams",
+      "status": "Done",
+      "who_id": null,
+      "with": "",
+      "note": "Interested in SDLC and documentation - knowledge management",
+      "created_at": "2026-11-10T11:12:28.228Z"
     }
   ]
 }
