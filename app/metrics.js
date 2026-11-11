@@ -325,6 +325,27 @@ export function winsByYear(deals, cfg, today) {
 }
 
 /**
+ * Open opportunities per person. A deal counts once for each person in its sales, presales or delivery
+ * owner role, so a person's count is the work they are involved in. Sorted by count, then by name.
+ * @returns {Array<{ personId: string, person: string, count: number, totals: Record<string, number> }>}
+ */
+export function byPerson(deals, cfg, nameOf) {
+  const groups = new Map();
+  for (const d of deals) {
+    const ids = [...new Set([d.sales_owner_id, d.presales_owner_id, d.delivery_owner_id].filter(Boolean))];
+    for (const id of ids) {
+      if (!groups.has(id)) groups.set(id, { personId: id, person: nameOf(id), count: 0, pairs: [] });
+      const group = groups.get(id);
+      group.count += 1;
+      group.pairs.push([d.currency, d.est_value]);
+    }
+  }
+  return [...groups.values()]
+    .sort((a, b) => b.count - a.count || a.person.localeCompare(b.person))
+    .map((g) => ({ personId: g.personId, person: g.person, count: g.count, totals: moneyTotals(g.pairs, cfg) }));
+}
+
+/**
  * Open opportunities per customer: the count and the estimated value per currency. Sorted by count,
  * then by name. `nameOf` turns a customer id into a name.
  * @returns {Array<{ customer: string, count: number, totals: Record<string, number> }>}

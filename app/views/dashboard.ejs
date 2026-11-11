@@ -84,7 +84,7 @@
   const maxSub = Math.max(1, ...sub.months.map((m) => m.count));
   const maxBu = Math.max(1, ...view.byBu.map((b) => b.count));
 %>
-<div class="chart-grid chart-grid-two">
+<div class="chart-grid chart-grid-three">
   <section class="card chart-card">
     <h2>Open opportunities by BU</h2>
     <% if (view.byBu.length === 0) { %>
@@ -117,6 +117,27 @@
     <% } %>
     <% if (view.byCustomer.length > 8) { %>
       <p class="card-foot muted">+<%= view.byCustomer.length - 8 %> more customers</p>
+    <% } %>
+  </section>
+
+  <section class="card chart-card">
+    <h2>Open opportunities by person</h2>
+    <% if (view.byPerson.length === 0) { %>
+      <p class="subtle">No open opportunities.</p>
+    <% } %>
+    <%
+      const topPeople = view.byPerson.slice(0, 8);
+      const maxPerson = Math.max(1, ...topPeople.map((p) => p.count));
+    %>
+    <% for (const p of topPeople) { %>
+      <a class="bar-row" href="/opportunities?owner=<%= p.personId %>" title="<%= p.person %>: <%= p.count %> open · see them">
+        <span class="bar-label"><%= p.person %></span>
+        <span class="bar-track"><span class="bar-fill" style="width: <%= Math.round((p.count / maxPerson) * 100) %>%"></span></span>
+        <span class="bar-value"><%= p.count %> · <%= moneyTotalsText(p.totals) %></span>
+      </a>
+    <% } %>
+    <% if (view.byPerson.length > 8) { %>
+      <p class="card-foot muted">+<%= view.byPerson.length - 8 %> more people</p>
     <% } %>
   </section>
 </div>

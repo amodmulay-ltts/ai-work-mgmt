@@ -228,3 +228,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-11 — backlog on dashboard — Linux
 - Done: dashboard Backlog card (counts by open status, five most urgent tasks, Start and Finish buttons), beside Asks for me. 355 tests pass. Branch backlog-dashboard.
+
+### 2026-11-11 — opportunities by person — Linux
+- Done: dashboard card Open opportunities by person, beside BU and customer. A deal counts once per person in its sales, presales or delivery role. Bars link to /opportunities?owner=. 357 tests pass. Branch person-chart.
+- Open: read as a dashboard card. Not added: a Group by option on the opportunities list.

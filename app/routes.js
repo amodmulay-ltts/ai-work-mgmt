@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 import {
-  agingCounts, ageDays, askOverdue, asksFor, byBusinessUnit, byCustomer, daysInStage, daysToSubmission, hasAllTags, health, isOpen, isOpenAsk, isSupportedBy,
+  agingCounts, ageDays, askOverdue, asksFor, byBusinessUnit, byCustomer, byPerson, daysInStage, daysToSubmission, hasAllTags, health, isOpen, isOpenAsk, isSupportedBy,
   moneyTotals, submissionsByMonth, winsByYear, openAsks, pipelineByStage, stageInfo, status, weightedValue,
 } from './metrics.js';
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
@@ -173,6 +173,7 @@ function dashboardView(store, cfg, today, me, tags) {
     submissions: submissionsByMonth(deals, cfg, today),
     byBu: byBusinessUnit(open.map((r) => r.deal), cfg),
     byCustomer: byCustomer(open.map((r) => r.deal), cfg, (id) => store.getCustomer(id)?.name ?? '—'),
+    byPerson: byPerson(open.map((r) => r.deal), cfg, (id) => store.getPerson(id)?.name ?? '—'),
     today,
   };
 }
