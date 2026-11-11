@@ -152,3 +152,27 @@ describe('backlog: over HTTP', () => {
     assert.equal(app.store.getTask(id), null);
   });
 });
+
+describe('backlog: dashboard card', () => {
+  test('the dashboard lists open tasks with Start and Finish', async () => {
+    const { dir } = await makeRemote();
+    const root = await makeClone(dir, 'app', null);
+    const created = await createApp({ root, syncEnabled: false });
+    const server = await new Promise((resolve) => {
+      const s = created.app.listen(0, '127.0.0.1', () => resolve(s));
+    });
+    const base = `http://127.0.0.1:${server.address().port}`;
+    try {
+      await post(base, '/setup', { name: 'Amod Mulay', email: '' });
+      await post(base, '/tasks', { title: 'Dashboard task', description: '', due_on: '2020-01-01' });
+      const html = await (await fetch(`${base}/`)).text();
+      assert.match(html, /<h2>Backlog<\/h2>/);
+      assert.match(html, /Dashboard task/);
+      assert.match(html, /\(overdue\)/);
+      assert.match(html, /action="\/tasks\/TK-0001\/action"/);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+      await cleanup(dir);
+    }
+  });
+});

@@ -373,7 +373,47 @@
   </section>
 </div>
 
-<div class="dash-grid dash-grid-one">
+<div class="dash-grid">
+  <section class="card backlog-card">
+    <h2>Backlog</h2>
+    <p class="muted">
+      <% for (const [status, n] of Object.entries(view.backlog.counts)) { %>
+        <a href="/tasks?status=<%= encodeURIComponent(status) %>"><%= status %> <strong><%= n %></strong></a><% if (status !== 'On hold') { %> · <% } %>
+      <% } %>
+    </p>
+    <% if (view.backlog.items.length === 0) { %>
+      <p class="subtle">Nothing open. <a href="/tasks/new">Add a task</a>.</p>
+    <% } %>
+    <ul class="action-list">
+      <% for (const r of view.backlog.items) { const t = r.task; %>
+        <li class="action">
+          <div class="action-main">
+            <div>
+              <a href="/tasks/<%= t.id %>"><%= t.title %></a>
+              <span class="mono subtle"><%= t.id %></span>
+            </div>
+            <div class="<%= r.overdue ? 'text-red' : 'muted' %>">
+              <%= t.status %><% if (t.due_on) { %> · due <%= fmtDate(t.due_on) %><% if (r.overdue) { %> (overdue)<% } %><% } %>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <% if (t.status === 'Backlog' || t.status === 'On hold') { %>
+              <form method="post" action="/tasks/<%= t.id %>/action" class="inline">
+                <input type="hidden" name="action" value="start">
+                <button class="btn btn-secondary btn-sm" type="submit">Start</button>
+              </form>
+            <% } %>
+            <form method="post" action="/tasks/<%= t.id %>/action" class="inline">
+              <input type="hidden" name="action" value="finish">
+              <button class="btn btn-ghost btn-sm" type="submit">Finish</button>
+            </form>
+          </div>
+        </li>
+      <% } %>
+    </ul>
+    <p class="card-foot"><a href="/tasks">All tasks (<%= view.backlog.total %>) →</a></p>
+  </section>
+
 <section class="card asks-card">
     <h2>Asks for me</h2>
     <p class="muted"><%= view.myAsks.dueWeek %> due this week, including overdue</p>

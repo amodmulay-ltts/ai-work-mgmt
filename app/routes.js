@@ -147,6 +147,16 @@ function dashboardView(store, cfg, today, me, tags) {
       won: wonToDate(deals, cfg),
     },
     // Asks for me: the 5 earliest open asks, and how many are due within a week (overdue included).
+    // Backlog: my open tasks. In progress first, then by due date; the five most urgent are shown.
+    backlog: (() => {
+      const open = store.listTasks().filter((t) => OPEN_TASK_STATUSES.includes(t.status));
+      const counts = Object.fromEntries(OPEN_TASK_STATUSES.map((s) => [s, open.filter((t) => t.status === s).length]));
+      const items = open
+        .sort((a, b) => (b.status === 'In progress') - (a.status === 'In progress') || (a.due_on ?? '9999').localeCompare(b.due_on ?? '9999') || a.id.localeCompare(b.id))
+        .slice(0, 5)
+        .map((task) => ({ task, overdue: Boolean(task.due_on) && task.due_on < today }));
+      return { counts, items, total: open.length };
+    })(),
     myAsks: {
       rows: myAsks.slice(0, 5).map((r) => ({ ...r, overdue: askOverdue(r.ask, today) })),
       total: myAsks.length,

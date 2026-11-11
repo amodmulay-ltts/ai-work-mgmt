@@ -225,3 +225,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-11-11 — backlog (my tasks) — Linux
 - Done: Backlog (PLAN.md §22). Record kind task (TK-0001, data/tasks). Start, Put on hold, Finish, Reopen, dated comments, edit, delete with type-to-confirm. Nav link Backlog. 354 tests pass. Branch backlog.
 - Open: no dashboard card or due-date reminders yet.
+
+### 2026-11-11 — backlog on dashboard — Linux
+- Done: dashboard Backlog card (counts by open status, five most urgent tasks, Start and Finish buttons), beside Asks for me. 355 tests pass. Branch backlog-dashboard.
