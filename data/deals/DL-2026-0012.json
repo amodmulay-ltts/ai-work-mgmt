@@ -19,7 +19,7 @@
   "region": "DACH",
   "stage": "Lead",
   "on_hold": false,
-  "probability": 5,
+  "probability": 25,
   "priority": "Medium",
   "go_no_go": "Pending",
   "go_no_go_on": null,
@@ -56,9 +56,16 @@
       "text": "Region: Europe → DACH",
       "from_value": "Europe",
       "to_value": "DACH"
+    },
+    {
+      "at": "2026-11-11T11:46:22+01:00",
+      "kind": "field",
+      "text": "Probability: 5 → 25",
+      "from_value": "5",
+      "to_value": "25"
     }
   ],
   "created_at": "2026-10-26T14:50:59+01:00",
-  "updated_at": "2026-10-27T09:16:06+01:00",
+  "updated_at": "2026-11-11T11:46:22+01:00",
   "done_actions": []
 }
