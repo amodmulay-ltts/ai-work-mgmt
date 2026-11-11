@@ -35,7 +35,7 @@
         <tbody>
           <% for (const r of rows) { const p = r.person; %>
             <tr class="<%= p.active ? '' : 'inactive' %>">
-              <td class="name-cell"><a href="/people/<%= p.id %>/edit"><%= p.name %></a></td>
+              <td class="name-cell"><a href="/people/<%= p.id %>"><%= p.name %></a></td>
               <td><span class="badge role"><%= p.role %></span></td>
               <td><%= p.title || '—' %></td>
               <td><%= p.email || '—' %></td>

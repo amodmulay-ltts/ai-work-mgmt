@@ -1439,6 +1439,36 @@ export function createRouter() {
     await renderPage(req, res, 'people/list', { title: 'People', active: 'people', rows, role, roles: ROLES });
   });
 
+  // A person's page: every opportunity they are named on (owner, contact or supporter), open or closed.
+  router.get('/people/:id', async (req, res, next) => {
+    // Other paths under /people (such as /people/new) have their own routes.
+    if (!ID_RE.person.test(req.params.id)) return next();
+    const { store } = req.app.locals;
+    const person = store.getPerson(req.params.id);
+    if (!person) return notFound(req, res, 'This person');
+    const cfg = store.config();
+    const rows = store
+      .listDeals()
+      .map((deal) => {
+        const roles = [];
+        if (deal.sales_owner_id === person.id) roles.push('Sales');
+        if (deal.presales_owner_id === person.id) roles.push('Presales');
+        if (deal.delivery_owner_id === person.id) roles.push('Delivery');
+        if (deal.contact_ids.includes(person.id)) roles.push('Contact');
+        if (deal.support_ids.includes(person.id)) roles.push('Supporter');
+        return { deal, roles, status: status(deal, cfg), customerName: store.getCustomer(deal.customer_id)?.name ?? '—' };
+      })
+      .filter((r) => r.roles.length)
+      .sort((a, b) => b.deal.received_on.localeCompare(a.deal.received_on) || a.deal.id.localeCompare(b.deal.id));
+    await renderPage(req, res, 'people/detail', {
+      title: person.name,
+      active: 'people',
+      person,
+      rows,
+      openCount: rows.filter((r) => isOpen(r.deal, cfg)).length,
+    });
+  });
+
   router.get('/people/new', async (req, res) => {
     await renderPersonForm(req, res, { existing: null, values: { name: '', role: 'Sales', title: '', email: '', phone: '', customer_id: '', notes: '', active: 'on' } });
   });

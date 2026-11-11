@@ -232,3 +232,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-11-11 — opportunities by person — Linux
 - Done: dashboard card Open opportunities by person, beside BU and customer. A deal counts once per person in its sales, presales or delivery role. Bars link to /opportunities?owner=. 357 tests pass. Branch person-chart.
 - Open: read as a dashboard card. Not added: a Group by option on the opportunities list.
+
+### 2026-11-11 — person page lists their opportunities — Linux
+- Done: People names open /people/:id, which lists every opportunity the person is named on (sales, presales, delivery, contact or supporter), with their role, status and value. Edit stays on the list. 361 tests pass. Branch person-page.

@@ -1,0 +1,51 @@
+<div class="page-header">
+  <div>
+    <h1><%= person.name %> <span class="count"><%= rows.length %></span></h1>
+    <p class="muted meta-line">
+      <span class="badge role"><%= person.role %></span>
+      <% if (person.title) { %> · <%= person.title %><% } %>
+      <% if (person.email) { %> · <%= person.email %><% } %>
+      <% if (!person.active) { %> · Inactive<% } %>
+    </p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="/people">Back to people</a>
+    <a class="btn btn-secondary" href="/people/<%= person.id %>/edit">Edit</a>
+  </div>
+</div>
+
+<section class="card table-card">
+  <h2 class="card-pad">Opportunities <span class="muted">(<%= openCount %> open · <%= rows.length - openCount %> closed)</span></h2>
+  <% if (rows.length === 0) { %>
+    <p class="subtle card-pad">No opportunities for <%= person.name %> yet. They are linked when they are named as an owner, a contact or a supporter.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Opportunity</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Stage</th>
+            <th scope="col">Status</th>
+            <th scope="col">Role</th>
+            <th scope="col" class="num">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of rows) { const d = r.deal; %>
+            <tr class="clickable" data-href="/opportunities/<%= d.id %>">
+              <td class="mono"><a href="/opportunities/<%= d.id %>"><%= d.id %></a></td>
+              <td class="ellipsis"><a href="/opportunities/<%= d.id %>"><%= d.title %></a></td>
+              <td><%= r.customerName %></td>
+              <td><%= d.stage %></td>
+              <td><%= r.status %></td>
+              <td><%= r.roles.join(', ') %></td>
+              <td class="num"><%= d.est_value == null ? '—' : moneyCompact(d.est_value, d.currency) %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
