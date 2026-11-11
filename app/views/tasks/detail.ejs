@@ -1,0 +1,54 @@
+<div class="page-header deal-head">
+  <div>
+    <span class="mono"><%= task.id %></span>
+    <h1><%= task.title %></h1>
+    <p class="muted meta-line">
+      <%= task.status %>
+      <% if (task.due_on) { %> · Due <%= fmtDate(task.due_on) %><% } %>
+      · Created <%= fmtDate(task.created_at.slice(0, 10)) %>
+    </p>
+  </div>
+  <div class="page-actions">
+    <% for (const [action, rule] of Object.entries(actions)) { if (rule.from.includes(task.status)) { %>
+      <form method="post" action="/tasks/<%= task.id %>/action" class="inline">
+        <input type="hidden" name="action" value="<%= action %>">
+        <button class="btn <%= action === 'finish' ? 'btn-primary' : 'btn-secondary' %>" type="submit"><%= rule.label %></button>
+      </form>
+    <% } } %>
+    <a class="btn btn-secondary" href="/tasks/<%= task.id %>/edit">Edit</a>
+    <%- include('../partials/delete-form', { action: `/tasks/${task.id}/delete`, expected: task.id, what: 'task', key: task.id }) %>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-main">
+    <section class="card">
+      <h2>Comments</h2>
+      <form method="post" action="/tasks/<%= task.id %>/comments" class="ask-form">
+        <div class="field field-wide">
+          <label for="comment-text">Add a comment</label>
+          <input type="text" id="comment-text" name="text" maxlength="1000" required>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit">Add comment</button>
+      </form>
+      <% if (comments.length) { %>
+        <ol class="timeline">
+          <% for (const c of comments) { %>
+            <li>
+              <span class="tl-time"><%= fmtDate(c.on) %></span>
+              <div><%= c.text %></div>
+            </li>
+          <% } %>
+        </ol>
+      <% } else { %>
+        <p class="subtle">No comments yet.</p>
+      <% } %>
+    </section>
+  </div>
+  <aside class="detail-side">
+    <section class="card">
+      <h2>Notes</h2>
+      <% if (task.description) { %><div class="note"><%= task.description %></div><% } else { %><p class="subtle">No notes.</p><% } %>
+    </section>
+  </aside>
+</div>

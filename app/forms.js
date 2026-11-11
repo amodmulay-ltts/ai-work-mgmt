@@ -526,6 +526,26 @@ export async function savePerson(store, typed, { existing = null }) {
  * change it, and each update is added by its own save (PLAN.md §17).
  * @returns {Promise<{ activity: object }>}
  */
+/** Saves a backlog task. Comments are kept from the existing task; the form does not change them. */
+export async function saveTask(store, typed, { existing = null }) {
+  const id = existing ? existing.id : await store.nextId('task');
+  const now = nowIso();
+  const task = {
+    ...(existing ?? {}),
+    schema_version: 1,
+    id,
+    status: existing ? existing.status : 'Backlog',
+    ...typed,
+    comments: existing ? existing.comments : [],
+    created_at: existing ? existing.created_at : now,
+    updated_at: now,
+  };
+  const errors = validateRecord('task', task, null);
+  if (errors.length) throw new ValidationError(errors);
+  await store.save([task], existing ? `${id}: updated` : `${id}: created – ${typed.title}`);
+  return { task };
+}
+
 export async function saveActivity(store, typed, { existing = null }) {
   const id = existing ? existing.id : await store.nextId('activity');
   const now = nowIso();

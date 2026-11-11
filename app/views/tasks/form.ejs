@@ -1,0 +1,21 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+%>
+<div class="page-header">
+  <h1><%= title %></h1>
+</div>
+
+<form method="post" action="<%= action %>" class="deal-form" data-guard novalidate>
+  <section class="card form-section">
+    <h3>Task</h3>
+    <div class="form-grid">
+      <%- f('title', 'Title', { required: true, span: true, help: 'For example: Send the revised test plan to Meera.' }) %>
+      <%- f('due_on', 'Due date', { type: 'date' }) %>
+      <%- f('description', 'Notes', { type: 'textarea', span: true, rows: 4 }) %>
+    </div>
+  </section>
+  <div class="form-footer">
+    <a class="btn btn-ghost" href="<%= existing ? '/tasks/' + existing.id : '/tasks' %>">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>

@@ -9,13 +9,14 @@ import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, re
 import { resolveTags } from './lib/tags.js';
 import { connectState, connectSummary, isDone, isPlanned, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
+import { OPEN_TASK_STATUSES, TASK_ACTIONS, TASK_STATUSES, applyTaskAction, newTaskComment, parseTaskForm } from './lib/tasks.js';
 import { noteEntry } from './history.js';
 import { CLOSE_STATUSES, closeNextAction, markNextActionDone } from './lib/next-action.js';
 import { moveReferences, personUsage } from './lib/merge.js';
 import { matchesSearch, searchWords } from './lib/search.js';
 import {
   customerToValues, dealToTyped, ensureCustomer, ensurePerson, parseCustomerValues, parseDealValues, parsePersonValues,
-  personToValues, saveActivity, saveCustomer, saveDeal, savePerson, typedToValues,
+  personToValues, saveActivity, saveCustomer, saveDeal, savePerson, saveTask, typedToValues,
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
@@ -1648,6 +1649,139 @@ export function createRouter() {
     await store.delete(activity, `${activity.id}: deleted`);
     flash(res, 'success', `Deleted ${activity.id}.`);
     return res.redirect(303, '/activities');
+  });
+
+  // ------------------------------------------------ backlog: my tasks (lib/tasks.js)
+  // Tasks are my own work, not opportunities. Open tasks by default; the status filter also takes All.
+  router.get('/tasks', async (req, res) => {
+    const { store } = req.app.locals;
+    const q = req.query.status ?? '';
+    const statusFilter = TASK_STATUSES.includes(q) ? q : '';
+    const rows = store
+      .listTasks()
+      .filter((t) => {
+        if (statusFilter) return t.status === statusFilter;
+        if (q === 'all') return true;
+        return OPEN_TASK_STATUSES.includes(t.status);
+      })
+      .sort((a, b) => (a.due_on ?? '9999').localeCompare(b.due_on ?? '9999') || a.id.localeCompare(b.id));
+    await renderPage(req, res, 'tasks/list', {
+      title: 'Backlog',
+      active: 'tasks',
+      rows,
+      filter: q,
+      statuses: TASK_STATUSES,
+      today: todayIso(),
+    });
+  });
+
+  async function renderTaskForm(req, res, { existing, values, errors = {}, status: code = 200 }) {
+    await renderPage(req, res, 'tasks/form', {
+      title: existing ? `Edit ${existing.id}` : 'New task',
+      active: 'tasks',
+      existing,
+      values,
+      errors,
+      action: existing ? `/tasks/${existing.id}` : '/tasks',
+    }, code);
+  }
+
+  router.get('/tasks/new', async (req, res) => {
+    await renderTaskForm(req, res, { existing: null, values: { title: '', description: '', due_on: '' } });
+  });
+
+  router.post('/tasks', async (req, res) => {
+    const { store } = req.app.locals;
+    const { typed, errors } = parseTaskForm(req.body);
+    if (Object.keys(errors).length) return renderTaskForm(req, res, { existing: null, values: req.body, errors, status: 422 });
+    try {
+      const { task } = await saveTask(store, typed, { existing: null });
+      flash(res, 'success', `Created ${task.id}`);
+      return res.redirect(303, `/tasks/${task.id}`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderTaskForm(req, res, { existing: null, values: req.body, errors: { title: plain(err.errors[0]) }, status: 422 });
+    }
+  });
+
+  router.get('/tasks/:id', async (req, res) => {
+    const { store } = req.app.locals;
+    const task = store.getTask(req.params.id);
+    if (!task) return notFound(req, res, 'This task');
+    await renderPage(req, res, 'tasks/detail', {
+      title: `${task.id} · ${task.title}`,
+      active: 'tasks',
+      task,
+      comments: [...task.comments].sort((a, b) => b.on.localeCompare(a.on) || b.created_at.localeCompare(a.created_at)),
+      actions: TASK_ACTIONS,
+      today: todayIso(),
+    });
+  });
+
+  router.get('/tasks/:id/edit', async (req, res) => {
+    const { store } = req.app.locals;
+    const task = store.getTask(req.params.id);
+    if (!task) return notFound(req, res, 'This task');
+    await renderTaskForm(req, res, { existing: task, values: { title: task.title, description: task.description, due_on: task.due_on ?? '' } });
+  });
+
+  router.post('/tasks/:id', async (req, res) => {
+    const { store } = req.app.locals;
+    const task = store.getTask(req.params.id);
+    if (!task) return notFound(req, res, 'This task');
+    const { typed, errors } = parseTaskForm(req.body);
+    if (Object.keys(errors).length) return renderTaskForm(req, res, { existing: task, values: req.body, errors, status: 422 });
+    try {
+      await saveTask(store, typed, { existing: task });
+      flash(res, 'success', 'Task saved.');
+      return res.redirect(303, `/tasks/${task.id}`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderTaskForm(req, res, { existing: task, values: req.body, errors: { title: plain(err.errors[0]) }, status: 422 });
+    }
+  });
+
+  // Start, put on hold, finish or reopen. Each is its own commit.
+  router.post('/tasks/:id/action', async (req, res) => {
+    const { store } = req.app.locals;
+    const task = store.getTask(req.params.id);
+    if (!task) return notFound(req, res, 'This task');
+    const action = String(req.body.action ?? '');
+    const next = applyTaskAction(task, action, { at: nowIso() });
+    if (!next) {
+      flash(res, 'error', `That task cannot be ${TASK_ACTIONS[action]?.label.toLowerCase() ?? 'changed'} from ${task.status}.`);
+    } else {
+      await store.save([next], `${task.id}: ${task.status} → ${next.status}`);
+      flash(res, 'success', `${TASK_ACTIONS[action].label}: ${next.status}.`);
+    }
+    return res.redirect(303, `/tasks/${task.id}`);
+  });
+
+  router.post('/tasks/:id/comments', async (req, res) => {
+    const { store } = req.app.locals;
+    const task = store.getTask(req.params.id);
+    if (!task) return notFound(req, res, 'This task');
+    const { comment, error } = newTaskComment(req.body, { at: nowIso(), today: todayIso() });
+    if (error) {
+      flash(res, 'error', error);
+      return res.redirect(303, `/tasks/${task.id}`);
+    }
+    await store.save([{ ...task, comments: [...task.comments, comment] }], `${task.id}: comment`);
+    flash(res, 'success', 'Comment added.');
+    return res.redirect(303, `/tasks/${task.id}`);
+  });
+
+  router.post('/tasks/:id/delete', async (req, res) => {
+    const { store } = req.app.locals;
+    const task = store.getTask(req.params.id);
+    if (!task) return notFound(req, res, 'This task');
+    if (!typedRight(req, task.id)) {
+      flash(res, 'error', `Nothing was deleted. Type ${task.id} exactly to delete it.`);
+      return res.redirect(303, `/tasks/${task.id}`);
+    }
+    await store.delete(task, `${task.id}: deleted`);
+    flash(res, 'success', `Deleted ${task.id}.`);
+    return res.redirect(303, '/tasks');
   });
 
   // ------------------------------------------------ merge two people (lib/merge.js)

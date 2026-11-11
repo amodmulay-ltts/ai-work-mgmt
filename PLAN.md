@@ -1335,3 +1335,17 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 
 **Rules.** Every stage is a lane, in the configured order. Won, Lost and Dropped are the last three lanes. Won is a drop like any other. Lost and Dropped need a reason, so a drop there opens the opportunity to choose it. The closed lanes show the 30 most recently closed, and the header shows the full count. A drop calls the same stage route as the opportunity page, so the probability and dates change in the same way. The tag filter applies.
 
+
+## 22. Backlog (my tasks)
+
+**Purpose.** My own tasks and work to do, not customer opportunities. Start, finish, put on hold, and comment.
+
+**Data.** A record kind `task` in `data/tasks/`, ids `TK-0001`. Fields: `title` (required, up to 120 characters), `description` (up to 2000), `status` (Backlog, In progress, On hold or Done), `due_on` (optional date), `comments` (a dated list), `created_at`, `updated_at`. No owner: the backlog is mine.
+
+**Actions.** Start (from Backlog or On hold), Put on hold (from Backlog or In progress), Finish (from any open status), Reopen (from Done, back to Backlog). An action that does not apply changes nothing. Each action is its own commit.
+
+**Comments.** Dated today, up to 1000 characters. Adding one is its own commit. Editing the task does not change the status or comments.
+
+**Pages.** `/tasks`: open tasks by default; the status filter also takes All and each status. `/tasks/new`, `/tasks/:id/edit`, `/tasks/:id` (actions, comments, notes). Delete uses the type-to-confirm box (the ID must be typed).
+
+**Not in scope yet.** Dashboard card, due-date reminders, and the Excel export.

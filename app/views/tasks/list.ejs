@@ -1,0 +1,46 @@
+<div class="page-header">
+  <h1>Backlog <span class="count"><%= rows.length %></span></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/tasks/new">+ New task</a>
+  </div>
+</div>
+
+<form method="get" action="/tasks" class="filters" role="search">
+  <%- ui.selectControl({ name: 'status', value: filter, placeholder: 'Open tasks', ariaLabel: 'Status', options: [['all', 'All tasks'], ...statuses.map((s) => [s, s])] }) %>
+  <noscript><button class="btn btn-secondary" type="submit">Apply</button></noscript>
+</form>
+
+<section class="card table-card">
+  <% if (rows.length === 0) { %>
+    <div class="empty-state">
+      <h2>No tasks here</h2>
+      <p class="muted">Add the work you need to do. Start it when you begin, put it on hold, or finish it.</p>
+      <a class="btn btn-primary" href="/tasks/new">+ New task</a>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Task</th>
+            <th scope="col">Status</th>
+            <th scope="col">Due</th>
+            <th scope="col">Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const t of rows) { const overdue = t.due_on && t.due_on < today && t.status !== 'Done'; %>
+            <tr class="clickable" data-href="/tasks/<%= t.id %>">
+              <td class="mono"><a href="/tasks/<%= t.id %>"><%= t.id %></a></td>
+              <td class="ellipsis"><a href="/tasks/<%= t.id %>"><%= t.title %></a></td>
+              <td><span class="badge"><%= t.status %></span></td>
+              <td class="<%= overdue ? 'text-red' : '' %>"><%= t.due_on ? fmtDate(t.due_on) : '—' %><% if (overdue) { %> · overdue<% } %></td>
+              <td class="num"><%= t.comments.length %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
