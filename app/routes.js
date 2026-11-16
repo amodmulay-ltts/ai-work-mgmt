@@ -7,7 +7,7 @@ import {
 import { ASK_STATUSES, ValidationError, isIsoDate, nowIso, showField, todayIso, ROLES } from './models.js';
 import { addAsk, askEntries, changeAsk, changeSupporters, findAsk, removeAsk, removedEntry } from './support.js';
 import { resolveTags } from './lib/tags.js';
-import { connectState, connectSummary, isDone, isPlanned, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
+import { VISIT_ENTRY_KINDS, VISIT_LABELS, connectState, connectSummary, isDone, isPlanned, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { OPEN_TASK_STATUSES, TASK_ACTIONS, TASK_STATUSES, applyTaskAction, newTaskComment, parseTaskForm } from './lib/tasks.js';
 import { noteEntry } from './history.js';
@@ -1086,7 +1086,6 @@ export function createRouter() {
 
   // ------------------------------------------------ customer visits page (data entry) (PLAN.md §20)
   // Every visit to the EI centre or a customer's premises, across all customers, with a form to log one.
-  const VISIT_ENTRY_KINDS = ['EI center visit', 'Customer premises visit'];
 
   function visitRowsFor(store, today) {
     return store
@@ -1113,6 +1112,7 @@ export function createRouter() {
       values: { on: today, kind: VISIT_ENTRY_KINDS[0], status: 'Done', customer: '', sales_lead: '', with: '', note: '', ...values },
       errors,
       kinds: VISIT_ENTRY_KINDS,
+      kindLabel: (k) => VISIT_LABELS[k] ?? k,
       customers: store.listCustomers(),
       people: store.listPeople().filter((p) => p.active),
       today,
@@ -1133,7 +1133,7 @@ export function createRouter() {
     // The visit is checked before anything is created, so a refused form leaves no new customer behind.
     // The sales lead is typed as a name, so the visit is checked without a person id; the id is set below.
     const { entry, errors: formErrors } = newConnect({ ...req.body, who_id: '' }, { id: randomUUID().slice(0, 8), people: [], today: todayIso() });
-    if (entry && !VISIT_ENTRY_KINDS.includes(entry.kind)) formErrors.push('Pick a visit: to the EI centre or to customer premises.');
+    if (entry && !VISIT_ENTRY_KINDS.includes(entry.kind)) formErrors.push('Pick a visit: EI Center, Online or Customer Premises.');
     if (Object.keys(errors).length || formErrors.length) {
       return renderVisits(req, res, { values: req.body, errors: { ...errors, form: formErrors.join(' ') }, status: 422 });
     }
@@ -1180,6 +1180,84 @@ export function createRouter() {
       })),
     };
     res.type('application/json').send(JSON.stringify(body, null, 2));
+  });
+
+  // Edit a logged visit. The customer stays the same; the date, kind, status, sales lead, who we met and note can change.
+  // A visit is checked the same way as a new one, and a new sales lead is created in the same commit.
+  // A cancelled visit cannot be edited: cancel is final here, so it is not reopened by an edit.
+  function visitForEdit(store, id, connectId) {
+    const customer = store.getCustomer(id);
+    if (!customer) return { notFound: true };
+    const connect = customer.connects.find((c) => c.id === connectId && isVisit(c));
+    if (!connect) return { customer, connect: null };
+    if (connect.status === 'Cancelled') return { customer, connect, cancelled: true };
+    return { customer, connect };
+  }
+
+  async function renderVisitEdit(req, res, { customer, connect, values, errors = {}, status: code = 200 }) {
+    const { store } = req.app.locals;
+    await renderPage(req, res, 'visits/edit', {
+      title: `Edit visit to ${customer.name}`,
+      active: 'visits',
+      customer,
+      connect,
+      values,
+      errors,
+      next: req.query.next === '/visits' || req.body?.next === '/visits' ? '/visits' : '',
+      kinds: VISIT_ENTRY_KINDS,
+      kindLabel: (k) => VISIT_LABELS[k] ?? k,
+      people: store.listPeople().filter((p) => p.active),
+      today: todayIso(),
+    }, code);
+  }
+
+  router.get('/customers/:id/connects/:connectId/edit', async (req, res) => {
+    const found = visitForEdit(req.app.locals.store, req.params.id, req.params.connectId);
+    if (found.notFound) return notFound(req, res, 'This customer');
+    if (!found.connect) return notFound(req, res, 'This visit');
+    if (found.cancelled) {
+      flash(res, 'error', 'A cancelled visit cannot be edited.');
+      return res.redirect(303, req.query.next === '/visits' ? '/visits' : `/customers/${found.customer.id}`);
+    }
+    const c = found.connect;
+    await renderVisitEdit(req, res, {
+      ...found,
+      values: { on: c.on, kind: c.kind, status: c.status ?? 'Done', sales_lead: req.app.locals.store.getPerson(c.who_id)?.name ?? '', with: c.with ?? '', note: c.note ?? '' },
+    });
+  });
+
+  router.post('/customers/:id/connects/:connectId/edit', async (req, res) => {
+    const { store } = req.app.locals;
+    const found = visitForEdit(store, req.params.id, req.params.connectId);
+    if (found.notFound) return notFound(req, res, 'This customer');
+    if (!found.connect) return notFound(req, res, 'This visit');
+    const { customer, connect } = found;
+    const back = req.body.next === '/visits' ? '/visits' : `/customers/${customer.id}`;
+    if (found.cancelled) {
+      flash(res, 'error', 'A cancelled visit cannot be edited.');
+      return res.redirect(303, back);
+    }
+    // The visit is checked before anything is created, so a refused edit creates no new person.
+    const { entry, errors: formErrors } = newConnect({ ...req.body, who_id: '' }, { id: connect.id, people: [], today: todayIso() });
+    if (entry && !VISIT_ENTRY_KINDS.includes(entry.kind)) formErrors.push('Pick a visit: EI Center, Online or Customer Premises.');
+    if (formErrors.length) {
+      return renderVisitEdit(req, res, { customer, connect, values: req.body, errors: { form: formErrors.join(' ') }, status: 422 });
+    }
+    try {
+      const pending = [];
+      const createdNames = [];
+      const leadName = String(req.body.sales_lead ?? '').trim();
+      const lead = leadName ? await ensurePerson(store, leadName, 'Sales', null, pending, createdNames) : null;
+      const updated = { ...entry, who_id: lead?.id ?? null, created_at: connect.created_at ?? entry.created_at };
+      const connects = customer.connects.map((c) => (c.id === connect.id ? updated : c));
+      const extra = createdNames.length ? ` · created ${createdNames.join(', ')}` : '';
+      await store.save([...pending, { ...customer, connects }], `${customer.id}: visit ${updated.kind} on ${updated.on} edited (${updated.status})${extra}`);
+      flash(res, 'success', `Visit updated.${extra}`);
+      return res.redirect(303, back);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderVisitEdit(req, res, { customer, connect, values: req.body, errors: { form: err.errors.map(plain).join('; ') }, status: 422 });
+    }
   });
 
   // Connects (Teams meetings and visits) are logged on the customer. Each one is saved as its own change.

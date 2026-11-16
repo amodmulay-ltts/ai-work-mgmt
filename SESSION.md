@@ -235,3 +235,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-11 — person page lists their opportunities — Linux
 - Done: People names open /people/:id, which lists every opportunity the person is named on (sales, presales, delivery, contact or supporter), with their role, status and value. Edit stays on the list. 361 tests pass. Branch person-page.
+
+### 2026-11-16 — visit types and visit edit — Linux
+- Done: visit types EI Center, Online and Customer Premises (stored as EI center visit, Online visit, Customer premises visit). Visits page: Edit on each visit (not cancelled), one commit per edit, customer fixed, new sales lead created in the same commit. Cancelled visits cannot be edited. 369 tests pass. Branch visit-edit.
+- Open: Online overlaps Teams (Teams stays a connect, not a visit). Dashboard and customer page still show the stored kind names, not the new labels.

@@ -6,8 +6,12 @@
  */
 import { daysBetween } from '../metrics.js';
 
-export const CONNECT_KINDS = ['Teams', 'EI center visit', 'Customer premises visit', 'Visit'];
-export const VISIT_KINDS = ['EI center visit', 'Customer premises visit', 'Visit'];
+export const CONNECT_KINDS = ['Teams', 'EI center visit', 'Online visit', 'Customer premises visit', 'Visit'];
+export const VISIT_KINDS = ['EI center visit', 'Online visit', 'Customer premises visit', 'Visit'];
+/** The kinds a visit can be logged as, on the Visits page and its edit form. */
+export const VISIT_ENTRY_KINDS = ['EI center visit', 'Online visit', 'Customer premises visit'];
+/** How each visit kind is named in the forms and tables. Kinds not listed here (e.g. 'Visit') show as stored. */
+export const VISIT_LABELS = { 'EI center visit': 'EI Center', 'Online visit': 'Online', 'Customer premises visit': 'Customer Premises' };
 export const CONNECT_STATUSES = ['Planned', 'Done', 'Cancelled'];
 export const CONNECT_WITH_MAX = 100;
 export const CONNECT_NOTE_MAX = 2000;

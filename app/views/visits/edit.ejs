@@ -1,0 +1,32 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+%>
+<div class="page-header">
+  <div>
+    <h1>Edit visit</h1>
+    <p class="muted"><%= customer.name %> · <%= kindLabel(connect.kind) %> · <%= connect.status ?? 'Done' %></p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="<%= next || '/customers/' + customer.id %>">Cancel</a>
+  </div>
+</div>
+
+<% if (errors.form) { %><p class="error" role="alert"><%= errors.form %></p><% } %>
+
+<section class="card form-section">
+  <form method="post" action="/customers/<%= customer.id %>/connects/<%= connect.id %>/edit" class="deal-form" novalidate>
+    <% if (next) { %><input type="hidden" name="next" value="<%= next %>"><% } %>
+    <div class="form-grid">
+      <%- ui.field({ name: 'kind', label: 'Visit', type: 'select', value: values.kind, required: true, options: kinds.map((k) => [k, kindLabel(k)]), error: errors.kind || '' }) %>
+      <%- ui.field({ name: 'status', label: 'Status', type: 'select', value: values.status, required: true, options: [['Done', 'Done'], ['Planned', 'Planned']], error: errors.status || '' }) %>
+      <%- f('on', 'Date', { type: 'date', required: true }) %>
+      <%- f('sales_lead', 'Sales lead', { list: 'visit-people', help: 'Type a new name to create the person on save.' }) %>
+      <%- f('with', 'Who we met', { maxlength: 100 }) %>
+      <%- f('note', 'Note', { type: 'textarea', span: true, rows: 3 }) %>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+  </form>
+</section>
+<%- ui.datalist('visit-people', people.map((p) => p.name)) %>

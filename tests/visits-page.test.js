@@ -51,8 +51,9 @@ describe('the Visits page for entering customer visits', () => {
     assert.match(html, /<h3>Log a visit<\/h3>/);
     assert.match(html, /<input[^>]*id="f-customer"[^>]*list="visit-customers"/);
     assert.match(html, /<datalist id="visit-customers"><option value="Bosch"><\/option>/);
-    assert.match(html, /Visit to the EI centre/);
-    assert.match(html, /Visit to customer premises/);
+    assert.match(html, /EI Center/);
+    assert.match(html, /Online/);
+    assert.match(html, /Customer Premises/);
   });
 
   test('the form is hidden until the Log a visit button opens it', async () => {
@@ -139,7 +140,7 @@ describe('the Visits page for entering customer visits', () => {
     const res = await post('/visits', visitForm({ kind: 'Teams', with: 'Typed name' }));
     assert.equal(res.status, 422);
     const html = await res.text();
-    assert.match(html, /Pick a visit: to the EI centre or to customer premises/);
+    assert.match(html, /Pick a visit: EI Center, Online or Customer Premises/);
     assert.match(html, /value="Typed name"/);
     assert.equal(store.getCustomer('CU-0001').connects.length, before, 'nothing is saved');
   });

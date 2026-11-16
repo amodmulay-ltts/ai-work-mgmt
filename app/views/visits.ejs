@@ -17,11 +17,11 @@
 
 <section id="visit-form" class="card form-section"<%- showForm ? '' : ' hidden' %>>
   <h3>Log a visit</h3>
-  <p class="muted">A visit to the EI centre or to a customer's premises. Use Planned for a visit that has not happened yet, and Done once it has.</p>
+  <p class="muted">A visit to the EI Center, online, or at the customer's premises. Use Planned for a visit that has not happened yet, and Done once it has.</p>
   <form method="post" action="/visits" class="deal-form" novalidate>
     <div class="form-grid">
       <%- f('customer', 'Customer', { required: true, list: 'visit-customers', help: 'Type a new name to create the customer on save.' }) %>
-      <%- ui.field({ name: 'kind', label: 'Visit', type: 'select', value: values.kind, required: true, options: kinds.map((k) => [k, k === 'EI center visit' ? 'Visit to the EI centre' : 'Visit to customer premises']) }) %>
+      <%- ui.field({ name: 'kind', label: 'Visit', type: 'select', value: values.kind, required: true, options: kinds.map((k) => [k, kindLabel(k)]) }) %>
       <%- ui.field({ name: 'status', label: 'Status', type: 'select', value: values.status, required: true, options: [['Done', 'Done'], ['Planned', 'Planned']] }) %>
       <%- f('on', 'Date', { type: 'date', required: true }) %>
       <%- f('sales_lead', 'Sales lead', { list: 'visit-people', help: 'Type a new name to create the person on save.' }) %>
@@ -68,12 +68,15 @@
             <tr>
               <td><%= fmtDate(v.on) %></td>
               <td><a href="/customers/<%= v.customerId %>"><%= v.customer %></a></td>
-              <td><%= v.kind %></td>
+              <td><%= kindLabel(v.kind) %></td>
               <td><%= v.status %></td>
               <td><%= v.whoName %></td>
               <td><%= v.with || '—' %></td>
               <td class="ellipsis" title="<%= v.note %>"><%= v.note || '—' %></td>
               <td class="row-actions">
+                <% if (v.status !== 'Cancelled') { %>
+                  <a class="btn btn-ghost btn-sm" href="/customers/<%= v.customerId %>/connects/<%= v.id %>/edit?next=/visits">Edit</a>
+                <% } %>
                 <% if (v.status === 'Planned') { %>
                   <form method="post" action="/customers/<%= v.customerId %>/connects/<%= v.id %>/done" class="inline">
                     <input type="hidden" name="next" value="/visits">
