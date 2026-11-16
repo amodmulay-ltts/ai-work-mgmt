@@ -13,7 +13,7 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-11-09T13:14:13+01:00",
-  "updated_at": "2026-11-09T18:16:45+01:00",
+  "updated_at": "2026-11-16T06:55:26+01:00",
   "connects": [
     {
       "id": "66019eee",
@@ -24,16 +24,6 @@
       "with": "Jürgen Platzer,  Andreas Unterladstätter",
       "note": "",
       "created_at": "2026-11-09T12:14:13.238Z"
-    },
-    {
-      "id": "10acef6e",
-      "on": "2026-11-11",
-      "kind": "EI center visit",
-      "status": "Planned",
-      "who_id": "PE-0012",
-      "with": "Jürgen Platzer,  Andreas Unterladstätter",
-      "note": "",
-      "created_at": "2026-11-09T17:16:45.575Z"
     }
   ]
 }
