@@ -239,3 +239,6 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-11-16 — visit types and visit edit — Linux
 - Done: visit types EI Center, Online and Customer Premises (stored as EI center visit, Online visit, Customer premises visit). Visits page: Edit on each visit (not cancelled), one commit per edit, customer fixed, new sales lead created in the same commit. Cancelled visits cannot be edited. 369 tests pass. Branch visit-edit.
 - Open: Online overlaps Teams (Teams stays a connect, not a visit). Dashboard and customer page still show the stored kind names, not the new labels.
+
+### 2026-11-23 — notes on past visits — Linux
+- Fixed: a visit that already happened but was still Planned could not be edited (its past date was refused). Saving such an edit now stores it as Done and says so. The edit form opens on Done for these. Test added. 370 tests pass. Branch visit-past-notes.

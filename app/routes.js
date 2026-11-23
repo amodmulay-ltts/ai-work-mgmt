@@ -1220,9 +1220,10 @@ export function createRouter() {
       return res.redirect(303, req.query.next === '/visits' ? '/visits' : `/customers/${found.customer.id}`);
     }
     const c = found.connect;
+    const isPast = (x) => x.status === 'Planned' && x.on < todayIso();
     await renderVisitEdit(req, res, {
       ...found,
-      values: { on: c.on, kind: c.kind, status: c.status ?? 'Done', sales_lead: req.app.locals.store.getPerson(c.who_id)?.name ?? '', with: c.with ?? '', note: c.note ?? '' },
+      values: { on: c.on, kind: c.kind, status: isPast(c) ? 'Done' : c.status ?? 'Done', sales_lead: req.app.locals.store.getPerson(c.who_id)?.name ?? '', with: c.with ?? '', note: c.note ?? '' },
     });
   });
 
@@ -1237,8 +1238,12 @@ export function createRouter() {
       flash(res, 'error', 'A cancelled visit cannot be edited.');
       return res.redirect(303, back);
     }
+    // A visit whose date has passed has happened, so it is saved as Done. A Planned visit must be today or later.
+    const today = todayIso();
+    const wasPlanned = req.body.status === 'Planned' && isIsoDate(req.body.on ?? '') && req.body.on < today;
+    const status = wasPlanned ? 'Done' : req.body.status;
     // The visit is checked before anything is created, so a refused edit creates no new person.
-    const { entry, errors: formErrors } = newConnect({ ...req.body, who_id: '' }, { id: connect.id, people: [], today: todayIso() });
+    const { entry, errors: formErrors } = newConnect({ ...req.body, status, who_id: '' }, { id: connect.id, people: [], today });
     if (entry && !VISIT_ENTRY_KINDS.includes(entry.kind)) formErrors.push('Pick a visit: EI Center, Online or Customer Premises.');
     if (formErrors.length) {
       return renderVisitEdit(req, res, { customer, connect, values: req.body, errors: { form: formErrors.join(' ') }, status: 422 });
@@ -1252,7 +1257,7 @@ export function createRouter() {
       const connects = customer.connects.map((c) => (c.id === connect.id ? updated : c));
       const extra = createdNames.length ? ` · created ${createdNames.join(', ')}` : '';
       await store.save([...pending, { ...customer, connects }], `${customer.id}: visit ${updated.kind} on ${updated.on} edited (${updated.status})${extra}`);
-      flash(res, 'success', `Visit updated.${extra}`);
+      flash(res, 'success', `Visit updated.${wasPlanned ? ' Its date has passed, so it is saved as Done.' : ''}${extra}`);
       return res.redirect(303, back);
     } catch (err) {
       if (!(err instanceof ValidationError)) throw err;

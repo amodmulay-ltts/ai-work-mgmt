@@ -103,7 +103,7 @@ describe('visits: Online type and editing', () => {
   test('an edit that breaks the date rule is refused and changes nothing', async () => {
     const v = onlyVisit();
     const res = await post(app.base, `/customers/${customerId}/connects/${v.id}/edit`, {
-      kind: 'Online visit', status: 'Planned', on: '2020-01-01', sales_lead: '', with: '', note: 'Too early',
+      kind: 'Online visit', status: 'Done', on: '2099-01-01', sales_lead: '', with: '', note: 'Too early',
     });
     assert.equal(res.status, 422);
     assert.equal(app.store.getCustomer(customerId).connects.find((c) => c.id === v.id).note, v.note);
@@ -120,6 +120,24 @@ describe('visits: Online type and editing', () => {
     });
     assert.equal(res.status, 303);
     assert.equal(app.store.getCustomer(customerId).connects.find((c) => c.id === future.id).note, 'Future');
+  });
+
+  test('a visit whose date has passed but is still Planned can get a note, and is saved as Done', async () => {
+    // The form will not log a Planned visit in the past, so this one is stored directly, as if it was logged earlier.
+    const customer = app.store.getCustomer(customerId);
+    const past = { id: 'pastplan', on: '2026-11-05', kind: 'Online visit', status: 'Planned', who_id: null, with: 'Client', note: '', created_at: '2026-10-01T09:00:00+01:00' };
+    await app.store.save([{ ...customer, connects: [...customer.connects, past] }], 'test: past planned visit');
+    const page = await fetch(`${app.base}/customers/${customerId}/connects/pastplan/edit`);
+    assert.match(await page.text(), /<option value="Done" selected>Done<\/option>/, 'the form starts on Done');
+    const res = await post(app.base, `/customers/${customerId}/connects/pastplan/edit`, {
+      kind: 'Online visit', status: 'Planned', on: '2026-11-05', sales_lead: '', with: 'Client', note: 'Went well, next step is the quote', next: '/visits',
+    });
+    assert.equal(res.status, 303, 'saved, not refused');
+    const saved = app.store.getCustomer(customerId).connects.find((c) => c.id === 'pastplan');
+    assert.equal(saved.status, 'Done');
+    assert.equal(saved.note, 'Went well, next step is the quote');
+    const cookie = (res.headers.get('set-cookie') ?? '').match(/flash=([^;]+)/);
+    assert.match(JSON.parse(decodeURIComponent(cookie[1])).text, /its date has passed, so it is saved as Done/i);
   });
 
   test('a Teams meeting is not a visit and has no visit edit page', async () => {
