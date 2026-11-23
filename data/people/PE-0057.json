@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "PE-0057",
+  "name": "Koehnke, Axel (VWIF G-TP/7)",
+  "role": "Customer",
+  "title": null,
+  "email": null,
+  "phone": null,
+  "customer_id": "CU-0031",
+  "notes": "",
+  "active": true,
+  "created_at": "2026-11-23T17:26:29+01:00",
+  "updated_at": "2026-11-23T17:26:29+01:00"
+}
