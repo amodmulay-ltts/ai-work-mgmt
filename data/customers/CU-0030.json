@@ -13,7 +13,7 @@
   "tags": [],
   "notes": "",
   "created_at": "2026-11-23T08:47:44+01:00",
-  "updated_at": "2026-11-23T08:47:44+01:00",
+  "updated_at": "2026-11-23T08:48:15+01:00",
   "connects": [
     {
       "id": "6d086813",
@@ -21,7 +21,7 @@
       "kind": "Online visit",
       "status": "Planned",
       "who_id": "PE-0056",
-      "with": "",
+      "with": "ZMUDA Pierre,  LACROIX Rodolphe, MATHOT Sylvain",
       "note": "ZMUDA Pierre (SAFRAN ELECTRONICS & DEFENSE); LACROIX Rodolphe (SAFRAN ELECTRONICS & DEFENSE); MATHOT Sylvain (SAFRAN ELECTRONICS & DEFENSE)",
       "created_at": "2026-11-23T07:47:44.241Z"
     }
