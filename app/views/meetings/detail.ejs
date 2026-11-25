@@ -1,0 +1,39 @@
+<div class="page-header deal-head">
+  <div>
+    <span class="mono"><%= meeting.id %></span>
+    <h1><%= meeting.title %></h1>
+    <p class="muted meta-line">
+      <%= fmtDate(meeting.on) %><% if (meeting.on === today) { %> · today<% } %>
+      <% if (meeting.attendees) { %> · <%= meeting.attendees %><% } %>
+    </p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="/meetings/<%= meeting.id %>/edit">Edit</a>
+    <%- include('../partials/delete-form', { action: `/meetings/${meeting.id}/delete`, expected: meeting.id, what: 'meeting', key: meeting.id }) %>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-main">
+    <section class="card">
+      <h2>Notes</h2>
+    </section>
+  </div>
+  <aside class="detail-side">
+    <section class="card">
+      <h2>Summary</h2>
+      <% if (meeting.summary) { %><div class="note"><%= meeting.summary %></div><% } else { %><p class="subtle">No summary yet.</p><% } %>
+    </section>
+    <section class="card">
+      <h2>Links</h2>
+      <% if (customer || deal) { %>
+        <ul class="plain-list">
+          <% if (customer) { %><li>Customer: <a href="/customers/<%= customer.id %>"><%= customer.name %></a></li><% } %>
+          <% if (deal) { %><li>Opportunity: <a href="/opportunities/<%= deal.id %>"><%= deal.id %> · <%= deal.title %></a></li><% } %>
+        </ul>
+      <% } else { %>
+        <p class="subtle">Not linked to a customer or an opportunity.</p>
+      <% } %>
+    </section>
+  </aside>
+</div>

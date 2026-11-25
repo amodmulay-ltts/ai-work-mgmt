@@ -1,0 +1,48 @@
+<div class="page-header">
+  <h1>Meetings <span class="count"><%= rows.length %></span></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/meetings/new">+ New meeting</a>
+  </div>
+</div>
+
+<form method="get" action="/meetings" class="filters" role="search">
+  <%- ui.selectControl({ name: 'when', value: filter, placeholder: 'All meetings', ariaLabel: 'When', options: [['today', 'Today'], ['upcoming', 'Upcoming'], ['past', 'Past']] }) %>
+  <noscript><button class="btn btn-secondary" type="submit">Apply</button></noscript>
+</form>
+
+<section class="card table-card">
+  <% if (rows.length === 0) { %>
+    <div class="empty-state">
+      <h2>No meetings here</h2>
+      <p class="muted">Start a meeting and take notes as it happens.</p>
+      <a class="btn btn-primary" href="/meetings/new">+ New meeting</a>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Meeting</th>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Opportunity</th>
+            <th scope="col" class="num">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const r of rows) { const m = r.meeting; %>
+            <tr class="clickable<%= m.on === today ? ' today-row' : '' %>" data-href="/meetings/<%= m.id %>">
+              <td class="mono"><a href="/meetings/<%= m.id %>"><%= m.id %></a></td>
+              <td class="ellipsis"><a href="/meetings/<%= m.id %>"><%= m.title %></a></td>
+              <td><%= fmtDate(m.on) %><% if (m.on === today) { %> · today<% } %></td>
+              <td><%= r.customerName || '—' %></td>
+              <td class="ellipsis"><%= r.dealTitle || '—' %></td>
+              <td class="num"><%= m.notes.length %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

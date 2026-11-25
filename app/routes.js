@@ -10,13 +10,14 @@ import { resolveTags } from './lib/tags.js';
 import { VISIT_ENTRY_KINDS, VISIT_LABELS, connectState, connectSummary, isDone, isPlanned, newConnect, plannedConnects, visitCounts, isVisit } from './lib/connects.js';
 import { ACTIVITY_KINDS, ACTIVITY_STATUSES, OPEN_ACTIVITY_STATUSES, activityQuiet, newActivityUpdate, parseActivityForm } from './lib/activities.js';
 import { OPEN_TASK_STATUSES, TASK_ACTIONS, TASK_STATUSES, applyTaskAction, newTaskComment, parseTaskForm } from './lib/tasks.js';
+import { editMeetingNote, newMeetingNote, notesInOrder, parseMeetingForm, removeMeetingNote } from './lib/meetings.js';
 import { noteEntry } from './history.js';
 import { CLOSE_STATUSES, closeNextAction, markNextActionDone } from './lib/next-action.js';
 import { moveReferences, personUsage } from './lib/merge.js';
 import { matchesSearch, searchWords } from './lib/search.js';
 import {
   customerToValues, dealToTyped, ensureCustomer, ensurePerson, parseCustomerValues, parseDealValues, parsePersonValues,
-  personToValues, saveActivity, saveCustomer, saveDeal, savePerson, saveTask, typedToValues,
+  personToValues, saveActivity, saveCustomer, saveDeal, saveMeeting, savePerson, saveTask, typedToValues,
 } from './forms.js';
 import { flash, renderPage } from './lib/render.js';
 import { stageIndex } from './lib/ui.js';
@@ -26,7 +27,7 @@ import { weeklyReport } from './report.js';
 import { addDays, mondayOf } from './lib/dates.js';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+$/;
-const ID_RE = { deal: /^DL-\d{4}-\d{4}$/, customer: /^CU-\d{4}$/, person: /^PE-\d{4}$/ };
+const ID_RE = { deal: /^DL-\d{4}-\d{4}$/, customer: /^CU-\d{4}$/, person: /^PE-\d{4}$/, meeting: /^MT-\d{4}$/ };
 
 /** Trimmed string from a form field, or '' when missing. */
 const clean = (value) => (typeof value === 'string' ? value.trim() : '');
@@ -1773,6 +1774,145 @@ export function createRouter() {
     await store.delete(activity, `${activity.id}: deleted`);
     flash(res, 'success', `Deleted ${activity.id}.`);
     return res.redirect(303, '/activities');
+  });
+
+  // ------------------------------------------------ meeting notes (lib/meetings.js, PLAN.md §23)
+  // Notes are taken during the meeting, so the note page is the main page of a meeting.
+  router.get('/meetings', async (req, res) => {
+    const { store } = req.app.locals;
+    const today = todayIso();
+    const when = ['today', 'upcoming', 'past'].includes(req.query.when) ? req.query.when : '';
+    const rows = store
+      .listMeetings()
+      .filter((m) => {
+        if (when === 'today') return m.on === today;
+        if (when === 'upcoming') return m.on > today;
+        if (when === 'past') return m.on < today;
+        return true;
+      })
+      .sort((a, b) => (b.on === today) - (a.on === today))
+      .map((m) => ({
+        meeting: m,
+        customerName: m.customer_id ? store.getCustomer(m.customer_id)?.name ?? null : null,
+        dealTitle: m.deal_id ? store.getDeal(m.deal_id)?.title ?? null : null,
+      }));
+    await renderPage(req, res, 'meetings/list', {
+      title: 'Meetings',
+      active: 'meetings',
+      rows,
+      filter: when,
+      today,
+    });
+  });
+
+  async function renderMeetingForm(req, res, { existing, values, errors = {}, status: code = 200 }) {
+    const { store } = req.app.locals;
+    await renderPage(req, res, 'meetings/form', {
+      title: existing ? `Edit ${existing.id}` : 'New meeting',
+      active: 'meetings',
+      existing,
+      values,
+      errors,
+      action: existing ? `/meetings/${existing.id}` : '/meetings',
+      customers: store.listCustomers(),
+      deals: store.listDeals().filter((d) => isOpen(d, store.config())),
+    }, code);
+  }
+
+  // A meeting's links must be real records. Checked after the form is read, before anything is saved.
+  function meetingLinkErrors(store, typed) {
+    const errors = {};
+    if (typed.customer_id && !store.getCustomer(typed.customer_id)) errors.customer_id = 'Pick a customer from the list.';
+    if (typed.deal_id && !store.getDeal(typed.deal_id)) errors.deal_id = 'Pick an opportunity from the list.';
+    return errors;
+  }
+
+  router.get('/meetings/new', async (req, res) => {
+    const { store } = req.app.locals;
+    const cfg = store.config();
+    const me = cfg.me_person_id ? store.getPerson(cfg.me_person_id) : null;
+    await renderMeetingForm(req, res, {
+      existing: null,
+      values: { title: '', on: todayIso(), attendees: me ? me.name : '', customer_id: '', deal_id: '', summary: '' },
+    });
+  });
+
+  router.post('/meetings', async (req, res) => {
+    const { store } = req.app.locals;
+    const { typed, errors } = parseMeetingForm(req.body);
+    const allErrors = typed ? { ...errors, ...meetingLinkErrors(store, typed) } : errors;
+    if (Object.keys(allErrors).length) return renderMeetingForm(req, res, { existing: null, values: req.body, errors: allErrors, status: 422 });
+    try {
+      const { meeting } = await saveMeeting(store, typed, { existing: null });
+      flash(res, 'success', `Created ${meeting.id}`);
+      return res.redirect(303, `/meetings/${meeting.id}`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderMeetingForm(req, res, { existing: null, values: req.body, errors: { title: plain(err.errors[0]) }, status: 422 });
+    }
+  });
+
+  router.get('/meetings/:id', async (req, res, next) => {
+    if (!ID_RE.meeting.test(req.params.id)) return next();
+    const { store } = req.app.locals;
+    const meeting = store.getMeeting(req.params.id);
+    if (!meeting) return notFound(req, res, 'This meeting');
+    await renderPage(req, res, 'meetings/detail', {
+      title: `${meeting.id} · ${meeting.title}`,
+      active: 'meetings',
+      meeting,
+      notes: notesInOrder(meeting),
+      customer: meeting.customer_id ? store.getCustomer(meeting.customer_id) : null,
+      deal: meeting.deal_id ? store.getDeal(meeting.deal_id) : null,
+      today: todayIso(),
+    });
+  });
+
+  router.get('/meetings/:id/edit', async (req, res) => {
+    const { store } = req.app.locals;
+    const meeting = store.getMeeting(req.params.id);
+    if (!meeting) return notFound(req, res, 'This meeting');
+    await renderMeetingForm(req, res, {
+      existing: meeting,
+      values: {
+        title: meeting.title,
+        on: meeting.on,
+        attendees: meeting.attendees,
+        customer_id: meeting.customer_id ?? '',
+        deal_id: meeting.deal_id ?? '',
+        summary: meeting.summary,
+      },
+    });
+  });
+
+  router.post('/meetings/:id', async (req, res) => {
+    const { store } = req.app.locals;
+    const meeting = store.getMeeting(req.params.id);
+    if (!meeting) return notFound(req, res, 'This meeting');
+    const { typed, errors } = parseMeetingForm(req.body);
+    const allErrors = typed ? { ...errors, ...meetingLinkErrors(store, typed) } : errors;
+    if (Object.keys(allErrors).length) return renderMeetingForm(req, res, { existing: meeting, values: req.body, errors: allErrors, status: 422 });
+    try {
+      await saveMeeting(store, typed, { existing: meeting });
+      flash(res, 'success', 'Meeting saved.');
+      return res.redirect(303, `/meetings/${meeting.id}`);
+    } catch (err) {
+      if (!(err instanceof ValidationError)) throw err;
+      return renderMeetingForm(req, res, { existing: meeting, values: req.body, errors: { title: plain(err.errors[0]) }, status: 422 });
+    }
+  });
+
+  router.post('/meetings/:id/delete', async (req, res) => {
+    const { store } = req.app.locals;
+    const meeting = store.getMeeting(req.params.id);
+    if (!meeting) return notFound(req, res, 'This meeting');
+    if (!typedRight(req, meeting.id)) {
+      flash(res, 'error', `Nothing was deleted. Type ${meeting.id} exactly to delete it.`);
+      return res.redirect(303, `/meetings/${meeting.id}`);
+    }
+    await store.delete(meeting, `${meeting.id}: deleted`);
+    flash(res, 'success', `Deleted ${meeting.id}.`);
+    return res.redirect(303, '/meetings');
   });
 
   // ------------------------------------------------ backlog: my tasks (lib/tasks.js)

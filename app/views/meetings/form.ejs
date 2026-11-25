@@ -1,0 +1,24 @@
+<%
+  const f = (name, label, opts = {}) => ui.field({ name, label, value: values[name] ?? '', error: errors[name] || '', ...opts });
+%>
+<div class="page-header">
+  <h1><%= title %></h1>
+</div>
+
+<form method="post" action="<%= action %>" class="deal-form" data-guard novalidate>
+  <section class="card form-section">
+    <h3>Meeting</h3>
+    <div class="form-grid">
+      <%- f('title', 'Title', { required: true, span: true, help: 'For example: Weekly sync with Priya on the RFQ.' }) %>
+      <%- f('on', 'Date', { type: 'date', required: true }) %>
+      <%- f('attendees', 'Attendees', { help: 'Who was there. Free text.' }) %>
+      <%- ui.field({ name: 'customer_id', label: 'Customer', type: 'select', value: values.customer_id, placeholder: 'No customer', options: customers.map((c) => [c.id, c.name]), error: errors.customer_id || '' }) %>
+      <%- ui.field({ name: 'deal_id', label: 'Opportunity', type: 'select', value: values.deal_id, placeholder: 'No opportunity', options: deals.map((d) => [d.id, `${d.id} · ${d.title}`]), error: errors.deal_id || '' }) %>
+      <%- f('summary', 'Summary', { type: 'textarea', span: true, rows: 4, help: 'Written after the meeting. The notes themselves are added on the meeting\'s page.' }) %>
+    </div>
+  </section>
+  <div class="form-footer">
+    <a class="btn btn-ghost" href="<%= existing ? '/meetings/' + existing.id : '/meetings' %>">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>
