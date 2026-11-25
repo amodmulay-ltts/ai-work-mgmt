@@ -1902,6 +1902,47 @@ export function createRouter() {
     }
   });
 
+  // Taking notes during the meeting: each line is appended and saved on its own, so nothing typed
+  // earlier is lost if the browser closes mid-meeting. Adding a note shows no message; edits and removals do.
+  router.post('/meetings/:id/notes', async (req, res) => {
+    const { store } = req.app.locals;
+    const meeting = store.getMeeting(req.params.id);
+    if (!meeting) return notFound(req, res, 'This meeting');
+    const { note, error } = newMeetingNote(req.body, { at: nowIso() });
+    if (error) {
+      flash(res, 'error', error);
+      return res.redirect(303, `/meetings/${meeting.id}`);
+    }
+    await store.save([{ ...meeting, notes: [...meeting.notes, note] }], `${meeting.id}: note added`);
+    return res.redirect(303, `/meetings/${meeting.id}`);
+  });
+
+  router.post('/meetings/:id/notes/:noteId', async (req, res) => {
+    const { store } = req.app.locals;
+    const meeting = store.getMeeting(req.params.id);
+    if (!meeting) return notFound(req, res, 'This meeting');
+    const result = editMeetingNote(meeting, req.params.noteId, req.body.text, { at: nowIso() });
+    if (!result) return notFound(req, res, 'This note');
+    if (result.error) {
+      flash(res, 'error', result.error);
+      return res.redirect(303, `/meetings/${meeting.id}`);
+    }
+    await store.save([result.meeting], `${meeting.id}: note edited`);
+    flash(res, 'success', 'Note updated.');
+    return res.redirect(303, `/meetings/${meeting.id}`);
+  });
+
+  router.post('/meetings/:id/notes/:noteId/delete', async (req, res) => {
+    const { store } = req.app.locals;
+    const meeting = store.getMeeting(req.params.id);
+    if (!meeting) return notFound(req, res, 'This meeting');
+    const result = removeMeetingNote(meeting, req.params.noteId, { at: nowIso() });
+    if (!result) return notFound(req, res, 'This note');
+    await store.save([result.meeting], `${meeting.id}: note removed`);
+    flash(res, 'success', 'Note removed.');
+    return res.redirect(303, `/meetings/${meeting.id}`);
+  });
+
   router.post('/meetings/:id/delete', async (req, res) => {
     const { store } = req.app.locals;
     const meeting = store.getMeeting(req.params.id);

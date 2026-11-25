@@ -132,3 +132,114 @@ describe('meetings: pages over HTTP', () => {
     assert.match(html, /href="\/meetings"[^>]*>Meetings<\/a>/);
   });
 });
+
+describe('meeting notes: taking them live', () => {
+  let app;
+  let root;
+  let meetingId;
+
+  before(async () => {
+    const { dir } = await makeRemote();
+    root = await makeClone(dir, 'app', null);
+    const created = await createApp({ root, syncEnabled: false });
+    const server = await new Promise((resolve) => {
+      const s = created.app.listen(0, '127.0.0.1', () => resolve(s));
+    });
+    app = {
+      base: `http://127.0.0.1:${server.address().port}`,
+      store: created.store,
+      close: async () => {
+        await new Promise((resolve) => server.close(resolve));
+        await cleanup(dir);
+      },
+    };
+    await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
+    const res = await post(app.base, '/meetings', { title: 'Live notes', on: '2026-11-25' });
+    meetingId = res.headers.get('location').split('/').at(-1);
+  });
+
+  after(async () => {
+    await app.close();
+  });
+
+  const notes = () => app.store.getMeeting(meetingId).notes;
+
+  test('adding a note appends it with its time and trimmed text, in one commit', async () => {
+    const before = commits(root);
+    const res = await post(app.base, `/meetings/${meetingId}/notes`, { text: '  Agreed the scope  ' });
+    assert.equal(res.status, 303);
+    assert.equal(commits(root), before + 1);
+    assert.equal(notes().length, 1);
+    assert.equal(notes()[0].text, 'Agreed the scope');
+    assert.ok(notes()[0].at);
+    assert.equal(git(root, 'log', '-1', '--format=%s'), `${meetingId}: note added`);
+  });
+
+  test('three notes come back oldest first on the page', async () => {
+    await post(app.base, `/meetings/${meetingId}/notes`, { text: 'Second point' });
+    await post(app.base, `/meetings/${meetingId}/notes`, { text: 'Third point' });
+    const html = await (await fetch(`${app.base}/meetings/${meetingId}`)).text();
+    const first = html.indexOf('Agreed the scope');
+    const second = html.indexOf('Second point');
+    const third = html.indexOf('Third point');
+    assert.ok(first > 0 && second > first && third > second, 'in the order they were typed');
+  });
+
+  test('an empty note is refused with no commit and no note added', async () => {
+    const before = commits(root);
+    const count = notes().length;
+    const res = await post(app.base, `/meetings/${meetingId}/notes`, { text: '   ' });
+    assert.equal(res.status, 303);
+    assert.equal(commits(root), before);
+    assert.equal(notes().length, count);
+  });
+
+  test('a note over 2000 characters is refused with no commit', async () => {
+    const before = commits(root);
+    await post(app.base, `/meetings/${meetingId}/notes`, { text: 'x'.repeat(2001) });
+    assert.equal(commits(root), before);
+  });
+
+  test('editing a note changes its text and keeps its id and time', async () => {
+    const target = notes()[0];
+    const res = await post(app.base, `/meetings/${meetingId}/notes/${target.id}`, { text: 'Agreed the revised scope' });
+    assert.equal(res.status, 303);
+    const edited = notes().find((n) => n.id === target.id);
+    assert.equal(edited.text, 'Agreed the revised scope');
+    assert.equal(edited.at, target.at);
+  });
+
+  test('editing an unknown note id returns 404', async () => {
+    const res = await post(app.base, `/meetings/${meetingId}/notes/nope0000`, { text: 'x' });
+    assert.equal(res.status, 404);
+  });
+
+  test('removing a note drops that one and keeps the others', async () => {
+    const target = notes()[1];
+    const res = await post(app.base, `/meetings/${meetingId}/notes/${target.id}/delete`, {});
+    assert.equal(res.status, 303);
+    assert.equal(notes().some((n) => n.id === target.id), false);
+    assert.equal(notes().length, 2);
+  });
+
+  test('removing an unknown note id returns 404', async () => {
+    const res = await post(app.base, `/meetings/${meetingId}/notes/nope0000/delete`, {});
+    assert.equal(res.status, 404);
+  });
+
+  test('the page shows each note with its Edit and Remove controls', async () => {
+    const html = await (await fetch(`${app.base}/meetings/${meetingId}`)).text();
+    for (const n of notes()) {
+      assert.ok(html.includes(n.text), `shows ${n.text}`);
+      assert.ok(html.includes(`data-reveal="note-${n.id}"`), 'has an Edit control');
+      assert.ok(html.includes(`/meetings/${meetingId}/notes/${n.id}/delete`), 'has a Remove control');
+    }
+  });
+
+  test('note text containing a script tag is escaped on the page', async () => {
+    await post(app.base, `/meetings/${meetingId}/notes`, { text: '<script>alert(1)</script>' });
+    const html = await (await fetch(`${app.base}/meetings/${meetingId}`)).text();
+    assert.equal(html.includes('<script>alert(1)</script>'), false);
+    assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+  });
+});

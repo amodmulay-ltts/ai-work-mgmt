@@ -16,7 +16,34 @@
 <div class="detail-grid">
   <div class="detail-main">
     <section class="card">
-      <h2>Notes</h2>
+      <h2>Notes <span class="count"><%= notes.length %></span></h2>
+      <form method="post" action="/meetings/<%= meeting.id %>/notes" class="ask-form">
+        <div class="field field-wide">
+          <label for="note-text">Add a note</label>
+          <input type="text" id="note-text" name="text" maxlength="2000" autofocus required>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit">Add note</button>
+      </form>
+      <% if (notes.length) { %>
+        <ol class="timeline">
+          <% for (const n of notes) { %>
+            <li>
+              <span class="tl-time"><%= fmtDatetime(n.at) %></span>
+              <div><%= n.text %></div>
+              <button type="button" class="btn btn-ghost btn-sm" data-reveal="note-<%= n.id %>" aria-expanded="false" aria-controls="note-<%= n.id %>">Edit</button>
+              <form method="post" action="/meetings/<%= meeting.id %>/notes/<%= n.id %>/delete" class="inline" data-confirm="Remove this note?">
+                <button class="btn btn-ghost btn-sm" type="submit">Remove</button>
+              </form>
+              <form method="post" action="/meetings/<%= meeting.id %>/notes/<%= n.id %>" class="reveal-form" id="note-<%= n.id %>" hidden>
+                <input type="text" name="text" value="<%= n.text %>" maxlength="2000" aria-label="Note text" required>
+                <button class="btn btn-primary btn-sm" type="submit">Save</button>
+              </form>
+            </li>
+          <% } %>
+        </ol>
+      <% } else { %>
+        <p class="subtle">No notes yet. Type the first one above as the meeting starts.</p>
+      <% } %>
     </section>
   </div>
   <aside class="detail-side">
