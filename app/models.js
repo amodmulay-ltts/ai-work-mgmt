@@ -7,6 +7,7 @@
 
 import { activityErrors } from './lib/activities.js';
 import { taskErrors } from './lib/tasks.js';
+import { meetingErrors } from './lib/meetings.js';
 
 import { connectErrors } from './lib/connects.js';
 
@@ -122,7 +123,7 @@ export const DATE_FIELDS = [
   'expected_start_on', 'closed_on', 'go_no_go_on', 'next_action_due',
 ];
 
-const PREFIX = { deal: 'DL', customer: 'CU', person: 'PE', activity: 'AC', task: 'TK' };
+const PREFIX = { deal: 'DL', customer: 'CU', person: 'PE', activity: 'AC', task: 'TK', meeting: 'MT' };
 const REQUIRED_LABELS = { submission_due: 'Submission due' };
 const EMAIL_RE = /^[^@\s]+@[^@\s]+$/;
 const URL_RE = /^https?:\/\/\S+$/;
@@ -186,6 +187,7 @@ const isBlank = (v) => v === null || v === undefined || (typeof v === 'string' &
 export function validateRecord(kind, obj, cfg = null) {
   if (kind === 'activity') return activityErrors(obj);
   if (kind === 'task') return taskErrors(obj);
+  if (kind === 'meeting') return meetingErrors(obj);
   if (kind === 'person') return validatePerson(obj);
   if (kind === 'customer') return validateCustomer(obj, cfg);
   return validateDeal(obj, cfg);

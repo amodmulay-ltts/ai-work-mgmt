@@ -527,6 +527,25 @@ export async function savePerson(store, typed, { existing = null }) {
  * @returns {Promise<{ activity: object }>}
  */
 /** Saves a backlog task. Comments are kept from the existing task; the form does not change them. */
+/** Saves a meeting. Notes are kept from the existing record; the form does not change them. */
+export async function saveMeeting(store, typed, { existing = null }) {
+  const id = existing ? existing.id : await store.nextId('meeting');
+  const now = nowIso();
+  const meeting = {
+    ...(existing ?? {}),
+    schema_version: 1,
+    id,
+    ...typed,
+    notes: existing ? existing.notes : [],
+    created_at: existing ? existing.created_at : now,
+    updated_at: now,
+  };
+  const errors = validateRecord('meeting', meeting, null);
+  if (errors.length) throw new ValidationError(errors);
+  await store.save([meeting], existing ? `${id}: updated` : `${id}: created – ${typed.title}`);
+  return { meeting };
+}
+
 export async function saveTask(store, typed, { existing = null }) {
   const id = existing ? existing.id : await store.nextId('task');
   const now = nowIso();
