@@ -38,6 +38,7 @@
     <input type="search" name="q" placeholder="Search opportunities…" aria-label="Search opportunities" class="search">
   </form>
   <div class="page-actions">
+    <a class="btn btn-primary" href="/meetings/new">+ Meeting notes</a>
     <a class="btn btn-secondary" href="/report/weekly">Weekly report</a>
     <a class="btn btn-secondary" href="/export/opportunities.xlsx">Export to Excel</a>
     <a class="btn btn-secondary" href="/export/pipeline">Export pipeline</a>
@@ -391,6 +392,42 @@
       <% for (const m of sub.months) { %><span><%= m.label %></span><% } %>
     </div>
     <p class="card-foot <%= sub.overdue ? 'text-red' : 'muted' %>"><%= sub.overdue %> overdue · <%= sub.later %> later</p>
+  </section>
+</div>
+
+<div class="dash-grid dash-grid-one">
+  <section class="card">
+    <h2>Meetings</h2>
+    <% if (view.meetings.today.length) { %>
+      <p class="muted"><strong>Today</strong></p>
+      <ul class="action-list">
+        <% for (const m of view.meetings.today) { %>
+          <li class="action">
+            <div class="action-main">
+              <div><a href="/meetings/<%= m.id %>"><%= m.title %></a> <span class="mono subtle"><%= m.id %></span></div>
+              <div class="muted"><%= m.attendees || 'No attendees listed' %></div>
+            </div>
+            <div class="action-buttons">
+              <a class="btn btn-secondary btn-sm" href="/meetings/<%= m.id %>">Take notes</a>
+            </div>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+    <% if (view.meetings.recent.length) { %>
+      <p class="muted"><strong>Recent</strong></p>
+      <ul class="plain-list">
+        <% for (const m of view.meetings.recent) { %>
+          <li><a href="/meetings/<%= m.id %>"><%= m.title %></a> <span class="subtle"><%= fmtDate(m.on) %></span></li>
+        <% } %>
+      </ul>
+    <% } %>
+    <% if (view.meetings.total === 0) { %>
+      <p class="subtle">No meetings yet. <a href="/meetings/new">Start one</a>.</p>
+    <% } else if (!view.meetings.today.length && !view.meetings.recent.length) { %>
+      <p class="subtle">Nothing today or recent. <a href="/meetings/new">Start one</a>.</p>
+    <% } %>
+    <p class="card-foot"><a href="/meetings">All meetings (<%= view.meetings.total %>) →</a></p>
   </section>
 </div>
 

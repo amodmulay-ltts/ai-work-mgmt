@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
+import { todayIso } from '../app/models.js';
 import { createApp } from '../app/server.js';
 import { cleanup, git, makeClone, makeRemote } from './helpers.js';
 
@@ -241,5 +242,53 @@ describe('meeting notes: taking them live', () => {
     const html = await (await fetch(`${app.base}/meetings/${meetingId}`)).text();
     assert.equal(html.includes('<script>alert(1)</script>'), false);
     assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+  });
+});
+
+describe('meetings: on the dashboard', () => {
+  let app;
+
+  before(async () => {
+    const { dir } = await makeRemote();
+    const root = await makeClone(dir, 'app', null);
+    const created = await createApp({ root, syncEnabled: false });
+    const server = await new Promise((resolve) => {
+      const s = created.app.listen(0, '127.0.0.1', () => resolve(s));
+    });
+    app = {
+      base: `http://127.0.0.1:${server.address().port}`,
+      close: async () => {
+        await new Promise((resolve) => server.close(resolve));
+        await cleanup(dir);
+      },
+    };
+    await post(app.base, '/setup', { name: 'Amod Mulay', email: '' });
+  });
+
+  after(async () => {
+    await app.close();
+  });
+
+  test('the dashboard has the + Meeting notes button, and the card shows the empty state', async () => {
+    const html = await (await fetch(`${app.base}/`)).text();
+    assert.match(html, /<a class="btn btn-primary" href="\/meetings\/new">\+ Meeting notes<\/a>/);
+    assert.match(html, /No meetings yet\. <a href="\/meetings\/new">Start one<\/a>/);
+  });
+
+  test('a meeting dated today appears in the card with a Take notes link to its page', async () => {
+    const res = await post(app.base, '/meetings', { title: 'Standup now', on: todayIso(), attendees: 'Priya S' });
+    const id = res.headers.get('location').split('/').at(-1);
+    const html = await (await fetch(`${app.base}/`)).text();
+    assert.match(html, new RegExp(`href="/meetings/${id}"[^>]*>Take notes</a>`));
+    assert.match(html, /Standup now/);
+  });
+
+  test('a meeting dated earlier appears under Recent, not under Today', async () => {
+    await post(app.base, '/meetings', { title: 'Last month review', on: '2026-10-02' });
+    const html = await (await fetch(`${app.base}/`)).text();
+    const card = html.slice(html.indexOf('<h2>Meetings</h2>'), html.indexOf('<h2>Backlog</h2>'));
+    assert.match(card, /<strong>Recent<\/strong>/);
+    assert.match(card, /Last month review/);
+    assert.doesNotMatch(card.slice(0, card.indexOf('<strong>Recent</strong>')), /Last month review/);
   });
 });

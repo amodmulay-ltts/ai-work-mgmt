@@ -190,6 +190,11 @@ Update the status when a phase starts (`In progress`), when its checks pass (`Do
 
 ---
 
+### Made while adding meeting notes (2026-11-25)
+- Notes are an append-only list of timestamped lines, each saved on its own, so nothing typed earlier is lost if the browser closes mid-meeting. Adding a note shows no message; edit and remove do.
+- A meeting has no past/future date rule, unlike a visit (§19). The visit rule caused a bug where a past visit could not be edited.
+- Meetings have no status field; the date identifies them.
+
 ## 3. Open questions
 
 - [ ] Should the app be run with the `Node.js` LTS installed through the company's software centre, or with a per-user install? (Affects how `start.bat` is tested on the Windows laptop.)

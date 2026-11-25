@@ -158,6 +158,15 @@ function dashboardView(store, cfg, today, me, tags) {
         .map((task) => ({ task, overdue: Boolean(task.due_on) && task.due_on < today }));
       return { counts, items, total: open.length };
     })(),
+    // Meetings: today's first, so a meeting in progress is one click away, then the latest few.
+    meetings: (() => {
+      const all = store.listMeetings();
+      return {
+        today: all.filter((m) => m.on === today),
+        recent: all.filter((m) => m.on !== today).slice(0, 3),
+        total: all.length,
+      };
+    })(),
     myAsks: {
       rows: myAsks.slice(0, 5).map((r) => ({ ...r, overdue: askOverdue(r.ask, today) })),
       total: myAsks.length,

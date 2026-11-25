@@ -28,6 +28,8 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | People page: long names wrap, no horizontal scrollbar | Done (322 tests pass); browser check pending | `people-name-wrap` |
 | Dashboard: health card replaced by full-width My next actions (Done, inline Edit); 325 tests pass | merged to `main` |
 
+| Meeting notes (PLAN.md §23) | Done (409 tests pass) | `meeting-notes` |
+
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
 ---
@@ -242,3 +244,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 
 ### 2026-11-23 — notes on past visits — Linux
 - Fixed: a visit that already happened but was still Planned could not be edited (its past date was refused). Saving such an edit now stores it as Done and says so. The edit form opens on Done for these. Test added. 370 tests pass. Branch visit-past-notes.
+
+### 2026-11-25 — meeting notes (MEETING-NOTES-PLAN.md executed by Haiku) — Linux
+- Done: meeting notes, PLAN.md §23. Record kind meeting (MT-0001). Notes are an append-only timestamped list, each saved on its own. Front page: + Meeting notes button, Meetings card (today, recent), nav link. 409 tests pass. Branch meeting-notes.
+- Open: MEETING-NOTES-PLAN.md still present until the branch is merged (Phase M6). Browser check done in a temp copy, not the real data folder.

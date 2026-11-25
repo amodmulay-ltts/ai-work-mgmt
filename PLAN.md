@@ -1349,3 +1349,17 @@ Each phase is one branch (`feature-supported-rfqs-s1`, and so on), merged to `ma
 **Pages.** `/tasks`: open tasks by default; the status filter also takes All and each status. `/tasks/new`, `/tasks/:id/edit`, `/tasks/:id` (actions, comments, notes). Delete uses the type-to-confirm box (the ID must be typed).
 
 **Not in scope yet.** Dashboard card, due-date reminders, and the Excel export.
+
+## 23. Meeting notes
+
+**Purpose.** Take notes while a meeting is happening, from one click on the front page. Notes are saved one line at a time, so nothing typed earlier is lost if the browser closes mid-meeting.
+
+**Data.** A record kind `meeting` in `data/meetings/`, ids `MT-0001`. Fields: `title` (required, up to 120 characters), `on` (the meeting date, required), `attendees` (free text, up to 200), `customer_id` and `deal_id` (optional, and each must be a real record), `summary` (up to 5000), `notes` (a list), `created_at`, `updated_at`. No status: a meeting is identified by its date. **Any date is allowed, past or future.** Unlike visits (§19), a meeting has no date rule, so a past meeting can always be edited.
+
+**Notes.** Each note has an id, the time it was added (with offset), and text up to 2000 characters. Notes are kept oldest first. Adding, editing and removing a note are each their own commit. Adding a note shows no message; editing and removing do.
+
+**Pages.** `/meetings`: filter by today, upcoming or past. `/meetings/new` and `/meetings/:id/edit`: the header fields and summary. `/meetings/:id`: the note page, with the add-a-note box at the top and the running notes below. Delete uses the type-to-confirm box.
+
+**Front page.** A `+ Meeting notes` button in the dashboard header. A Meetings card showing today's meetings (with a Take notes link), then the three most recent. A Meetings link in the navigation.
+
+**Not in scope yet.** Excel export, the weekly report, attachments, sharing, reminders, recurring meetings, and turning a note into a backlog task.
