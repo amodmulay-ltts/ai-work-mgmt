@@ -25,8 +25,14 @@
       "on": "2026-11-09",
       "text": "Luca has sent the first draft",
       "created_at": "2026-11-09T13:15:14+01:00"
+    },
+    {
+      "id": "eb258561",
+      "on": "2026-11-25",
+      "text": "Thomas will secure budget for us. We will start with the concept next years",
+      "created_at": "2026-11-26T15:33:19+01:00"
     }
   ],
   "created_at": "2026-11-03T10:54:26+01:00",
-  "updated_at": "2026-11-09T13:15:14+01:00"
+  "updated_at": "2026-11-26T15:33:19+01:00"
 }
