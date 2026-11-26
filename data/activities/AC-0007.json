@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "AC-0007",
+  "title": "Vestas: CIM Tickets",
+  "kind": "Prototype",
+  "status": "Idea",
+  "owner_id": "PE-0051",
+  "start_on": "2026-11-20",
+  "target_on": "2026-12-01",
+  "description": "Ticket analysis similar to BMW RCA",
+  "links": [],
+  "tags": [
+    "AI"
+  ],
+  "updates": [],
+  "created_at": "2026-11-26T15:26:05+01:00",
+  "updated_at": "2026-11-26T15:26:05+01:00"
+}
