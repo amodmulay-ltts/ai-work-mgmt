@@ -6,7 +6,7 @@ This repo is worked on from several devices, at different times. Your conversati
 1. Read `SESSION.md`. It has the current phase status, the decisions made so far, the open questions and the last progress entry.
 2. Read `PLAN.md`. It is the implementation spec and the single source of truth for what to build.
 3. Continue from the last progress entry. If the user's request conflicts with `PLAN.md` or `SESSION.md`, say so and ask before changing either file.
-4. `NOTES.md`Should be refered only when requires and should not be in the context all the time
+4. `NOTES.md`Should be refered only when required and should not be in the context all the time
 
 **At the end of every session:**
 - Add a progress entry to `SESSION.md` §4 (template in that file) and update the status table in §1.
@@ -21,3 +21,24 @@ This repo is worked on from several devices, at different times. Your conversati
 
 - When reporting information to me, be extreamly concise and sacrifice grammar for the sake of concision
 
+
+## Validation
+
+- Tests: `npm test` (node --test).
+- Start the app: `./start.sh` (Linux) or `start.bat` (Windows); it installs dependencies and opens the browser.
+
+## Software factory
+
+`/factory run` works through topics filed in `factory/inbox/`, carrying each
+through triage → spec → build → gate → review → approve, landing approved
+work on the base branch (or handing it to another line, per a line's
+`handoff`). State: `factory/jobs/` (gitignored). The only writer of that
+state: `factory/bin/job`. Checks: `factory/checks.sh`. Boundaries: start at
+`factory/playbooks/_global.md`. Dashboard:
+started automatically by `/factory run` (`factory/bin/dashboard`, localhost
+only); it prints the URL, normally http://localhost:8000/dashboard.html.
+
+Each job works in its own git worktree, a full checkout at
+`.worktrees/<job-id>` (gitignored). A tool run from the repo root that
+doesn't read `.gitignore` will also see those copies — exclude
+`.worktrees/` in its own config if that matters.
