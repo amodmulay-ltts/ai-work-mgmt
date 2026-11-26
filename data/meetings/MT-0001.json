@@ -7,7 +7,13 @@
   "summary": "Michael Grünwald \r\nDanial Erb",
   "customer_id": "CU-0001",
   "deal_id": null,
-  "notes": [],
+  "notes": [
+    {
+      "id": "3d658b1d",
+      "at": "2026-11-26T07:06:22+01:00",
+      "text": "We will in future get a challenge from TX to build a feature"
+    }
+  ],
   "created_at": "2026-11-25T15:41:54+01:00",
-  "updated_at": "2026-11-25T15:41:54+01:00"
+  "updated_at": "2026-11-26T07:06:22+01:00"
 }
