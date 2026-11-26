@@ -29,6 +29,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 | Dashboard: health card replaced by full-width My next actions (Done, inline Edit); 325 tests pass | merged to `main` |
 
 | Meeting notes (PLAN.md §23) | Done (409 tests pass) | `meeting-notes` |
+| Syntra software factory installed (removeme.md undoes it) | Done, 409 tests pass | `syntra-factory`, not merged |
 
 **Push status:** `main` is synced with `origin/main` at `d29e535`.
 
@@ -248,3 +249,7 @@ Short, working file. Keep it under 5,000 words. When a feature or session is fin
 ### 2026-11-25 — meeting notes (MEETING-NOTES-PLAN.md executed by Haiku) — Linux
 - Done: meeting notes, PLAN.md §23. Record kind meeting (MT-0001). Notes are an append-only timestamped list, each saved on its own. Front page: + Meeting notes button, Meetings card (today, recent), nav link. 409 tests pass. Branch meeting-notes.
 - Open: MEETING-NOTES-PLAN.md still present until the branch is merged (Phase M6). Browser check done in a temp copy, not the real data folder.
+
+### 2026-11-25 — Syntra software factory — Linux
+- Done: installed Syntra (github.com/amodmulay/syntra, commit f59f7d8) per its GETTING_STARTED.md and INSTALL.md. Checks script runs npm test; playbooks, triage and reviewers rewritten for Work Tracker. Removal: removeme.md. Branch syntra-factory, not merged, not pushed.
+- Open: the older ei factory is on branch software-factory (same paths, cannot merge both). gh is not installed, so no GitHub issue intake. CLAUDE.md edits are uncommitted. concurrency is 5 as shipped; INSTALL.md advises starting at 1.
