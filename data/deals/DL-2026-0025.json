@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "DL-2026-0025",
-  "title": "CARIAD: RFQ - CSO 2026 525",
+  "title": "CARIAD: RFQ - CSO 2026 525 - Cloud + Mega",
   "type": "RFQ",
   "source": "Customer RFQ",
   "description": "",
@@ -90,8 +90,15 @@
       "text": "Platform Development for Cloud Infrastructure and Simulation Services",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-11-27T10:08:00+01:00",
+      "kind": "field",
+      "text": "Title: CARIAD: RFQ - CSO 2026 525 → CARIAD: RFQ - CSO 2026 525 - Cloud + Mega",
+      "from_value": "CARIAD: RFQ - CSO 2026 525",
+      "to_value": "CARIAD: RFQ - CSO 2026 525 - Cloud + Mega"
     }
   ],
   "created_at": "2026-11-03T13:13:45+01:00",
-  "updated_at": "2026-11-27T10:07:45+01:00"
+  "updated_at": "2026-11-27T10:08:00+01:00"
 }
