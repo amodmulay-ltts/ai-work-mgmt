@@ -7,7 +7,13 @@
   "summary": "We will work with Thyssenkrupp in EU while India team works with India TK team",
   "customer_id": null,
   "deal_id": null,
-  "notes": [],
+  "notes": [
+    {
+      "id": "9b988336",
+      "at": "2026-11-27T10:57:35+01:00",
+      "text": "Followed up today. Jitendra is requesting India team to work on the topics"
+    }
+  ],
   "created_at": "2026-11-27T10:57:10+01:00",
-  "updated_at": "2026-11-27T10:57:10+01:00"
+  "updated_at": "2026-11-27T10:57:35+01:00"
 }
