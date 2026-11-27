@@ -22,16 +22,16 @@
   "bu": "Mobility",
   "practice": "SAI",
   "region": "DACH",
-  "stage": "Solutioning",
+  "stage": "Proposal Submitted",
   "on_hold": false,
-  "probability": 95,
+  "probability": 50,
   "priority": "Medium",
   "go_no_go": "Pending",
   "go_no_go_on": null,
   "received_on": "2026-11-02",
   "qa_due": null,
   "submission_due": "2026-11-06",
-  "submitted_on": null,
+  "submitted_on": "2026-11-27",
   "expected_decision_on": null,
   "expected_start_on": null,
   "closed_on": null,
@@ -106,8 +106,22 @@
       "text": "Estimated value: 75000 → 72400",
       "from_value": "75000",
       "to_value": "72400"
+    },
+    {
+      "at": "2026-11-27T10:06:24+01:00",
+      "kind": "stage",
+      "text": "Stage: Solutioning → Proposal Submitted",
+      "from_value": "Solutioning",
+      "to_value": "Proposal Submitted"
+    },
+    {
+      "at": "2026-11-27T10:06:24+01:00",
+      "kind": "field",
+      "text": "Submitted on: — → 27 Nov 2026",
+      "from_value": "—",
+      "to_value": "27 Nov 2026"
     }
   ],
   "created_at": "2026-11-03T09:39:05+01:00",
-  "updated_at": "2026-11-27T10:06:22+01:00"
+  "updated_at": "2026-11-27T10:06:24+01:00"
 }
