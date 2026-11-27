@@ -20,9 +20,9 @@
   "bu": "Mobility",
   "practice": null,
   "region": "DACH",
-  "stage": "Lead",
+  "stage": "Solutioning",
   "on_hold": false,
-  "probability": 25,
+  "probability": 35,
   "priority": "Medium",
   "go_no_go": "Pending",
   "go_no_go_on": null,
@@ -132,9 +132,16 @@
       "text": "Estimated value: 3000000 → 300000",
       "from_value": "3000000",
       "to_value": "300000"
+    },
+    {
+      "at": "2026-11-27T10:59:52+01:00",
+      "kind": "stage",
+      "text": "Stage: Lead → Solutioning",
+      "from_value": "Lead",
+      "to_value": "Solutioning"
     }
   ],
   "created_at": "2026-10-22T10:49:06+02:00",
-  "updated_at": "2026-11-27T10:59:43+01:00",
+  "updated_at": "2026-11-27T10:59:52+01:00",
   "done_actions": []
 }
