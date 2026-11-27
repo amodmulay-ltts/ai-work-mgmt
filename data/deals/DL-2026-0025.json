@@ -83,8 +83,15 @@
       "text": "Submitted on: — → 27 Nov 2026",
       "from_value": "—",
       "to_value": "27 Nov 2026"
+    },
+    {
+      "at": "2026-11-27T10:07:45+01:00",
+      "kind": "note",
+      "text": "Platform Development for Cloud Infrastructure and Simulation Services",
+      "from_value": null,
+      "to_value": null
     }
   ],
   "created_at": "2026-11-03T13:13:45+01:00",
-  "updated_at": "2026-11-27T10:07:04+01:00"
+  "updated_at": "2026-11-27T10:07:45+01:00"
 }
