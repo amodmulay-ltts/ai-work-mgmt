@@ -20,16 +20,16 @@
   "bu": null,
   "practice": null,
   "region": null,
-  "stage": "Lead",
+  "stage": "Proposal Submitted",
   "on_hold": false,
-  "probability": 5,
+  "probability": 50,
   "priority": "Medium",
   "go_no_go": "Pending",
   "go_no_go_on": null,
   "received_on": "2026-10-30",
   "qa_due": "2026-11-05",
   "submission_due": "2026-11-16",
-  "submitted_on": null,
+  "submitted_on": "2026-11-27",
   "expected_decision_on": null,
   "expected_start_on": null,
   "closed_on": null,
@@ -69,8 +69,22 @@
       "text": "Supporters: — → Amod Mulay",
       "from_value": null,
       "to_value": null
+    },
+    {
+      "at": "2026-11-27T10:07:04+01:00",
+      "kind": "stage",
+      "text": "Stage: Lead → Proposal Submitted",
+      "from_value": "Lead",
+      "to_value": "Proposal Submitted"
+    },
+    {
+      "at": "2026-11-27T10:07:04+01:00",
+      "kind": "field",
+      "text": "Submitted on: — → 27 Nov 2026",
+      "from_value": "—",
+      "to_value": "27 Nov 2026"
     }
   ],
   "created_at": "2026-11-03T13:13:45+01:00",
-  "updated_at": "2026-11-03T13:14:20+01:00"
+  "updated_at": "2026-11-27T10:07:04+01:00"
 }
