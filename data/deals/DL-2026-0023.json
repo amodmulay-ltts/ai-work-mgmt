@@ -36,7 +36,7 @@
   "expected_start_on": null,
   "closed_on": null,
   "currency": "EUR",
-  "est_value": 75000,
+  "est_value": 72400,
   "effort_person_months": null,
   "duration_months": null,
   "pricing_model": "Managed Capacity",
@@ -99,8 +99,15 @@
       "text": "Tags: RFQ → RFQ, AI",
       "from_value": "RFQ",
       "to_value": "RFQ, AI"
+    },
+    {
+      "at": "2026-11-27T10:06:22+01:00",
+      "kind": "field",
+      "text": "Estimated value: 75000 → 72400",
+      "from_value": "75000",
+      "to_value": "72400"
     }
   ],
   "created_at": "2026-11-03T09:39:05+01:00",
-  "updated_at": "2026-11-03T09:50:40+01:00"
+  "updated_at": "2026-11-27T10:06:22+01:00"
 }
