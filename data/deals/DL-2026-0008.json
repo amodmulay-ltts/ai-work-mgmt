@@ -21,16 +21,16 @@
   "bu": "Mobility",
   "practice": null,
   "region": "DACH",
-  "stage": "RFQ Received",
+  "stage": "Proposal Submitted",
   "on_hold": false,
-  "probability": 5,
+  "probability": 50,
   "priority": "High",
   "go_no_go": "Pending",
   "go_no_go_on": null,
   "received_on": "2026-10-22",
   "qa_due": "2026-10-23",
   "submission_due": "2026-11-06",
-  "submitted_on": null,
+  "submitted_on": "2026-11-27",
   "expected_decision_on": null,
   "expected_start_on": null,
   "closed_on": null,
@@ -74,9 +74,23 @@
       "text": "Region: Europe → DACH",
       "from_value": "Europe",
       "to_value": "DACH"
+    },
+    {
+      "at": "2026-11-27T10:05:54+01:00",
+      "kind": "stage",
+      "text": "Stage: RFQ Received → Proposal Submitted",
+      "from_value": "RFQ Received",
+      "to_value": "Proposal Submitted"
+    },
+    {
+      "at": "2026-11-27T10:05:54+01:00",
+      "kind": "field",
+      "text": "Submitted on: — → 27 Nov 2026",
+      "from_value": "—",
+      "to_value": "27 Nov 2026"
     }
   ],
   "created_at": "2026-10-22T16:15:34+02:00",
-  "updated_at": "2026-10-27T09:16:06+01:00",
+  "updated_at": "2026-11-27T10:05:54+01:00",
   "done_actions": []
 }
